@@ -1,7 +1,7 @@
-defmodule Earmark.Ast.Renderer.FootnoteListRenderer do
+defmodule EarmarkParser.Ast.Renderer.FootnoteListRenderer do
 
-  alias Earmark.Block
-  import Earmark.Ast.Emitter
+  alias EarmarkParser.Block
+  import EarmarkParser.Ast.Emitter
 
   @moduledoc false
 

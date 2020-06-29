@@ -1,24 +1,24 @@
-defmodule Earmark.Parser do
+defmodule EarmarkParser.Parser do
 
   @moduledoc false
-  alias Earmark.Block
-  alias Earmark.Line
-  alias Earmark.LineScanner
-  alias Earmark.Options
+  alias EarmarkParser.Block
+  alias EarmarkParser.Line
+  alias EarmarkParser.LineScanner
+  alias EarmarkParser.Options
 
-  import Earmark.Helpers.LookaheadHelpers, only: [opens_inline_code: 1, still_inline_code: 2]
-  import Earmark.Helpers.LineHelpers
-  import Earmark.Helpers.AttrParser
-  import Earmark.Helpers.ReparseHelpers
-  import Earmark.Message, only: [add_message: 2, add_messages: 2]
-  import Earmark.Parser.ListParser, only: [parse_list: 3]
+  import EarmarkParser.Helpers.LookaheadHelpers, only: [opens_inline_code: 1, still_inline_code: 2]
+  import EarmarkParser.Helpers.LineHelpers
+  import EarmarkParser.Helpers.AttrParser
+  import EarmarkParser.Helpers.ReparseHelpers
+  import EarmarkParser.Message, only: [add_message: 2, add_messages: 2]
+  import EarmarkParser.Parser.ListParser, only: [parse_list: 3]
 
   @doc """
   Given a markdown document (as either a list of lines or
   a string containing newlines), return a parse tree and
   the context necessary to render the tree.
 
-  The options are a `%Earmark.Options{}` structure. See `as_html!`
+  The options are a `%EarmarkParser.Options{}` structure. See `as_html!`
   for more details.
   """
   def parse_markdown(lines, options \\ %Options{})
@@ -26,8 +26,8 @@ defmodule Earmark.Parser do
     {blocks, links, options1} = parse(lines, options, false)
 
     context =
-      %Earmark.Context{options: options1, links: links}
-      |> Earmark.Context.update_context()
+      %EarmarkParser.Context{options: options1, links: links}
+      |> EarmarkParser.Context.update_context()
 
     if options.footnotes do
       {blocks, footnotes, options1} = handle_footnotes(blocks, context.options)
@@ -557,7 +557,7 @@ defmodule Earmark.Parser do
   # Traverse the block list and extract the footnote definitions #
   ################################################################
 
-  # @spec handle_footnotes( Block.ts, %Earmark.Options{}, ( Block.ts,
+  # @spec handle_footnotes( Block.ts, %EarmarkParser.Options{}, ( Block.ts,
   defp handle_footnotes(blocks, options) do
     {footnotes, blocks} = Enum.split_with(blocks, &footnote_def?/1)
 

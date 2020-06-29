@@ -1,4 +1,4 @@
-defmodule Earmark.Ast.Emitter do
+defmodule EarmarkParser.Ast.Emitter do
   @moduledoc false
 
   def emit(tag, content \\ [], atts \\ [], meta \\ %{})

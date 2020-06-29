@@ -1,18 +1,18 @@
-defmodule Earmark.Context do
+defmodule EarmarkParser.Context do
 
   @moduledoc false
-  use Earmark.Types
-  import Earmark.Helpers
+  use EarmarkParser.Types
+  import EarmarkParser.Helpers
 
   @type t :: %__MODULE__{
-          options: Earmark.Options.t(),
+          options: EarmarkParser.Options.t(),
           links: map(),
           rules: Keyword.t() | nil,
           footnotes: map(),
           value: String.t() | [String.t()]
         }
 
-  defstruct options: %Earmark.Options{},
+  defstruct options: %EarmarkParser.Options{},
             links: Map.new(),
             rules: nil,
             footnotes: Map.new(),
@@ -76,9 +76,9 @@ defmodule Earmark.Context do
   # this is called by the command line processor to update
   # the inline-specific rules in light of any options
   def update_context() do
-    update_context(%Earmark.Context{})
+    update_context(%EarmarkParser.Context{})
   end
-  def update_context(context = %Earmark.Context{options: options}) do
+  def update_context(context = %EarmarkParser.Context{options: options}) do
     context = %{context | rules: rules_for(options)}
 
     if options.smartypants do

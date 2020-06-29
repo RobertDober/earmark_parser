@@ -1,8 +1,8 @@
-defmodule Earmark.Helpers.PureLinkHelpers do
+defmodule EarmarkParser.Helpers.PureLinkHelpers do
   @moduledoc false
 
-  import Earmark.Helpers.StringHelpers, only: [betail: 2]
-  import Earmark.Helpers.AstHelpers, only: [render_link: 2]
+  import EarmarkParser.Helpers.StringHelpers, only: [betail: 2]
+  import EarmarkParser.Helpers.AstHelpers, only: [render_link: 2]
 
   @pure_link_rgx ~r{\A(\s*)(\()?(https?://[[:alnum:]"'*@:+-_{\}()/.%\#]*)}u
   def convert_pure_link(src) do

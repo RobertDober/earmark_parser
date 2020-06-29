@@ -1,9 +1,9 @@
-defmodule Earmark.Helpers.AttrParser do
+defmodule EarmarkParser.Helpers.AttrParser do
 
   @moduledoc false
 
-  import Earmark.Helpers.StringHelpers, only: [ behead: 2 ]
-  import Earmark.Message, only: [add_message: 2]
+  import EarmarkParser.Helpers.StringHelpers, only: [ behead: 2 ]
+  import EarmarkParser.Message, only: [add_message: 2]
 
   @type errorlist :: list(String.t)
 

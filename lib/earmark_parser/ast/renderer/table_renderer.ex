@@ -1,10 +1,10 @@
-defmodule Earmark.Ast.Renderer.TableRenderer do
+defmodule EarmarkParser.Ast.Renderer.TableRenderer do
   @moduledoc false
 
-  alias Earmark.Ast.Inline
-  alias Earmark.Context
+  alias EarmarkParser.Ast.Inline
+  alias EarmarkParser.Context
 
-  import Earmark.Ast.Emitter
+  import EarmarkParser.Ast.Emitter
 
   def render_header(header, lnb, aligns, context) do
     {th_ast, context1} =

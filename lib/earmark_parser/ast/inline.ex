@@ -1,20 +1,20 @@
-defmodule Earmark.Ast.Inline do
+defmodule EarmarkParser.Ast.Inline do
 
   @moduledoc false
 
-  alias Earmark.Context
-  alias Earmark.Helpers.LinkParser
-  alias Earmark.Helpers.PureLinkHelpers
+  alias EarmarkParser.Context
+  alias EarmarkParser.Helpers.LinkParser
+  alias EarmarkParser.Helpers.PureLinkHelpers
 
-  import Earmark.Ast.Emitter
-  import Earmark.Ast.Renderer.AstWalker
-  import Earmark.Helpers
-  import Earmark.Helpers.AttrParser
-  import Earmark.Helpers.StringHelpers, only: [behead: 2]
-  import Earmark.Helpers.AstHelpers
+  import EarmarkParser.Ast.Emitter
+  import EarmarkParser.Ast.Renderer.AstWalker
+  import EarmarkParser.Helpers
+  import EarmarkParser.Helpers.AttrParser
+  import EarmarkParser.Helpers.StringHelpers, only: [behead: 2]
+  import EarmarkParser.Helpers.AstHelpers
   import Context, only: [set_value: 2]
 
-  @typep conversion_data :: {String.t, non_neg_integer(), Earmark.Context.t, boolean()}
+  @typep conversion_data :: {String.t, non_neg_integer(), EarmarkParser.Context.t, boolean()}
   def convert(src, lnb, context)
   def convert(list, lnb, context) when is_list(list),
     do: _convert(Enum.join(list, "\n"), lnb, context, true)

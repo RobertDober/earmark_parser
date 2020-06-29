@@ -1,5 +1,5 @@
-defmodule Earmark.Parser.ListInfo do
-  import Earmark.Helpers.LookaheadHelpers, only: [opens_inline_code: 1, still_inline_code: 2]
+defmodule EarmarkParser.Parser.ListInfo do
+  import EarmarkParser.Helpers.LookaheadHelpers, only: [opens_inline_code: 1, still_inline_code: 2]
 
   @moduledoc false
 
@@ -12,7 +12,7 @@ defmodule Earmark.Parser.ListInfo do
     width: 0)
 
   # INLINE CANDIDATE
-  def new(%Earmark.Line.ListItem{initial_indent: ii, list_indent: width}=item) do
+  def new(%EarmarkParser.Line.ListItem{initial_indent: ii, list_indent: width}=item) do
     pending = opens_inline_code(item)
     %__MODULE__{indent: ii, pending: pending, width: width}
   end

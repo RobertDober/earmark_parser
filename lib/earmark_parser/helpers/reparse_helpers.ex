@@ -1,11 +1,11 @@
-defmodule Earmark.Helpers.ReparseHelpers do
+defmodule EarmarkParser.Helpers.ReparseHelpers do
 
   @moduledoc false
 
-  alias Earmark.Line
+  alias EarmarkParser.Line
 
   @doc """
-    Extract the verbatim text of `%Earmark.Line.t` elements with less alignment so that
+    Extract the verbatim text of `%EarmarkParser.Line.t` elements with less alignment so that
     it can be reparsed (as elements of footnotes or indented code)
   """
   # In case we are inside a code block we return the verbatim text

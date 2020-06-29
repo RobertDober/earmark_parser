@@ -1,15 +1,15 @@
-defmodule Earmark.AstRenderer do
-  alias Earmark.Block
-  alias Earmark.Context
-  alias Earmark.Options
+defmodule EarmarkParser.AstRenderer do
+  alias EarmarkParser.Block
+  alias EarmarkParser.Context
+  alias EarmarkParser.Options
 
   import Context, only: [clear_value: 1, modify_value: 2, prepend: 2, prepend: 3]
-  import Earmark.Ast.Emitter
-  import Earmark.Ast.Inline, only: [convert: 3]
-  import Earmark.Helpers.AstHelpers
-  import Earmark.Ast.Renderer.FootnoteListRenderer
-  import Earmark.Ast.Renderer.HtmlRenderer
-  import Earmark.Ast.Renderer.TableRenderer
+  import EarmarkParser.Ast.Emitter
+  import EarmarkParser.Ast.Inline, only: [convert: 3]
+  import EarmarkParser.Helpers.AstHelpers
+  import EarmarkParser.Ast.Renderer.FootnoteListRenderer
+  import EarmarkParser.Ast.Renderer.HtmlRenderer
+  import EarmarkParser.Ast.Renderer.TableRenderer
 
   @moduledoc false
 

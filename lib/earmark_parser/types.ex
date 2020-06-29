@@ -1,4 +1,4 @@
-defmodule Earmark.Types do
+defmodule EarmarkParser.Types do
 
   @moduledoc false
 

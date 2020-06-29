@@ -1,10 +1,10 @@
-defmodule Earmark.LineScanner do
+defmodule EarmarkParser.LineScanner do
 
   @moduledoc false
   
-  alias Earmark.Helpers
-  alias Earmark.Line
-  alias Earmark.Options
+  alias EarmarkParser.Helpers
+  alias EarmarkParser.Line
+  alias EarmarkParser.Options
 
   import Options, only: [get_mapper: 1]
 

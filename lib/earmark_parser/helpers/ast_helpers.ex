@@ -1,12 +1,12 @@
-defmodule Earmark.Helpers.AstHelpers do
+defmodule EarmarkParser.Helpers.AstHelpers do
 
   @moduledoc false
 
-  import Earmark.Ast.Emitter
-  import Earmark.Helpers
-  import Earmark.Helpers.AttrParser
+  import EarmarkParser.Ast.Emitter
+  import EarmarkParser.Helpers
+  import EarmarkParser.Helpers.AttrParser
 
-  alias Earmark.Block
+  alias EarmarkParser.Block
   
   @doc false
   def attrs_to_string_keys(key_value_pair)

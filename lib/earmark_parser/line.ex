@@ -1,4 +1,4 @@
-defmodule Earmark.Line do
+defmodule EarmarkParser.Line do
 
   @moduledoc false
 

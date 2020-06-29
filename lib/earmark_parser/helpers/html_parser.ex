@@ -1,9 +1,9 @@
-defmodule Earmark.Helpers.HtmlParser do
+defmodule EarmarkParser.Helpers.HtmlParser do
 
   @moduledoc false
 
-  import Earmark.Helpers.StringHelpers, only: [behead: 2]
-  import Earmark.LineScanner, only: [void_tag?: 1]
+  import EarmarkParser.Helpers.StringHelpers, only: [behead: 2]
+  import EarmarkParser.LineScanner, only: [void_tag?: 1]
 
   def parse_html(lines)
   def parse_html([tag_line|rest]) do

@@ -1,4 +1,4 @@
-defmodule Earmark.Ast.Renderer.AstWalker do
+defmodule EarmarkParser.Ast.Renderer.AstWalker do
   
   @moduledoc false
 

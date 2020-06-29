@@ -1,9 +1,9 @@
-defmodule Earmark.Options do
+defmodule EarmarkParser.Options do
 
-  use Earmark.Types
+  use EarmarkParser.Types
 
   # What we use to render
-  defstruct renderer: Earmark.HtmlRenderer,
+  defstruct renderer: EarmarkParser.HtmlRenderer,
             # Inline style options
             gfm: true,
             gfm_tables: false,
@@ -26,8 +26,8 @@ defmodule Earmark.Options do
             # parallel rendering. Set to &Enum.map/2
             # to keep processing in process and
             # serial
-            mapper: &Earmark.pmap/2,
-            mapper_with_timeout: &Earmark.pmap/3,
+            mapper: &EarmarkParser.pmap/2,
+            mapper_with_timeout: &EarmarkParser.pmap/3,
 
             # Filename and initial line number of the markdown block passed in
             # for meaningfull error messages

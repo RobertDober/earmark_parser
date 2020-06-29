@@ -1,7 +1,7 @@
-defmodule Earmark.Ast.Renderer.HtmlRenderer do
+defmodule EarmarkParser.Ast.Renderer.HtmlRenderer do
 
-  import Earmark.Context, only: [prepend: 2]
-  import Earmark.Helpers.HtmlParser
+  import EarmarkParser.Context, only: [prepend: 2]
+  import EarmarkParser.Helpers.HtmlParser
 
   @moduledoc false
 

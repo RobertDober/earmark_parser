@@ -1,4 +1,4 @@
-defmodule Earmark.Error do
+defmodule EarmarkParser.Error do
 
   @moduledoc false
 

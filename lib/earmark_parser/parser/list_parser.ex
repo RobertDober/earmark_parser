@@ -1,12 +1,12 @@
-defmodule Earmark.Parser.ListParser do
-  alias Earmark.Block
-  alias Earmark.Line
-  alias Earmark.Options
-  alias Earmark.Parser.ListInfo
+defmodule EarmarkParser.Parser.ListParser do
+  alias EarmarkParser.Block
+  alias EarmarkParser.Line
+  alias EarmarkParser.Options
+  alias EarmarkParser.Parser.ListInfo
 
-  import Earmark.Helpers.StringHelpers, only: [behead: 2]
-  import Earmark.Helpers.LookaheadHelpers, only: [ still_inline_code: 2]
-  import Earmark.Message, only: [add_message: 2]
+  import EarmarkParser.Helpers.StringHelpers, only: [behead: 2]
+  import EarmarkParser.Helpers.LookaheadHelpers, only: [ still_inline_code: 2]
+  import EarmarkParser.Message, only: [add_message: 2]
 
   @moduledoc false
 
@@ -163,7 +163,7 @@ defmodule Earmark.Parser.ListParser do
   defp _finish_list_item([%Block.ListItem{}=item|items], _at_start?, ctxt) do
     {blocks, _, options1} = ctxt.lines
                             |> Enum.reverse
-                            |> Earmark.Parser.parse(ctxt.options, :list)
+                            |> EarmarkParser.Parser.parse(ctxt.options, :list)
     loose1? = _already_loose?(items) || ctxt.loose?
     {[%{item | blocks: blocks, loose?: loose1?}|items], options1}
   end
