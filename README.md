@@ -58,8 +58,8 @@ GFM is supported by default, however as GFM is a moving target and all GFM exten
 
 #### Strike Through
 
-    iex(1)> EarmarkParser.as_html! ["~~hello~~"]
-    "<p>\n  <del>\nhello  </del>\n</p>\n"
+    iex(1)> EarmarkParser.as_ast("~~hello~~")
+    {:ok, [{"p", [], [{"del", [], ["hello"], %{}}], %{}}], []}
 
 #### Syntax Highlighting
 
@@ -72,8 +72,8 @@ For example:
     ...(2)>    "```elixir",
     ...(2)>    " @tag :hello",
     ...(2)>    "```"
-    ...(2)> ] |> EarmarkParser.as_html!()
-    "<pre><code class=\"elixir\"> @tag :hello</code></pre>\n"
+    ...(2)> ] |> EarmarkParser.as_ast()
+    {:ok, [{"pre", [], [{"code", [{"class", "elixir"}], [" @tag :hello"], %{}}], %{}}], []}
 
 will be rendered as shown in the doctest above.
 
@@ -85,15 +85,13 @@ as a `code_class_prefix` to `EarmarkParser.Options`.
 
 In the following example we want more than one additional class, so we add more prefixes.
 
-    EarmarkParser.as_html!(..., %EarmarkParser.Options{code_class_prefix: "lang- language-"})
+    iex(3)> [
+    ...(3)>    "```elixir",
+    ...(3)>    " @tag :hello",
+    ...(3)>    "```" 
+    ...(3)> ] |> EarmarkParser.as_ast(%EarmarkParser.Options{code_class_prefix: "lang- language-"})
+    {:ok, [{"pre", [], [{"code", [{"class", "elixir lang-elixir language-elixir"}], [" @tag :hello"], %{}}], %{}}], []}
 
-which is rendering
-
-    <pre><code class="elixir lang-elixir language-elixir">...
-
-As for all other options `code_class_prefix` can be passed into the `earmark` executable as follows:
-
-    earmark --code-class-prefix "language- lang-" ...
 
 #### Tables
 
@@ -147,30 +145,30 @@ as one HTML AST node, marked with %{verbatim: true}
 
 E.g.
 
-      iex(3)> lines = [ "<div><span>", "some</span><text>", "</div>more text" ]
-      ...(3)> EarmarkParser.as_ast(lines)
+      iex(4)> lines = [ "<div><span>", "some</span><text>", "</div>more text" ]
+      ...(4)> EarmarkParser.as_ast(lines)
       {:ok, [{"div", [], ["<span>", "some</span><text>"], %{verbatim: true}}, "more text"], []}
 
 And a line starting with an opening tag and ending with the corresponding closing tag is parsed in similar
 fashion
 
-      iex(4)> EarmarkParser.as_ast(["<span class=\"superspan\">spaniel</span>"])
+      iex(5)> EarmarkParser.as_ast(["<span class=\"superspan\">spaniel</span>"])
       {:ok, [{"span", [{"class", "superspan"}], ["spaniel"], %{verbatim: true}}], []}
 
 What is HTML?
 
 We differ from strict GFM by allowing **all** tags not only HTML5 tagsn this holds for oneliners....
 
-      iex(5)> {:ok, ast, []} = EarmarkParser.as_ast(["<stupid />", "<not>better</not>"])
-      ...(5)> ast
+      iex(6)> {:ok, ast, []} = EarmarkParser.as_ast(["<stupid />", "<not>better</not>"])
+      ...(6)> ast
       [
         {"stupid", [], [], %{verbatim: true}},
         {"not", [], ["better"], %{verbatim: true}}]
 
 and for multiline blocks
 
-      iex(6)> {:ok, ast, []} = EarmarkParser.as_ast([ "<hello>", "world", "</hello>"])
-      ...(6)> ast
+      iex(7)> {:ok, ast, []} = EarmarkParser.as_ast([ "<hello>", "world", "</hello>"])
+      ...(7)> ast
       [{"hello", [], ["world"], %{verbatim: true}}]
 
 #### HTML Comments
@@ -180,12 +178,12 @@ all text after the next '-->' is ignored
 
 E.g.
 
-    iex(7)> EarmarkParser.as_ast(" <!-- Comment\ncomment line\ncomment --> text -->\nafter")
+    iex(8)> EarmarkParser.as_ast(" <!-- Comment\ncomment line\ncomment --> text -->\nafter")
     {:ok, [{:comment, [], [" Comment", "comment line", "comment "], %{comment: true}}, {"p", [], ["after"], %{}}], []}
 
 
 
-### Adding HTML attributes with the IAL extension
+### Adding Attributes with the IAL extension
 
 #### To block elements
 
@@ -212,27 +210,27 @@ For example:
 It is possible to add IAL attributes to generated links or images in the following
 format.
 
-    iex(8)> markdown = "[link](url) {: .classy}"
-    ...(8)> EarmarkParser.as_html(markdown)
-    { :ok, "<p>\n<a class=\"classy\" href=\"url\">link</a></p>\n", []}
+    iex(9)> markdown = "[link](url) {: .classy}"
+    ...(9)> EarmarkParser.as_ast(markdown)
+    { :ok, [{"p", [], [{"a", [{"class", "classy"}, {"href", "url"}], ["link"], %{}}], %{}}], []}
 
 For both cases, malformed attributes are ignored and warnings are issued.
 
-    iex(9)> [ "Some text", "{:hello}" ] |> Enum.join("\n") |> EarmarkParser.as_html()
-    {:error, "<p>\nSome text</p>\n", [{:warning, 2,"Illegal attributes [\"hello\"] ignored in IAL"}]}
+    iex(10)> [ "Some text", "{:hello}" ] |> Enum.join("\n") |> EarmarkParser.as_ast()
+    {:error, [{"p", [], ["Some text"], %{}}], [{:warning, 2,"Illegal attributes [\"hello\"] ignored in IAL"}]}
 
 It is possible to escape the IAL in both forms if necessary
 
-    iex(10)> markdown = "[link](url)\\{: .classy}"
-    ...(10)> EarmarkParser.as_html(markdown)
-    {:ok, "<p>\n<a href=\"url\">link</a>{: .classy}</p>\n", []}
+    iex(11)> markdown = "[link](url)\\{: .classy}"
+    ...(11)> EarmarkParser.as_ast(markdown)
+    {:ok, [{"p", [], [{"a", [{"href", "url"}], ["link"], %{}}, "{: .classy}"], %{}}], []}
 
 This of course is not necessary in code blocks or text lines
 containing an IAL-like string, as in the following example
 
-    iex(11)> markdown = "hello {:world}"
-    ...(11)> EarmarkParser.as_html!(markdown)
-    "<p>\nhello {:world}</p>\n"
+    iex(12)> markdown = "hello {:world}"
+    ...(12)> EarmarkParser.as_ast(markdown)
+    {:ok, [{"p", [], ["hello {:world}"], %{}}], []}
 
 ## Limitations
 
@@ -309,14 +307,6 @@ which will pass `timeout` to `Task.await`.
 In both cases one can override the mapper function with either the `mapper` option (used if and only if `timeout` is nil) or the
 `mapper_with_timeout` function (used otherwise).
 
-For the escript only the `timeout` command line argument can be used.
-
-## Security
-
-Please be aware that Markdown is not a secure format. It produces
-HTML from Markdown and HTML. It is your job to sanitize and or
-filter the output of `EarmarkParser.as_html` if you cannot trust the input
-and are to serve the produced HTML on the Web.
 
 <!-- END inserted moduledoc EarmarkParser -->
 
@@ -325,17 +315,15 @@ and are to serve the produced HTML on the Web.
 ## `EarmarkParser.as_ast/2`
 
 <!-- BEGIN inserted functiondoc EarmarkParser.as_ast/2 -->
-      iex(12)> markdown = "My `code` is **best**"
-      ...(12)> {:ok, ast, []} = EarmarkParser.as_ast(markdown)
-      ...(12)> ast
+      iex(13)> markdown = "My `code` is **best**"
+      ...(13)> {:ok, ast, []} = EarmarkParser.as_ast(markdown)
+      ...(13)> ast
       [{"p", [], ["My ", {"code", [{"class", "inline"}], ["code"], %{}}, " is ", {"strong", [], ["best"], %{}}], %{}}]
 
-Options are passes like to `as_html`, some do not have an effect though (e.g. `smartypants`) as formatting and escaping is not done
-for the AST.
 
-      iex(13)> markdown = "```elixir\nIO.puts 42\n```"
-      ...(13)> {:ok, ast, []} = EarmarkParser.as_ast(markdown, code_class_prefix: "lang-")
-      ...(13)> ast
+      iex(14)> markdown = "```elixir\nIO.puts 42\n```"
+      ...(14)> {:ok, ast, []} = EarmarkParser.as_ast(markdown, code_class_prefix: "lang-")
+      ...(14)> ast
       [{"pre", [], [{"code", [{"class", "elixir lang-elixir"}], ["IO.puts 42"], %{}}], %{}}]
 
 **Rationale**:
