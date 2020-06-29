@@ -1,7 +1,7 @@
 defmodule EarmarkParser.MixProject do
   use Mix.Project
 
-  @version "1.4.8"
+  @version "1.5.0"
   @url "https://github.com/robert_dober/earmark_parser"
 
 
@@ -17,7 +17,7 @@ defmodule EarmarkParser.MixProject do
   Earmark AST the parser and AST Generator for 
   Dave Thomas' Earmark.
 
-  The parser can only be used as a library to generate
+  The parser generates
   an Abstract Syntax Tree from Markdown.
 
   The original Earmark will still provide the HTML Transformation and
