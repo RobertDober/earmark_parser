@@ -308,78 +308,7 @@ defmodule EarmarkParser do
 
   alias EarmarkParser.Error
   alias EarmarkParser.Options
-  import EarmarkParser.Message, only: [emit_messages: 2, sort_messages: 1]
-
-  @doc """
-  Given a markdown document (as either a list of lines or
-  a string containing newlines), returns a tuple containing either
-  `{:ok, html_doc, error_messages}`, or `{:error, html_doc, error_messages}`
-  Where `html_doc` is an HTML representation of the markdown document and
-  `error_messages` is a list of tuples with the following elements
-
-  - `severity` e.g. `:error`, `:warning` or `:deprecation`
-  - line number in input where the error occurred
-  - description of the error
-
-
-  `options` can be an `%EarmarkParser.Options{}` structure, or can be passed in as a `Keyword` argument (with legal keys for `%EarmarkParser.Options`
-
-  * `renderer`: ModuleName
-
-    The module used to render the final document. Defaults to
-    `EarmarkParser.HtmlRenderer`
-
-  * `gfm`: boolean
-
-    True by default. Turns on the supported Github Flavored Markdown extensions
-
-  * `breaks`: boolean
-
-    Only applicable if `gfm` is enabled. Makes all line breaks
-    significant (so every line in the input is a new line in the
-    output.
-
-  * `code_class_prefix`: binary
-
-    Code blocks will be rendered with prefixed class names, which might be necessary for
-    usage with 3rd party libraries.
-
-
-          EarmarkParser.as_html("\`\`\`elixir\\nCode\\n\`\`\`", code_class_prefix: "my_prefix_")
-
-          {:ok, "<pre><code class=\\"elixir my_prefix_elixir\\">Code\\\```</code></pre>\\n", []}
-
-
-  * `smartypants`: boolean
-
-    Turns on smartypants processing, so quotes become curly, two
-    or three hyphens become en and em dashes, and so on. True by
-    default.
-
-    So, to format the document in `original` and disable smartypants,
-    you'd call
-
-
-          alias EarmarkParser.Options
-          EarmarkParser.as_html(original, %Options{smartypants: false})
-
-
-  * `pure_links`: boolean
-
-    Pure links of the form `~r{\\bhttps?://\\S+\\b}` are rendered as links from now on.
-    However, by setting the `pure_links` option to `false` this can be disabled and pre 1.4
-    behavior can be used.
-  """
-  def as_html(lines, options \\ %Options{})
-
-  def as_html(lines, options) when is_list(options) do
-    as_html(lines, struct(Options, options))
-  end
-
-  def as_html(lines, options) do
-    {status, ast, messages} = as_ast(lines, options)
-    {status, EarmarkParser.Transform.transform(ast, options), messages}
-  end
+  import EarmarkParser.Message, only: [sort_messages: 1]
 
   @doc """
         iex(12)> markdown = "My `code` is **best**"
@@ -416,22 +345,6 @@ defmodule EarmarkParser do
       end
 
     {status, context.value, messages}
-  end
-
-  @doc """
-  A convenience method that *always* returns an HTML representation of the markdown document passed in.
-  In case of the presence of any error messages they are prinetd to stderr.
-
-  Otherwise it behaves exactly as `as_html`.
-  """
-  def as_html!(lines, options \\ %Options{})
-  def as_html!(lines, options) when is_list(options) do
-    as_html!(lines, struct(Options, options))
-  end
-  def as_html!(lines, options = %Options{}) do
-    {_status, html, messages} = as_html(lines, options)
-    emit_messages(messages, options)
-    html
   end
 
   defp _as_ast(lines, options) do
