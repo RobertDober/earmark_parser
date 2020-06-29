@@ -1,10 +1,12 @@
 # EarmarkParser
 
-## 1.5   ????/??/??
+## 1.4.8 2020/06/29
 
-This marks the first release of the parser isolated from the rest of Earmark
+This marks the first release of the parser isolated from the rest of Earmark.
 
-All releases below were Earmark, all releases above are only EarmarkParser
+It is feature identical to the 1.4.7 release of Earmark.
+
+All releases below were Earmark, all releases above are only EarmarkParser.
 
 # Earmark
 
