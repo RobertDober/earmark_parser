@@ -1,6 +1,6 @@
-defmodule EarmarkHelpersTests.AttrParserTest do
+defmodule EarmarkParserHelpersTests.AttrParserTest do
   use ExUnit.Case, async: true
-  import Earmark.Helpers.AttrParser
+  import EarmarkParser.Helpers.AttrParser
 
   #
   # describe "without errors" do  # still using Elixir 1.2
@@ -71,7 +71,7 @@ defmodule EarmarkHelpersTests.AttrParserTest do
   defp assert_parsed_as( attrs, str, errors \\ [errors: []]  ) do
     errors = Keyword.get( errors, :errors )
     errors = if is_list(errors), do: errors, else: [errors]
-    {context, result} = parse_attrs( %Earmark.Context{}, str, 0 )
+    {context, result} = parse_attrs( %EarmarkParser.Context{}, str, 0 )
     assert attrs == result
     unless Enum.empty?(errors) do
       expected = [{:warning, 0, "Illegal attributes #{inspect errors} ignored in IAL"}]

@@ -1,6 +1,6 @@
 defmodule HelpersTest do
   use ExUnit.Case, async: true
-  import Earmark.Helpers
+  import EarmarkParser.Helpers
 
   @moduletag :dev
 

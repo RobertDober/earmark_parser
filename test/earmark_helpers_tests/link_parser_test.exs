@@ -1,4 +1,4 @@
-defmodule EarmarkHelpersTests.LinkParserTest do
+defmodule EarmarkParserHelpersTests.LinkParserTest do
   use ExUnit.Case, async: true
 
   describe "text part" do
@@ -143,7 +143,7 @@ defmodule EarmarkHelpersTests.LinkParserTest do
     end
   end
   defp parse_link(markdown) do
-    Earmark.Helpers.LinkParser.parse_link(markdown, 0)
+    EarmarkParser.Helpers.LinkParser.parse_link(markdown, 0)
   end
 end
 

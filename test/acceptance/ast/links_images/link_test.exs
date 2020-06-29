@@ -168,7 +168,7 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       assert as_ast(markdown) == {:ok, [ast], messages}
     end
 
-    test "illegal ulrs are not Earmark's responsability (was regtest #51)" do
+    test "illegal ulrs are not EarmarkParser's responsability (was regtest #51)" do
       markdown = "[<<>>/1](http://elixir-lang.org/docs/master/elixir/Kernel.SpecialForms.htm#<<>>/1)"
       html     = ~s[<p><a href="http://elixir-lang.org/docs/master/elixir/Kernel.SpecialForms.htm#<<>>/1">&lt;&lt;&gt;&gt;/1</a></p>]
       ast = parse_html(html)
@@ -262,8 +262,8 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
     end
 
     test "quotes in text (was regtest #72)" do 
-      markdown = ~s{["Earmark"](https://github.com/pragdave/earmark/)}
-      html     = ~s{<p><a href="https://github.com/pragdave/earmark/">"Earmark"</a></p>\n}
+      markdown = ~s{["EarmarkParser"](https://github.com/pragdave/earmark/)}
+      html     = ~s{<p><a href="https://github.com/pragdave/earmark/">"EarmarkParser"</a></p>\n}
       ast      = parse_html(html)
       messages = []
 

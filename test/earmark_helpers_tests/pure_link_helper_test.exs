@@ -1,7 +1,7 @@
-defmodule Earmark.Helpers.TestPureLinkHelpers do
+defmodule EarmarkParser.Helpers.TestPureLinkHelpers do
 
   use ExUnit.Case, async: true
-  import Earmark.Helpers.PureLinkHelpers, only: [convert_pure_link: 1]
+  import EarmarkParser.Helpers.PureLinkHelpers, only: [convert_pure_link: 1]
   import EarmarkAstDsl
 
   describe "Pure Links" do

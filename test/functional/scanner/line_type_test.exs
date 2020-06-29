@@ -1,6 +1,6 @@
 defmodule Functional.Scanner.LineTypeTest do
   use ExUnit.Case, async: true
-  alias Earmark.Line
+  alias EarmarkParser.Line
 
   @moduletag :dev
 
@@ -165,7 +165,7 @@ defmodule Functional.Scanner.LineTypeTest do
       #
       # Footnote Definitions but no footnote option
       #
-      { "[^1]: bar baz", %Earmark.Line.Text{content: "[^1]: bar baz", inside_code: false,
+      { "[^1]: bar baz", %EarmarkParser.Line.Text{content: "[^1]: bar baz", inside_code: false,
                        line: "[^1]: bar baz", lnb: 42}},
           ]
   |> Enum.each(fn { text, %{__struct__: module}=type } ->
@@ -177,7 +177,7 @@ defmodule Functional.Scanner.LineTypeTest do
           struct = unquote(Macro.escape type)
           indent = unquote(text) |> String.replace(@all_but_leading_ws, "") |> String.length
           struct = %{ struct | indent: indent, line: unquote(text), lnb: 42 }
-          assert Earmark.LineScanner.type_of({unquote(text), 42}, false) == struct
+          assert EarmarkParser.LineScanner.type_of({unquote(text), 42}, false) == struct
         end
       end
     end

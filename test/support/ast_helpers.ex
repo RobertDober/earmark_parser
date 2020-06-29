@@ -1,7 +1,7 @@
 defmodule Support.AstHelpers do
   
   def ast_from_md(md) do
-    with {:ok, ast, []} <- Earmark.as_ast(md), do: ast
+    with {:ok, ast, []} <- EarmarkParser.as_ast(md), do: ast
   end
 
   def p(content, atts \\ [])

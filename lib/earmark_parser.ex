@@ -345,7 +345,7 @@ defmodule EarmarkParser do
     `iex` usage.
   """
   def version() do
-    with {:ok, version} = :application.get_key(:earmark, :vsn),
+    with {:ok, version} = :application.get_key(:earmark_parser, :vsn),
       do: to_string(version)
   end
 

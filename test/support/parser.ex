@@ -1,6 +1,6 @@
 defmodule Support.Parser do
   def parse_lines lines do
-    Earmark.Parser.parse(%Earmark.Options{}, lines, false)
+    EarmarkParser.Parser.parse(%EarmarkParser.Options{}, lines, false)
   end
 end
 
