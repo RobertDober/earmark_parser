@@ -20,7 +20,7 @@ defmodule Acceptance.Ast.HorizontalRulesTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "not in code" do
@@ -29,7 +29,7 @@ defmodule Acceptance.Ast.HorizontalRulesTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "not in code, second line" do
@@ -47,15 +47,15 @@ defmodule Acceptance.Ast.HorizontalRulesTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "emmed, so to speak" do
       markdown = " *-*\n"
-      ast      = p([" ", tag("em", "-")])
+      ast      = [p([" ", tag("em", "-")])]
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "in lists" do

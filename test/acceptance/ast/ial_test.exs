@@ -10,7 +10,7 @@ defmodule Acceptance.Ast.IalTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "code with simple ial" do
@@ -19,7 +19,7 @@ defmodule Acceptance.Ast.IalTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "img with simple ial" do
@@ -28,7 +28,7 @@ defmodule Acceptance.Ast.IalTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "not attached" do
@@ -37,15 +37,15 @@ defmodule Acceptance.Ast.IalTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "missing element for ial (was regtest #99)" do
       markdown = "{.hello}"
-      ast      = p(markdown)
+      ast      = [p(markdown)]
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
   end
 
@@ -56,7 +56,7 @@ defmodule Acceptance.Ast.IalTest do
       ast      = parse_html(html)
       messages = [{:warning, 1, "Illegal attributes [\"incorrect\"] ignored in IAL"}]
 
-      assert as_ast(markdown) == {:error, [ast], messages}
+      assert as_ast(markdown) == {:error, ast, messages}
     end
 
     test "illegal format line two" do
@@ -65,7 +65,7 @@ defmodule Acceptance.Ast.IalTest do
       ast      = parse_html(html)
       messages = [{:warning, 2, "Illegal attributes [\"incorrect\"] ignored in IAL"}]
 
-      assert as_ast(markdown) == {:error, [ast], messages}
+      assert as_ast(markdown) == {:error, ast, messages}
     end
 
 

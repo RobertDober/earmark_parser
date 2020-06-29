@@ -9,7 +9,7 @@ defmodule Acceptance.Ast.ReflinkTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "an image, one would assume..." do
@@ -18,7 +18,7 @@ defmodule Acceptance.Ast.ReflinkTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
   end
 
@@ -29,7 +29,7 @@ defmodule Acceptance.Ast.ReflinkTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "not so simple case" do
@@ -38,7 +38,7 @@ defmodule Acceptance.Ast.ReflinkTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "titled case" do
@@ -47,7 +47,7 @@ defmodule Acceptance.Ast.ReflinkTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "image with title" do
@@ -56,7 +56,7 @@ defmodule Acceptance.Ast.ReflinkTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
   end
 end

@@ -11,7 +11,7 @@ defmodule Acceptance.Ast.ListIndentTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "mixed two levels (by 2)" do
@@ -29,7 +29,7 @@ defmodule Acceptance.Ast.ListIndentTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "2 level correct pop up" do
@@ -38,7 +38,7 @@ defmodule Acceptance.Ast.ListIndentTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "mixed level correct pop up" do
@@ -47,7 +47,7 @@ defmodule Acceptance.Ast.ListIndentTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "4 level correct pop up" do
@@ -56,7 +56,7 @@ defmodule Acceptance.Ast.ListIndentTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
   end
 end

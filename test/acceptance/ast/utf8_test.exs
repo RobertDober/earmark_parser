@@ -9,7 +9,7 @@ defmodule Acceptance.Ast.Utf8Test do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown, pure_links: true) == {:ok, [ast], messages}
+      assert as_ast(markdown, pure_links: true) == {:ok, ast, messages}
     end
   end
 end

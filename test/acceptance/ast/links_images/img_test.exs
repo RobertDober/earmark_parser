@@ -12,7 +12,7 @@ defmodule Acceptance.Ast.LinkImages.ImgTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "url encoding is **not** our job" do
@@ -21,7 +21,7 @@ defmodule Acceptance.Ast.LinkImages.ImgTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
 
@@ -31,7 +31,7 @@ defmodule Acceptance.Ast.LinkImages.ImgTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
   end
@@ -44,7 +44,7 @@ defmodule Acceptance.Ast.LinkImages.ImgTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "again escapes do not escape us" do
@@ -53,7 +53,7 @@ defmodule Acceptance.Ast.LinkImages.ImgTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "headaches ahead (and behind us)" do
@@ -62,7 +62,7 @@ defmodule Acceptance.Ast.LinkImages.ImgTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "lost in space" do
@@ -70,7 +70,7 @@ defmodule Acceptance.Ast.LinkImages.ImgTest do
       html = "<p><img src=\"sun.jpg\" alt=\"![moon](moon.jpg)\"/></p>\n"
       ast      = parse_html(html)
       messages = []
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
   end
 
@@ -82,7 +82,7 @@ defmodule Acceptance.Ast.LinkImages.ImgTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "ti tle (why not)" do
@@ -91,7 +91,7 @@ defmodule Acceptance.Ast.LinkImages.ImgTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "titles become strange" do
@@ -100,7 +100,7 @@ defmodule Acceptance.Ast.LinkImages.ImgTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "as does everything else" do
@@ -109,7 +109,7 @@ defmodule Acceptance.Ast.LinkImages.ImgTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "alt goes crazy" do
@@ -118,15 +118,15 @@ defmodule Acceptance.Ast.LinkImages.ImgTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "alt goes crazy, with deprecation warnings" do
       markdown = "\n![foo[([])]](/url 'title\")\n"
-      ast        = p(void_tag("img", src: "/url 'title\"", alt: "foo[([])]"))
+      ast        = [p(void_tag("img", src: "/url 'title\"", alt: "foo[([])]"))]
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "url escapes of course" do
@@ -135,11 +135,9 @@ defmodule Acceptance.Ast.LinkImages.ImgTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
-
   end
-
 end
 
 # SPDX-License-Identifier: Apache-2.0

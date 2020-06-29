@@ -9,7 +9,7 @@ defmodule Acceptance.Ast.IndentedCodeBlocksTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "code is soo verbatim" do
@@ -18,7 +18,7 @@ defmodule Acceptance.Ast.IndentedCodeBlocksTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "chunky bacon (RIP: Why)" do
@@ -27,7 +27,7 @@ defmodule Acceptance.Ast.IndentedCodeBlocksTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "foo and bar (now you are surprised!)" do
@@ -44,7 +44,7 @@ defmodule Acceptance.Ast.IndentedCodeBlocksTest do
       html = "<pre><code>foo</code></pre>\n"
       ast      = parse_html(html)
       messages = []
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "2nd line less indented (was regtest #43)" do 
@@ -57,7 +57,7 @@ defmodule Acceptance.Ast.IndentedCodeBlocksTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
   end
 
@@ -67,7 +67,7 @@ defmodule Acceptance.Ast.IndentedCodeBlocksTest do
       html = "<pre lang=\"de:at\"><code>wunderbar</code></pre>\n"
       ast      = parse_html(html)
       messages = []
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
   end
 end

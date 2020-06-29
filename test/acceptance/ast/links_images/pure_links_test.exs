@@ -10,7 +10,7 @@ defmodule Acceptance.Ast.LinksImages.PureLinksTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown, pure_links: false) == {:ok, [ast], messages}
+      assert as_ast(markdown, pure_links: false) == {:ok, ast, messages}
     end
 
   end
@@ -22,7 +22,7 @@ defmodule Acceptance.Ast.LinksImages.PureLinksTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "more text" do
@@ -31,7 +31,7 @@ defmodule Acceptance.Ast.LinksImages.PureLinksTest do
       ast      = parse_html(html)
       messages = []
       
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "more links" do
@@ -40,7 +40,7 @@ defmodule Acceptance.Ast.LinksImages.PureLinksTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "be aware of the double up" do
@@ -49,7 +49,7 @@ defmodule Acceptance.Ast.LinksImages.PureLinksTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "correct mix" do
@@ -58,8 +58,7 @@ defmodule Acceptance.Ast.LinksImages.PureLinksTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
-
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
   end
 

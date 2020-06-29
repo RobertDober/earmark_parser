@@ -52,7 +52,7 @@ defmodule Acceptance.Ast.ListAndInlineCodeTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "less aligned fence is not part of the inline code block" do
@@ -65,10 +65,10 @@ defmodule Acceptance.Ast.ListAndInlineCodeTest do
 
     test "more aligned fence is part of the inlinde code block" do
       markdown = "  1. one\n    ~~~elixir\n    defmodule\n        ~~~"
-      ast      = tag("ol", tag("li", ["one", tag("pre", tag("code", ["defmodule"], [{"class", "elixir"}]))]))
+      ast      = [tag("ol", tag("li", ["one", tag("pre", tag("code", ["defmodule"], [{"class", "elixir"}]))]))]
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
   end

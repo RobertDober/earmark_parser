@@ -9,7 +9,7 @@ defmodule Acceptance.Ast.InlineCodeTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "plain simple, right?" do
@@ -18,7 +18,7 @@ defmodule Acceptance.Ast.InlineCodeTest do
       ast      = parse_html(html)
       messages = [{:warning, 1, "Closing unclosed backquotes ` at end of input"}]
 
-      assert as_ast(markdown) == {:error, [ast], messages}
+      assert as_ast(markdown) == {:error, ast, messages}
     end
 
     test "this time you got it right" do
@@ -27,7 +27,7 @@ defmodule Acceptance.Ast.InlineCodeTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "and again!!!" do
@@ -36,7 +36,7 @@ defmodule Acceptance.Ast.InlineCodeTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
   end
 
@@ -47,7 +47,7 @@ defmodule Acceptance.Ast.InlineCodeTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "with company" do
@@ -56,7 +56,7 @@ defmodule Acceptance.Ast.InlineCodeTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "unescaped escape" do
@@ -65,7 +65,7 @@ defmodule Acceptance.Ast.InlineCodeTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
   
     test "backtix cannot be escaped" do 
@@ -74,7 +74,7 @@ defmodule Acceptance.Ast.InlineCodeTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "unless at the beginning" do 
@@ -83,7 +83,7 @@ defmodule Acceptance.Ast.InlineCodeTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
   end
 
@@ -94,7 +94,7 @@ defmodule Acceptance.Ast.InlineCodeTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "remove at start" do
@@ -103,7 +103,7 @@ defmodule Acceptance.Ast.InlineCodeTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "remove and squash" do
@@ -112,7 +112,7 @@ defmodule Acceptance.Ast.InlineCodeTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "remove and squash newlines too" do
@@ -121,7 +121,7 @@ defmodule Acceptance.Ast.InlineCodeTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "inline code inside lists (was regtest #48)" do 
@@ -130,7 +130,7 @@ defmodule Acceptance.Ast.InlineCodeTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
   end
 end

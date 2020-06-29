@@ -11,7 +11,7 @@ defmodule Acceptance.Ast.TableTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
       
     end
 
@@ -21,7 +21,7 @@ defmodule Acceptance.Ast.TableTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "table with link with inline ial, errors" do 
@@ -30,7 +30,7 @@ defmodule Acceptance.Ast.TableTest do
       ast      = parse_html(html)
       messages = [{:warning, 2, "Illegal attributes [\"xxx\"] ignored in IAL"}]
 
-      assert as_ast(markdown) == {:error, [ast], messages}
+      assert as_ast(markdown) == {:error, ast, messages}
     end
 
     test "table with header" do
@@ -39,7 +39,7 @@ defmodule Acceptance.Ast.TableTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "table with header inside context" do
@@ -59,7 +59,7 @@ defmodule Acceptance.Ast.TableTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
   end
 
@@ -70,7 +70,7 @@ defmodule Acceptance.Ast.TableTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown, gfm_tables: true) == {:ok, [ast], messages}
+      assert as_ast(markdown, gfm_tables: true) == {:ok, ast, messages}
     end
 
     test "do not need spaces around mid `\|` but w/o gfm_tables this is no good" do
@@ -79,7 +79,7 @@ defmodule Acceptance.Ast.TableTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown, gfm_tables: false) == {:ok, [ast], messages}
+      assert as_ast(markdown, gfm_tables: false) == {:ok, ast, messages}
     end
 
     test "however a header line needs to be used" do
@@ -88,7 +88,7 @@ defmodule Acceptance.Ast.TableTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown, gfm_tables: true) == {:ok, [ast], messages}
+      assert as_ast(markdown, gfm_tables: true) == {:ok, ast, messages}
     end
   end
 
@@ -100,15 +100,15 @@ defmodule Acceptance.Ast.TableTest do
       | This part is fine |
       | This is `broken`  |
       """
-      ast = table(["This part is fine", { "This is ", tag(:code, "broken", class: :inline) }], head: ["What"])
-      assert as_ast(markdown) == {:ok, [ast], []}
+      ast = [table(["This part is fine", { "This is ", tag(:code, "broken", class: :inline) }], head: ["What"])]
+      assert as_ast(markdown) == {:ok, ast, []}
     end
 
     test "minimized example" do
       markdown = "|zero|\n|alpha *beta*|"
-      ast = table(["zero", { "alpha ", tag(:em, "beta") }])
+      ast = [table(["zero", { "alpha ", tag(:em, "beta") }])]
 
-      assert as_ast(markdown) == {:ok, [ast], []}
+      assert as_ast(markdown) == {:ok, ast, []}
     end
   end
 end

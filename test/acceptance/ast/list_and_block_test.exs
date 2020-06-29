@@ -11,7 +11,7 @@ defmodule Acceptance.Ast.ListAndBlockTest do
       ast      = parse_html(html) # |> IO.inspect(label: :ast)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "four spaces" do
@@ -20,7 +20,7 @@ defmodule Acceptance.Ast.ListAndBlockTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
   end
 
@@ -48,7 +48,7 @@ defmodule Acceptance.Ast.ListAndBlockTest do
         tag("pre", tag("code", " https://mydomain.org/user_or_team/repo_name/blob/master/path"))]))
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
     @tag :wip 
     test "Regression #349/counter example" do
@@ -70,7 +70,7 @@ defmodule Acceptance.Ast.ListAndBlockTest do
                                 "https://mydomain.org/user_or_team/repo_name/blob/master/path"]))]))
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
   end
   

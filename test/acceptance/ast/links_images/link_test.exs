@@ -10,7 +10,7 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
 
@@ -20,7 +20,7 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "this ain't no link" do
@@ -29,7 +29,7 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "strange syntaxes exist in Markdown" do
@@ -38,7 +38,7 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "sometimes strange text is just strange text" do
@@ -47,7 +47,7 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown, smartypants: false) == {:ok, [ast], messages}
+      assert as_ast(markdown, smartypants: false) == {:ok, ast, messages}
     end
 
     test "guess how this one is rendered?" do
@@ -61,7 +61,7 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       markdown = "# [Foo]\n[foo]: /url\n> bar\n"
       lhs = "<h1><a href=\"/url\" title=\"\">Foo</a></h1>"
       rhs = "<blockquote><p>bar</p>\n</blockquote>\n"
-      ast  = [parse_html(lhs), parse_html(rhs)]
+      ast  = parse_html(lhs) ++ parse_html(rhs)
 
       messages = []
 
@@ -85,7 +85,7 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "unless your outer is syntactically a link of course" do
@@ -94,7 +94,7 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "escaping does not change that" do
@@ -103,7 +103,7 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
   end
@@ -116,7 +116,7 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "let's go nowhere" do
@@ -125,7 +125,7 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "nowhere in a bottle" do
@@ -133,7 +133,7 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       html = "<p><a href=\"()\">link</a></p>\n"
       ast      = parse_html(html)
       messages = []
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "minimal case" do
@@ -141,7 +141,7 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       html     = "<p>(<a href=\"\"></a></p>\n"
       ast = parse_html(html)
       messages = []
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "minimal case, ) as suffix" do
@@ -149,7 +149,7 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       html     = "<p>(<a href=\"\"></a>)</p>\n"
       ast = parse_html(html)
       messages = []
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "normal case" do
@@ -157,7 +157,7 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       html     = "<p>(<a href=\"link\">text</a>)</p>\n"
       ast = parse_html(html)
       messages = []
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "link with nested elements" do
@@ -165,7 +165,7 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       html     = "<p><a href=\"link\"><em>foo</em> bar</a></p>\n"
       ast = parse_html(html)
       messages = []
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "illegal ulrs are not EarmarkParser's responsability (was regtest #51)" do
@@ -173,7 +173,7 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       html     = ~s[<p><a href="http://elixir-lang.org/docs/master/elixir/Kernel.SpecialForms.htm#<<>>/1">&lt;&lt;&gt;&gt;/1</a></p>]
       ast = parse_html(html)
       messages = []
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
     
     test "escapes in link's name (was regtest #51)" do
@@ -181,7 +181,7 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       html     = ~s{<p><a href="http://elixir-lang.org/docs/master/elixir/Kernel.SpecialForms.htm#&expr/1">&amp;expr/1</a></p>}
       ast = parse_html(html)
       messages = []
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
   end
 
@@ -193,7 +193,7 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "now uri encoding here" do
@@ -202,7 +202,7 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "now uri encoding with invalid url" do
@@ -211,7 +211,7 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "as was this" do
@@ -220,7 +220,7 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "good ol' mail" do
@@ -229,7 +229,7 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "we know what mail is" do
@@ -238,7 +238,7 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "not really a link" do
@@ -247,7 +247,7 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
   end
 
@@ -258,7 +258,7 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "quotes in text (was regtest #72)" do 
@@ -267,17 +267,17 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
   end
 
   describe "Escapes in text (was regtest #198)" do
     test "escaped backticks" do 
       markdown = "[hello \\`code\\`](http://some.where)"
-      ast      = p(tag("a", "hello `code`", href: "http://some.where"))
+      ast      = [p(tag("a", "hello `code`", href: "http://some.where"))]
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "escaped stars" do
@@ -286,7 +286,7 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ ast ], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "although brackets do not need escapes, we still have to render them correctly" do
@@ -295,7 +295,7 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
   end
 end

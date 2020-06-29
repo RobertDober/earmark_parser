@@ -10,7 +10,7 @@ defmodule Acceptance.Ast.SetextHeadersTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "Level two" do 
@@ -19,7 +19,7 @@ defmodule Acceptance.Ast.SetextHeadersTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "narrow escape" do
@@ -28,7 +28,7 @@ defmodule Acceptance.Ast.SetextHeadersTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
   end

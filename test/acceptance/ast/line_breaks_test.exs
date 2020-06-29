@@ -9,7 +9,7 @@ defmodule Acceptance.Ast.LineBreaksTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
     test "or more spaces" do
       markdown = "The   \nquick"
@@ -17,7 +17,7 @@ defmodule Acceptance.Ast.LineBreaksTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
     test "or in some lines" do
       markdown = "The   \nquick  \nbrown"
@@ -25,7 +25,7 @@ defmodule Acceptance.Ast.LineBreaksTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
     test "and in list items" do
       markdown = "* The  \nquick"
@@ -33,7 +33,7 @@ defmodule Acceptance.Ast.LineBreaksTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
   end
 
@@ -45,7 +45,7 @@ defmodule Acceptance.Ast.LineBreaksTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
     test "or whitspace lines" do
       markdown = "The\n  \nquick"
@@ -61,7 +61,7 @@ defmodule Acceptance.Ast.LineBreaksTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
     test "or at the end of input" do
       markdown = "The\nquick  "
@@ -69,7 +69,7 @@ defmodule Acceptance.Ast.LineBreaksTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
     test "or in code blocks" do
       markdown = "```\nThe \nquick\n```"
@@ -77,7 +77,7 @@ defmodule Acceptance.Ast.LineBreaksTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
   end
 end
