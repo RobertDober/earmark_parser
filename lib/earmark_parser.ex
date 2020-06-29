@@ -1,4 +1,4 @@
-defmodule Earmark do
+defmodule EarmarkParser do
 
 
   @type ast_meta :: map()
@@ -15,56 +15,21 @@ defmodule Earmark do
 
   ### API
 
-  Earmark now exposes a well-defined and stable Abstract Syntax Tree
+  #### EarmarkParser.as_ast
 
-  #### Earmark.as_ast
-
-  The function is described below and the other two API functions `as_html` and `as_html!` are now based upon
-  the structure of the result of `as_ast`.
+  This is the structure of the result of `as_ast`.
 
       {:ok, ast, []}                   = Earmark.as_ast(markdown)
       {:ok, ast, deprecation_messages} = Earmark.as_ast(markdown)
       {:error, ast, error_messages}    = Earmark.as_ast(markdown)
 
-  #### Earmark.as_html
-
-      {:ok, html_doc, []}                   = Earmark.as_html(markdown)
-      {:ok, html_doc, deprecation_messages} = Earmark.as_html(markdown)
-      {:error, html_doc, error_messages}    = Earmark.as_html(markdown)
-
-  #### Earmark.as_html!
-
-      html_doc = Earmark.as_html!(markdown, options)
-
-  Formats the error_messages returned by `as_html` and adds the filename to each.
-  Then prints them to stderr and just returns the html_doc
+  For examples see the functiondoc below.
 
   #### Options
 
-  Options can be passed into `as_ast/2`as well as `as_html/2` or `as_html!/2` according to the documentation.
+  Options can be passed into `as_ast/2` according to the documentation of `EarmarkParser.Options`.
 
-      {status, html_doc, errors} = Earmark.as_html(markdown, options)
-      html_doc = Earmark.as_html!(markdown, options)
       {status, ast, errors} = Earmark.as_ast(markdown, options)
-
-  ### Command line
-
-      $ mix escript.build
-      $ ./earmark file.md
-
-  Some options defined in the `Earmark.Options` struct can be specified as command line switches.
-
-  Use
-
-      $ ./earmark --help
-
-  to find out more, but here is a short example
-
-      $ ./earmark --smartypants false --code-class-prefix "a- b-" file.md
-
-  will call
-
-      Earmark.as_html!( ..., %Earmark.Options{smartypants: false, code_class_prefix: "a- b-"})
 
   ## Supports
 
@@ -81,7 +46,7 @@ defmodule Earmark do
   #### Strike Through
 
       iex(1)> Earmark.as_html! ["~~hello~~"]
-      "<p>\\n  <del>\\n    hello\\n  </del>\\n</p>\\n"
+      "<p>\\n  <del>\\nhello  </del>\\n</p>\\n"
 
   #### Syntax Highlighting
 
@@ -241,20 +206,20 @@ defmodule Earmark do
   For both cases, malformed attributes are ignored and warnings are issued.
 
       iex(9)> [ "Some text", "{:hello}" ] |> Enum.join("\\n") |> Earmark.as_html()
-      {:error, "<p>\\n  Some text\\n</p>\\n", [{:warning, 2,"Illegal attributes [\\"hello\\"] ignored in IAL"}]}
+      {:error, "<p>\\nSome text</p>\\n", [{:warning, 2,"Illegal attributes [\\"hello\\"] ignored in IAL"}]}
 
   It is possible to escape the IAL in both forms if necessary
 
       iex(10)> markdown = "[link](url)\\\\{: .classy}"
       ...(10)> Earmark.as_html(markdown)
-      {:ok, "<p>\\n<a href=\\"url\\">link</a>  {: .classy}\\n</p>\\n", []}
+      {:ok, "<p>\\n<a href=\\"url\\">link</a>{: .classy}</p>\\n", []}
 
   This of course is not necessary in code blocks or text lines
   containing an IAL-like string, as in the following example
 
       iex(11)> markdown = "hello {:world}"
       ...(11)> Earmark.as_html!(markdown)
-      "<p>\\n  hello {:world}\\n</p>\\n"
+      "<p>\\nhello {:world}</p>\\n"
 
   ## Limitations
 

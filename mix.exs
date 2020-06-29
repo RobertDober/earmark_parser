@@ -94,11 +94,16 @@ defmodule EarmarkParser.MixProject do
     end
 
     args = [@module, @version, Mix.Project.compile_path()]
-    opts = ~W[--main #{@module} --source-ref v#{@version} --source-url #{@url}]
+    opts = ~w[--main #{@module} --source-ref v#{@version} --source-url #{@url}]
 
     Mix.shell().info("Running: #{ex_doc} #{inspect(args ++ opts)}")
     System.cmd(ex_doc, args ++ opts)
     Mix.shell().info("Docs built successfully")
+  end
+
+  defp readme(args) do
+    Code.require_file("tasks/readme.exs")
+    Mix.Tasks.Readme.run(args)
   end
 end
 
