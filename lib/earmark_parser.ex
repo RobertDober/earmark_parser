@@ -45,8 +45,8 @@ defmodule EarmarkParser do
 
   #### Strike Through
 
-      iex(1)> EarmarkParser.as_ast ["~~hello~~"]
-      {:ok [{"p", [], [{"del", [], ["hello"], %{}}], %{}}], []}
+      iex(1)> EarmarkParser.as_ast("~~hello~~")
+      {:ok, [{"p", [], [{"del", [], ["hello"], %{}}], %{}}], []}
 
   #### Syntax Highlighting
 
@@ -60,7 +60,7 @@ defmodule EarmarkParser do
       ...(2)>    " @tag :hello",
       ...(2)>    "```"
       ...(2)> ] |> EarmarkParser.as_ast()
-      {:ok, [{"pre", [], [{"code", [{"class", "elixir"}], ["@tag :hello"], %{}}], %{}}], []}
+      {:ok, [{"pre", [], [{"code", [{"class", "elixir"}], [" @tag :hello"], %{}}], %{}}], []}
 
   will be rendered as shown in the doctest above.
 
@@ -75,10 +75,10 @@ defmodule EarmarkParser do
       iex(3)> [
       ...(3)>    "```elixir",
       ...(3)>    " @tag :hello",
-      ...(3)>    "```"
-      ...(3)> ]
-      ...(3)> |> EarmarkParser.as_ast(%EarmarkParser.Options{code_class_prefix: "lang- language-"})
-      {:ok, [{"pre", [], [{"code", [{"class", ~W[lang-elixir language-elixir elixir]}], ["@tag :hello"], %{}}], %{}}], []}
+      ...(3)>    "```" 
+      ...(3)> ] |> EarmarkParser.as_ast(%EarmarkParser.Options{code_class_prefix: "lang- language-"})
+      {:ok, [{"pre", [], [{"code", [{"class", "elixir lang-elixir language-elixir"}], [" @tag :hello"], %{}}], %{}}], []}
+
 
   #### Tables
 
@@ -199,7 +199,7 @@ defmodule EarmarkParser do
 
       iex(9)> markdown = "[link](url) {: .classy}"
       ...(9)> EarmarkParser.as_ast(markdown)
-      { :ok, [{"p", [], [{"a", [{"class", "classy"}, {"href", "url"}], ["link"], %{}}]}], []}
+      { :ok, [{"p", [], [{"a", [{"class", "classy"}, {"href", "url"}], ["link"], %{}}], %{}}], []}
 
   For both cases, malformed attributes are ignored and warnings are issued.
 
@@ -210,15 +210,14 @@ defmodule EarmarkParser do
 
       iex(11)> markdown = "[link](url)\\\\{: .classy}"
       ...(11)> EarmarkParser.as_ast(markdown)
-      {:ok, "<p>\\n<a href=\\"url\\">link</a>{: .classy}</p>\\n", []}
-      {:ok, [{"p", [], [{"a", [{"href", "url"}], ["link"], %{}}], %{}], []}
+      {:ok, [{"p", [], [{"a", [{"href", "url"}], ["link"], %{}}, "{: .classy}"], %{}}], []}
 
   This of course is not necessary in code blocks or text lines
   containing an IAL-like string, as in the following example
 
       iex(12)> markdown = "hello {:world}"
       ...(12)> EarmarkParser.as_ast(markdown)
-      {:ok, [{"p", [], ["hello {:world}"], %{}], []}
+      {:ok, [{"p", [], ["hello {:world}"], %{}}], []}
 
   ## Limitations
 
