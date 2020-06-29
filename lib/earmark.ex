@@ -1,4 +1,4 @@
-defmodule EarmarkParser do
+defmodule Earmark do
 
 
   @type ast_meta :: map()
