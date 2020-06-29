@@ -19,9 +19,9 @@ defmodule EarmarkParser do
 
   This is the structure of the result of `as_ast`.
 
-      {:ok, ast, []}                   = Earmark.as_ast(markdown)
-      {:ok, ast, deprecation_messages} = Earmark.as_ast(markdown)
-      {:error, ast, error_messages}    = Earmark.as_ast(markdown)
+      {:ok, ast, []}                   = EarmarkParser.as_ast(markdown)
+      {:ok, ast, deprecation_messages} = EarmarkParser.as_ast(markdown)
+      {:error, ast, error_messages}    = EarmarkParser.as_ast(markdown)
 
   For examples see the functiondoc below.
 
@@ -29,7 +29,7 @@ defmodule EarmarkParser do
 
   Options can be passed into `as_ast/2` according to the documentation of `EarmarkParser.Options`.
 
-      {status, ast, errors} = Earmark.as_ast(markdown, options)
+      {status, ast, errors} = EarmarkParser.as_ast(markdown, options)
 
   ## Supports
 
@@ -41,11 +41,11 @@ defmodule EarmarkParser do
 
   ### Github Flavored Markdown
 
-  GFM is supported by default, however as GFM is a moving target and all GFM extension do not make sense in a general context, Earmark does not support all of it, here is a list of what is supported:
+  GFM is supported by default, however as GFM is a moving target and all GFM extension do not make sense in a general context, EarmarkParser does not support all of it, here is a list of what is supported:
 
   #### Strike Through
 
-      iex(1)> Earmark.as_html! ["~~hello~~"]
+      iex(1)> EarmarkParser.as_html! ["~~hello~~"]
       "<p>\\n  <del>\\nhello  </del>\\n</p>\\n"
 
   #### Syntax Highlighting
@@ -59,7 +59,7 @@ defmodule EarmarkParser do
       ...(2)>    "```elixir",
       ...(2)>    " @tag :hello",
       ...(2)>    "```"
-      ...(2)> ] |> Earmark.as_html!()
+      ...(2)> ] |> EarmarkParser.as_html!()
       "<pre><code class=\\"elixir\\"> @tag :hello</code></pre>\\n"
 
   will be rendered as shown in the doctest above.
@@ -68,11 +68,11 @@ defmodule EarmarkParser do
   put before the language string.
 
   Prism.js for example needs a class `language-elixir`. In order to achieve that goal you can add `language-`
-  as a `code_class_prefix` to `Earmark.Options`.
+  as a `code_class_prefix` to `EarmarkParser.Options`.
 
   In the following example we want more than one additional class, so we add more prefixes.
 
-      Earmark.as_html!(..., %Earmark.Options{code_class_prefix: "lang- language-"})
+      EarmarkParser.as_html!(..., %EarmarkParser.Options{code_class_prefix: "lang- language-"})
 
   which is rendering
 
@@ -135,20 +135,20 @@ defmodule EarmarkParser do
   E.g.
 
         iex(3)> lines = [ "<div><span>", "some</span><text>", "</div>more text" ]
-        ...(3)> Earmark.as_ast(lines)
+        ...(3)> EarmarkParser.as_ast(lines)
         {:ok, [{"div", [], ["<span>", "some</span><text>"], %{verbatim: true}}, "more text"], []}
 
   And a line starting with an opening tag and ending with the corresponding closing tag is parsed in similar
   fashion
 
-        iex(4)> Earmark.as_ast(["<span class=\\"superspan\\">spaniel</span>"])
+        iex(4)> EarmarkParser.as_ast(["<span class=\\"superspan\\">spaniel</span>"])
         {:ok, [{"span", [{"class", "superspan"}], ["spaniel"], %{verbatim: true}}], []}
 
   What is HTML?
 
   We differ from strict GFM by allowing **all** tags not only HTML5 tagsn this holds for oneliners....
 
-        iex(5)> {:ok, ast, []} = Earmark.as_ast(["<stupid />", "<not>better</not>"])
+        iex(5)> {:ok, ast, []} = EarmarkParser.as_ast(["<stupid />", "<not>better</not>"])
         ...(5)> ast
         [
           {"stupid", [], [], %{verbatim: true}},
@@ -156,7 +156,7 @@ defmodule EarmarkParser do
 
   and for multiline blocks
 
-        iex(6)> {:ok, ast, []} = Earmark.as_ast([ "<hello>", "world", "</hello>"])
+        iex(6)> {:ok, ast, []} = EarmarkParser.as_ast([ "<hello>", "world", "</hello>"])
         ...(6)> ast
         [{"hello", [], ["world"], %{verbatim: true}}]
 
@@ -167,7 +167,7 @@ defmodule EarmarkParser do
 
   E.g.
 
-      iex(7)> Earmark.as_ast(" <!-- Comment\\ncomment line\\ncomment --> text -->\\nafter")
+      iex(7)> EarmarkParser.as_ast(" <!-- Comment\\ncomment line\\ncomment --> text -->\\nafter")
       {:ok, [{:comment, [], [" Comment", "comment line", "comment "], %{comment: true}}, {"p", [], ["after"], %{}}], []}
 
 
@@ -200,25 +200,25 @@ defmodule EarmarkParser do
   format.
 
       iex(8)> markdown = "[link](url) {: .classy}"
-      ...(8)> Earmark.as_html(markdown)
+      ...(8)> EarmarkParser.as_html(markdown)
       { :ok, "<p>\\n<a class=\\"classy\\" href=\\"url\\">link</a></p>\\n", []}
 
   For both cases, malformed attributes are ignored and warnings are issued.
 
-      iex(9)> [ "Some text", "{:hello}" ] |> Enum.join("\\n") |> Earmark.as_html()
+      iex(9)> [ "Some text", "{:hello}" ] |> Enum.join("\\n") |> EarmarkParser.as_html()
       {:error, "<p>\\nSome text</p>\\n", [{:warning, 2,"Illegal attributes [\\"hello\\"] ignored in IAL"}]}
 
   It is possible to escape the IAL in both forms if necessary
 
       iex(10)> markdown = "[link](url)\\\\{: .classy}"
-      ...(10)> Earmark.as_html(markdown)
+      ...(10)> EarmarkParser.as_html(markdown)
       {:ok, "<p>\\n<a href=\\"url\\">link</a>{: .classy}</p>\\n", []}
 
   This of course is not necessary in code blocks or text lines
   containing an IAL-like string, as in the following example
 
       iex(11)> markdown = "hello {:world}"
-      ...(11)> Earmark.as_html!(markdown)
+      ...(11)> EarmarkParser.as_html!(markdown)
       "<p>\\nhello {:world}</p>\\n"
 
   ## Limitations
@@ -285,12 +285,12 @@ defmodule EarmarkParser do
 
   ## Timeouts
 
-  By default, that is if the `timeout` option is not set Earmark uses parallel mapping as implemented in `Earmark.pmap/2`,
+  By default, that is if the `timeout` option is not set EarmarkParser uses parallel mapping as implemented in `EarmarkParser.pmap/2`,
   which uses `Task.await` with its default timeout of 5000ms.
 
   In rare cases that might not be enough.
 
-  By indicating a longer `timeout` option in milliseconds Earmark will use parallel mapping as implemented in `Earmark.pmap/3`,
+  By indicating a longer `timeout` option in milliseconds EarmarkParser will use parallel mapping as implemented in `EarmarkParser.pmap/3`,
   which will pass `timeout` to `Task.await`.
 
   In both cases one can override the mapper function with either the `mapper` option (used if and only if `timeout` is nil) or the
@@ -302,13 +302,13 @@ defmodule EarmarkParser do
 
   Please be aware that Markdown is not a secure format. It produces
   HTML from Markdown and HTML. It is your job to sanitize and or
-  filter the output of `Earmark.as_html` if you cannot trust the input
+  filter the output of `EarmarkParser.as_html` if you cannot trust the input
   and are to serve the produced HTML on the Web.
   """
 
-  alias Earmark.Error
-  alias Earmark.Options
-  import Earmark.Message, only: [emit_messages: 2, sort_messages: 1]
+  alias EarmarkParser.Error
+  alias EarmarkParser.Options
+  import EarmarkParser.Message, only: [emit_messages: 2, sort_messages: 1]
 
   @doc """
   Given a markdown document (as either a list of lines or
@@ -322,12 +322,12 @@ defmodule EarmarkParser do
   - description of the error
 
 
-  `options` can be an `%Earmark.Options{}` structure, or can be passed in as a `Keyword` argument (with legal keys for `%Earmark.Options`
+  `options` can be an `%EarmarkParser.Options{}` structure, or can be passed in as a `Keyword` argument (with legal keys for `%EarmarkParser.Options`
 
   * `renderer`: ModuleName
 
     The module used to render the final document. Defaults to
-    `Earmark.HtmlRenderer`
+    `EarmarkParser.HtmlRenderer`
 
   * `gfm`: boolean
 
@@ -345,7 +345,7 @@ defmodule EarmarkParser do
     usage with 3rd party libraries.
 
 
-          Earmark.as_html("\`\`\`elixir\\nCode\\n\`\`\`", code_class_prefix: "my_prefix_")
+          EarmarkParser.as_html("\`\`\`elixir\\nCode\\n\`\`\`", code_class_prefix: "my_prefix_")
 
           {:ok, "<pre><code class=\\"elixir my_prefix_elixir\\">Code\\\```</code></pre>\\n", []}
 
@@ -360,8 +360,8 @@ defmodule EarmarkParser do
     you'd call
 
 
-          alias Earmark.Options
-          Earmark.as_html(original, %Options{smartypants: false})
+          alias EarmarkParser.Options
+          EarmarkParser.as_html(original, %Options{smartypants: false})
 
 
   * `pure_links`: boolean
@@ -378,12 +378,12 @@ defmodule EarmarkParser do
 
   def as_html(lines, options) do
     {status, ast, messages} = as_ast(lines, options)
-    {status, Earmark.Transform.transform(ast, options), messages}
+    {status, EarmarkParser.Transform.transform(ast, options), messages}
   end
 
   @doc """
         iex(12)> markdown = "My `code` is **best**"
-        ...(12)> {:ok, ast, []} = Earmark.as_ast(markdown)
+        ...(12)> {:ok, ast, []} = EarmarkParser.as_ast(markdown)
         ...(12)> ast
         [{"p", [], ["My ", {"code", [{"class", "inline"}], ["code"], %{}}, " is ", {"strong", [], ["best"], %{}}], %{}}]
 
@@ -391,7 +391,7 @@ defmodule EarmarkParser do
   for the AST.
 
         iex(13)> markdown = "```elixir\\nIO.puts 42\\n```"
-        ...(13)> {:ok, ast, []} = Earmark.as_ast(markdown, code_class_prefix: "lang-")
+        ...(13)> {:ok, ast, []} = EarmarkParser.as_ast(markdown, code_class_prefix: "lang-")
         ...(13)> ast
         [{"pre", [], [{"code", [{"class", "elixir lang-elixir"}], ["IO.puts 42"], %{}}], %{}}]
 
@@ -435,12 +435,12 @@ defmodule EarmarkParser do
   end
 
   defp _as_ast(lines, options) do
-    {blocks, context} = Earmark.Parser.parse_markdown(lines, options)
-    Earmark.AstRenderer.render(blocks, context)
+    {blocks, context} = EarmarkParser.Parser.parse_markdown(lines, options)
+    EarmarkParser.AstRenderer.render(blocks, context)
   end
 
   @doc """
-    Accesses current hex version of the `Earmark` application. Convenience for
+    Accesses current hex version of the `EarmarkParser` application. Convenience for
     `iex` usage.
   """
   def version() do
