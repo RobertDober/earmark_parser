@@ -17,9 +17,9 @@ defmodule Support.Helpers do
 
   def parse_html(html) do
     if System.get_env("DEBUG") do
-      Floki.parse(html) |> _add_4th() |> IO.inspect
+      _parse_html(html) |> _add_4th() |> IO.inspect
     else
-      Floki.parse(html) |> _add_4th()
+      _parse_html(html) |> _add_4th()
     end
   end
 
@@ -58,6 +58,9 @@ defmodule Support.Helpers do
   end
   defp _add_4th(other), do: other
 
+  defp _parse_html(html) do
+    with {_, ast} = Floki.parse_fragment(html), do: ast
+  end
 end
 
 # SPDX-License-Identifier: Apache-2.0

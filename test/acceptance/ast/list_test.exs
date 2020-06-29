@@ -9,7 +9,7 @@ defmodule Acceptance.Ast.ListTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "Unnumbered Indented" do
@@ -18,7 +18,7 @@ defmodule Acceptance.Ast.ListTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "Unnumbered Indent taken into account" do
@@ -27,7 +27,7 @@ defmodule Acceptance.Ast.ListTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "Unnumbered two paras (removed from func tests)" do
@@ -36,7 +36,7 @@ defmodule Acceptance.Ast.ListTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     # Not GFM conformant, >3 goes into the head of the item
@@ -46,7 +46,7 @@ defmodule Acceptance.Ast.ListTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "Numbered" do
@@ -55,7 +55,7 @@ defmodule Acceptance.Ast.ListTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "More numbers" do
@@ -64,7 +64,7 @@ defmodule Acceptance.Ast.ListTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "can't count" do
@@ -82,7 +82,7 @@ defmodule Acceptance.Ast.ListTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "the second one is not one" do
@@ -91,7 +91,7 @@ defmodule Acceptance.Ast.ListTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "where shall we start" do
@@ -100,7 +100,7 @@ defmodule Acceptance.Ast.ListTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "one?" do
@@ -109,7 +109,7 @@ defmodule Acceptance.Ast.ListTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "count or no count?" do
@@ -127,7 +127,7 @@ defmodule Acceptance.Ast.ListTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "no count or count?" do
@@ -136,7 +136,7 @@ defmodule Acceptance.Ast.ListTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "where does it end?" do
@@ -145,7 +145,7 @@ defmodule Acceptance.Ast.ListTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "tables in lists? Maybe not" do
@@ -154,7 +154,7 @@ defmodule Acceptance.Ast.ListTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "nice try, but naah" do
@@ -163,7 +163,7 @@ defmodule Acceptance.Ast.ListTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
   end
 
@@ -199,7 +199,7 @@ defmodule Acceptance.Ast.ListTest do
   #     ast      = parse_html(html)
   #     messages = []
 
-  #     assert as_ast(markdown) == {:ok, [ast], messages}
+  #     assert as_ast(markdown) == {:ok, ast, messages}
   #   end
   # end
 end

@@ -14,12 +14,11 @@ defmodule EarmarkParser.MixProject do
   ]
 
   @description """
-  Earmark is a pure-Elixir Markdown converter, created by Dave Thomas.
+  Earmark AST the parser and AST Generator for 
+  Dave Thomas' Earmark.
 
-  It is, amongst others, used by `ex_doc`
-
-  However as `ex_doc` now uses the AST of Earmark and does not need
-  the HTML Transformation or the CLI, I have split Earmark into two.
+  The parser can only be used as a library to generate
+  an Abstract Syntax Tree from Markdown.
 
   The original Earmark will still provide the HTML Transformation and
   the CLI, however its Scanner, Parser and AST Renderer have been
