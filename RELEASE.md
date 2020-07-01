@@ -2,6 +2,12 @@
 
 ## 1.5.0 ????/??/??
 
+## 1.4.9 2020/07/01
+
+- [2-accept-any-struct-as-option](https://github.com/pragdave/earmark/issues/2)
+    Allow client code of Earmark to replace their calls to `Earmark.as_ast` with `EarmarkParser.as_ast` w/o any
+    changes
+
 ## 1.4.8 2020/06/29
 
 This marks the first release of the parser isolated from the rest of Earmark.
