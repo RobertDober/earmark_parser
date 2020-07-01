@@ -317,10 +317,7 @@ defmodule EarmarkParser do
   The AST is exposed in the spirit of [Floki's](https://hex.pm/packages/floki).
   """
   def as_ast(lines, options \\ %Options{})
-  def as_ast(lines, options) when is_list(options) do
-    as_ast(lines, struct(Options, options))
-  end
-  def as_ast(lines, options) do
+  def as_ast(lines, %Options{}=options) do
     context = _as_ast(lines, options)
     messages = sort_messages(context)
 
@@ -333,6 +330,12 @@ defmodule EarmarkParser do
       end
 
     {status, context.value, messages}
+  end
+  def as_ast(lines, options) when is_list(options) do
+    as_ast(lines, struct(Options, options))
+  end
+  def as_ast(lines, options) when is_map(options) do
+    as_ast(lines, struct(Options, options |> Map.delete(:__struct__) |> Enum.into([])))
   end
 
   defp _as_ast(lines, options) do
