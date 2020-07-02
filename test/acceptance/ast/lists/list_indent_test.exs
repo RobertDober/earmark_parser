@@ -1,4 +1,4 @@
-defmodule Acceptance.Ast.ListIndentTest do
+defmodule Acceptance.Ast.Lists.ListIndentTest do
   use ExUnit.Case, async: true
 
   import Support.Helpers, only: [as_ast: 1, parse_html: 1]
