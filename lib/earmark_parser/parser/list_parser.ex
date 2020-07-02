@@ -13,6 +13,8 @@ defmodule EarmarkParser.Parser.ListParser do
   @not_pending {nil, 0}
 
   defmodule Ctxt do
+    @moduledoc false
+  
     defstruct(
       lines: [],
       list_info: %ListInfo{},
