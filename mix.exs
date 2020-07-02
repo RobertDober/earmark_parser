@@ -46,12 +46,6 @@ defmodule EarmarkParser.MixProject do
     ]
   end
 
-  def application do
-    [
-      applications: []
-    ]
-  end
-
   defp package do
     [
       files: [
