@@ -1,8 +1,8 @@
 defmodule EarmarkParser.MixProject do
   use Mix.Project
 
-  @version "1.4.9"
-  @url "https://github.com/robertdober/earmark_parser"
+  @version "1.4.10"
+  @url "https://github.com/robert_dober/earmark_parser"
 
   @deps [
     # {:credo, "~> 0.10", only: [:dev, :test]},
