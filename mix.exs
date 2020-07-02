@@ -2,7 +2,7 @@ defmodule EarmarkParser.MixProject do
   use Mix.Project
 
   @version "1.4.9"
-  @url "https://github.com/robert_dober/earmark_parser"
+  @url "https://github.com/robertdober/earmark_parser"
 
 
   @deps [
