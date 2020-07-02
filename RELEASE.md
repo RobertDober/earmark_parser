@@ -4,9 +4,20 @@
 
 ## 1.4.10 2020/07/11
 
+- [10-Missing-space-between-whitspace-separated-items](https://github.com/pragdave/earmark/issues/10)
+
+- [15-hide-private-module](https://github.com/robertdober/earmark_parser/issues/15)
+      Kudos to [Wojtek Mach](https://github.com/wojtekmach)
+
+- [14-remove-application-from-mix.exs](https://github.com/robertdober/earmark_parser/issues/14)
+      Kudos to [Wojtek Mach](https://github.com/wojtekmach)
+
+- [13-fix-github-link](https://githuhttps://github.com/RobertDober/earmark_parser/issues?q=is%3Apr+author%3Awojtekmachb.com/robertdober/earmark_parser/issues/13)
+      Kudos to [Wojtek Mach](https://github.com/wojtekmach)
+
+
 ## 1.4.9 2020/07/01
 
-- [10-Missing-space-between-whitspace-separated-items](https://github.com/pragdave/earmark/issues/10)
 
 - [2-accept-any-struct-as-option](https://github.com/pragdave/earmark/issues/2)
     Allow client code of Earmark to replace their calls to `Earmark.as_ast` with `EarmarkParser.as_ast` w/o any
