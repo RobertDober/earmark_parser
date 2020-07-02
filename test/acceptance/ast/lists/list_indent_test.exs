@@ -2,6 +2,8 @@ defmodule Acceptance.Ast.Lists.ListIndentTest do
   use ExUnit.Case, async: true
 
   import Support.Helpers, only: [as_ast: 1, parse_html: 1]
+  import Support.AstHelpers
+  import EarmarkAstDsl
 
   describe "different levels of indent" do
 
@@ -54,6 +56,32 @@ defmodule Acceptance.Ast.Lists.ListIndentTest do
       markdown = "- 1\n    - 1.1\n        - 1.1.1\n    - 1.2"
       html     = "<ul>\n<li>1<ul>\n<li>1.1<ul>\n<li>1.1.1</li>\n</ul>\n</li>\n<li>1.2</li>\n</ul>\n</li>\n</ul>\n"
       ast      = parse_html(html)
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
+  end
+
+  describe "indent into code blocks" do
+    test "1st regression reported in #9" do
+      markdown = """
+      * List item1
+
+        Text1
+
+          * List item2
+
+        Text2
+
+            https://mydomain.org/user_or_team/repo_name/blob/master/%{path}#L%{line}
+
+      """
+      ast = [
+        ul([li([p("List item1"), p("Text1"), ul(li(["List item2\nText2"])), pre_code("https://mydomain.org/user_or_team/repo_name/blob/master/%{path}#L%{line}")])])
+      # ast = [
+      # {"ul", [], [{"li", [], [{"p", [], ["List item1"], %{}}, {"p", [], ["Text1"], %{}}, {"ul", [], [{"li", [], ["List item2\nText\n", {"a", [{"href", "https://mydomain.org/user_or_team/repo_name/blob/master/%{path}#L%{line}"}], ["https://mydomain.org/user_or_team/repo_name/blob/master/%{path}#L%{line}"], %{}}], %{}}], %{}}], %{}}], %{}}
+      ]
+
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
