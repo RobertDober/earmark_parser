@@ -6,7 +6,6 @@ Terminals any_quote open_bracket open_title close_bracket open_paren close_paren
 
 Rootsymbol link_or_image.
 
-link_or_image -> ws link_or_image : add_ws_prefix(extract_token('$1'), '$2').
 link_or_image -> exclamation_mark link : make_image_tuple('$2').
 link_or_image -> link : '$1'.
 
@@ -44,8 +43,6 @@ anything -> escaped.
 anything -> open_title.
 
 Erlang code.
-
-add_ws_prefix({Value, _}, {Link, LT, LP}) -> {Link, LT, string:concat(Value, LP)}. 
 
 concat_tuple({LT, LP}, {RT, RP}) -> {string:concat(LT, RT), string:concat(LP, RP)}.
 

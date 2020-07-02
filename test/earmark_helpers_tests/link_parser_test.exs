@@ -138,8 +138,8 @@ defmodule EarmarkParserHelpersTests.LinkParserTest do
     test "finally!!!" do
       assert parse_link("![text](pre[\\()") == {~s<![text](pre[()>, ~s<text>, ~s<pre[(>, nil, :image}
     end
-    test "and with leading spaces" do
-      assert parse_link(" ![text](pre[\\()") == {~s< ![text](pre[()>, ~s<text>, ~s<pre[(>, nil, :image}
+    test "and with leading spaces" do 
+      assert parse_link(" ![text](pre[\\()") == nil
     end
   end
   defp parse_link(markdown) do

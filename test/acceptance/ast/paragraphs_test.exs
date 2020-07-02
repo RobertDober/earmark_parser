@@ -52,7 +52,7 @@ defmodule Acceptance.Ast.ParagraphsTest do
 
     test "what about two links" do
       markdown = "[link one](aaa) [link two](bbb)"
-      ast      = [ p([tag("a", "link one", href: "aaa"), " ", tag("a", "link_two", href: "bbb")])]
+      ast      = [ p([tag("a", "link one", href: "aaa"), " ", tag("a", "link two", href: "bbb")])]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
