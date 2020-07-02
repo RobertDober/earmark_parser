@@ -4,7 +4,6 @@ defmodule EarmarkParser.MixProject do
   @version "1.4.9"
   @url "https://github.com/robertdober/earmark_parser"
 
-
   @deps [
     # {:credo, "~> 0.10", only: [:dev, :test]},
     {:dialyxir, "~> 1.0", only: [:dev, :test]},

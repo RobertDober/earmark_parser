@@ -2,7 +2,11 @@
 
 ## 1.5.0 ????/??/??
 
+## 1.4.10 2020/07/11
+
 ## 1.4.9 2020/07/01
+
+- [10-Missing-space-between-whitspace-separated-items](https://github.com/pragdave/earmark/issues/10)
 
 - [2-accept-any-struct-as-option](https://github.com/pragdave/earmark/issues/2)
     Allow client code of Earmark to replace their calls to `Earmark.as_ast` with `EarmarkParser.as_ast` w/o any
