@@ -12,6 +12,8 @@ defmodule EarmarkParser.Helpers.LeexHelpers do
     end
   end
 
+  def elex(text, options)
+
   def elex(text, lnb: lnb, with: lexer) do
     lex(text, with: lexer)
     |> Enum.map(&triple_elixirize(&1, lnb: lnb))

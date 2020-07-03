@@ -1,16 +1,18 @@
 defmodule V2.Acceptance.Ast.ParagraphsTest do
   use ExUnit.Case, async: true
   import Support.Helpers, only: [as_ast: 1, parse_html: 1]
+  import V2.Support.Helpers, only: [as_ast2: 1]
   import EarmarkAstDsl
 
   describe "Paragraphs" do
+    @tag :v2
     test "a para" do
       markdown = "aaa\n\nbbb\n"
       html     = "<p>aaa</p>\n<p>bbb</p>\n"
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, ast, messages}
+      assert as_ast2(markdown) == {:ok, ast, messages}
     end
 
     test "and another one" do

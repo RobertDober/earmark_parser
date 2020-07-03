@@ -1,5 +1,5 @@
-defmodule EarmarkParser.Unit.TokenLexer.TokenLexerTest do
-  use Support.LexerTest
+defmodule V2.EarmarkParser.Unit.TokenLexer.TokenLexerTest do
+  use V2.Support.LexerTest
 
   describe "all the single tokens:" do
     [

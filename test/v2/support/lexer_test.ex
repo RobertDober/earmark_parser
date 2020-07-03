@@ -1,4 +1,4 @@
-defmodule Support.LexerTest do
+defmodule V2.Support.LexerTest do
   alias EarmarkParser.Lexer
 
   defmacro __using__(_options) do
