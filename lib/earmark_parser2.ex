@@ -1,5 +1,6 @@
 defmodule EarmarkParser2 do
   alias EarmarkParser.Options
+  alias EarmarkParser2.Parser
 
   @moduledoc """
   Coming Soon
@@ -31,6 +32,7 @@ defmodule EarmarkParser2 do
     |> Stream.zip(Stream.iterate(1, &(&1 + 1)))
     |> Enum.to_list()
     |> _pflat_map(&_tokenize_numbered_line/1, options.timeout || @default_timeout_in_ms)
+    |> Parser.parse(options)
   end
 
   defp _as_ast(lines, options) when is_binary(lines) do
