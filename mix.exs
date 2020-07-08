@@ -2,7 +2,7 @@ defmodule EarmarkParser.MixProject do
   use Mix.Project
 
   @version "1.4.10"
-  @url "https://github.com/robert_dober/earmark_parser"
+  @url "https://github.com/RobertDober/earmark_parser"
 
   @deps [
     # {:credo, "~> 0.10", only: [:dev, :test]},
@@ -59,10 +59,10 @@ defmodule EarmarkParser.MixProject do
         "Robert Dober <robert.dober@gmail.com>",
       ],
       licenses: [
-        "Apache 2 (see the file LICENSE for details)"
+        "Apache-2.0"
       ],
       links: %{
-        "GitHub" => "https://github.com/robertdober/earmark_parser"
+        "GitHub" => "https://github.com/RobertDober/earmark_parser"
       }
     ]
   end
