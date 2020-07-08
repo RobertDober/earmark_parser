@@ -307,8 +307,8 @@ defmodule EarmarkParser.Ast.Inline do
   end
 
   defp output_wikilink(context, text, href, title, lnb) do
-    {tag, attrs, body} = output_link(context, text, href, title, lnb)
-    {tag, [{"class", "wikilink"} | attrs], body}
+    {tag, attrs, content, meta} = output_link(context, text, href, title, lnb)
+    {tag, [{"class", "wikilink"} | attrs], content, meta}
   end
 
   defp reference_link(context, match, alt_text, id, lnb) do

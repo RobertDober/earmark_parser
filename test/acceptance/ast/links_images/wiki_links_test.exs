@@ -9,7 +9,7 @@ defmodule Acceptance.Ast.LinkImages.WikiLinksTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "misleading non-wiki link" do
@@ -18,7 +18,7 @@ defmodule Acceptance.Ast.LinkImages.WikiLinksTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "alternate text" do
@@ -27,7 +27,7 @@ defmodule Acceptance.Ast.LinkImages.WikiLinksTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "illegal urls are not Earmark's responsability" do
@@ -36,7 +36,7 @@ defmodule Acceptance.Ast.LinkImages.WikiLinksTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
   end
 end
