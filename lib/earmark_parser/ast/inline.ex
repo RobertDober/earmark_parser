@@ -109,8 +109,9 @@ defmodule EarmarkParser.Ast.Inline do
       {match1, text, href, title, link_or_img} = match
       out =
         case link_or_img do
-          :link  -> output_link(context, text, href, title, lnb)
-          :image -> render_image(text, href, title)
+          :link     -> output_link(context, text, href, title, lnb)
+          :wikilink -> output_wikilink(context, text, href, title, lnb)
+          :image    -> render_image(text, href, title)
         end
       {behead(src, match1), lnb, prepend(context, out), use_linky?}
     end
@@ -303,6 +304,10 @@ defmodule EarmarkParser.Ast.Inline do
     else
       emit("a", Enum.reverse(context2.value), href: href)
     end
+  end
+
+  defp output_wikilink(context, text, href, title, lnb) do
+    output_link(context, text, href, title, lnb)
   end
 
   defp reference_link(context, match, alt_text, id, lnb) do
