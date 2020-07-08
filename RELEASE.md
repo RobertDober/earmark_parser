@@ -1,10 +1,10 @@
-# EarmarkParser
-
 ## 1.5.0 ????/??/??
-
 ## 1.4.10 2020/07/11
 
-- [10-Missing-space-between-whitspace-separated-items](https://github.com/pragdave/earmark/issues/10)
+- [19-use-spdx-in-hex](https://github.com/robertdober/earmark_parser/issues/19)
+    Kudos to [Chulki Lee](https://github.com/chulkilee)
+
+- [10-Missing-space-between-whitspace-separated-items](https://github.com/robertdober/earmark_parser/issues/10)
 
 - [15-hide-private-module](https://github.com/robertdober/earmark_parser/issues/15)
       Kudos to [Wojtek Mach](https://github.com/wojtekmach)
