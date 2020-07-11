@@ -1,6 +1,6 @@
 defmodule Acceptance.Ast.LinkImages.WikiLinksTest do
   use ExUnit.Case, async: true
-  import Support.Helpers, only: [as_ast: 1, parse_html: 1]
+  import Support.Helpers, only: [as_ast: 2, parse_html: 1]
 
   describe "Wiki links" do
     test "basic wiki-style link" do
@@ -9,7 +9,16 @@ defmodule Acceptance.Ast.LinkImages.WikiLinksTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown, wikilinks: true) == {:ok, ast, messages}
+    end
+
+    test "wikilink parsing is optional" do
+      markdown = "[[page]]"
+      html = "<p>[[page]]</p>\n"
+      ast      = parse_html(html)
+      messages = []
+
+      assert as_ast(markdown, wikilinks: false) == {:ok, ast, messages}
     end
 
     test "misleading non-wiki link" do
@@ -18,7 +27,7 @@ defmodule Acceptance.Ast.LinkImages.WikiLinksTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown, wikilinks: true) == {:ok, ast, messages}
     end
 
     test "alternate text" do
@@ -27,7 +36,7 @@ defmodule Acceptance.Ast.LinkImages.WikiLinksTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown, wikilinks: true) == {:ok, ast, messages}
     end
 
     test "illegal urls are not Earmark's responsability" do
@@ -36,7 +45,7 @@ defmodule Acceptance.Ast.LinkImages.WikiLinksTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown, wikilinks: true) == {:ok, ast, messages}
     end
   end
 end
