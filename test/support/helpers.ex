@@ -15,11 +15,11 @@ defmodule Support.Helpers do
     EarmarkParser.as_ast(markdown, struct(EarmarkParser.Options, options))
   end
 
-  def parse_html(html) do
+  def parse_html(html, metadata_fun \\ fn _ -> %{} end) do
     if System.get_env("DEBUG") do
-      _parse_html(html) |> _add_4th() |> IO.inspect
+      _parse_html(html) |> _add_4th(metadata_fun) |> IO.inspect
     else
-      _parse_html(html) |> _add_4th()
+      _parse_html(html) |> _add_4th(metadata_fun)
     end
   end
 
@@ -45,18 +45,19 @@ defmodule Support.Helpers do
     Context.update_context(context())
   end
 
-  defp _add_4th(node)
-  defp _add_4th(nodes) when is_list(nodes) do
+  defp _add_4th(node, metadata_fun)
+  defp _add_4th(nodes, metadata_fun) when is_list(nodes) do
     nodes
-    |> Enum.map(&_add_4th/1)
+    |> Enum.map(&_add_4th(&1, metadata_fun))
   end
-  defp _add_4th({t, a, c}) do
-    {t, a, _add_4th(c), %{}}
+  defp _add_4th({t, a, c}, metadata_fun) do
+    c = _add_4th(c, metadata_fun)
+    {t, a, c, metadata_fun.({t, a, c})}
   end
-  defp _add_4th({:comment, content}) do
+  defp _add_4th({:comment, content}, _) do
     {:comment, [], content, %{comment: true}}
   end
-  defp _add_4th(other), do: other
+  defp _add_4th(other, _), do: other
 
   defp _parse_html(html) do
     with {_, ast} = Floki.parse_fragment(html), do: ast

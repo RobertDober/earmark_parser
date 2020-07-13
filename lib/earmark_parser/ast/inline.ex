@@ -312,7 +312,7 @@ defmodule EarmarkParser.Ast.Inline do
   defp maybe_output_wikilink(context, text, href, title, lnb) do
     if context.options.wikilinks do
       {tag, attrs, content, meta} = output_link(context, text, href, title, lnb)
-      {tag, [{"class", "wikilink"} | attrs], content, meta}
+      {tag, attrs, content, Map.put(meta, :wikilink, true)}
     end
   end
 

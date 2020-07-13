@@ -1,12 +1,12 @@
 defmodule Acceptance.Ast.LinkImages.WikiLinksTest do
   use ExUnit.Case, async: true
-  import Support.Helpers, only: [as_ast: 2, parse_html: 1]
+  import Support.Helpers, only: [as_ast: 2, parse_html: 1, parse_html: 2]
 
   describe "Wiki links" do
     test "basic wiki-style link" do
       markdown = "[[page]]"
-      html = "<p><a class=\"wikilink\" href=\"page\">page</a></p>\n"
-      ast      = parse_html(html)
+      html = "<p><a href=\"page\">page</a></p>\n"
+      ast      = parse_html(html, &add_wikilinks_metadata/1)
       messages = []
 
       assert as_ast(markdown, wikilinks: true) == {:ok, ast, messages}
@@ -32,8 +32,8 @@ defmodule Acceptance.Ast.LinkImages.WikiLinksTest do
 
     test "alternate text" do
       markdown = "[[page | My Label]]"
-      html = "<p><a class=\"wikilink\" href=\"page\">My Label</a></p>\n"
-      ast      = parse_html(html)
+      html = "<p><a href=\"page\">My Label</a></p>\n"
+      ast      = parse_html(html, &add_wikilinks_metadata/1)
       messages = []
 
       assert as_ast(markdown, wikilinks: true) == {:ok, ast, messages}
@@ -41,11 +41,14 @@ defmodule Acceptance.Ast.LinkImages.WikiLinksTest do
 
     test "illegal urls are not Earmark's responsability" do
       markdown = "[[A long & complex title]]"
-      html = "<p><a class=\"wikilink\" href=\"A long & complex title\">A long &amp; complex title</a></p>\n"
-      ast      = parse_html(html)
+      html = "<p><a href=\"A long & complex title\">A long &amp; complex title</a></p>\n"
+      ast      = parse_html(html, &add_wikilinks_metadata/1)
       messages = []
 
       assert as_ast(markdown, wikilinks: true) == {:ok, ast, messages}
     end
   end
+
+  def add_wikilinks_metadata({"a", _, _}), do: %{wikilink: true}
+  def add_wikilinks_metadata(_), do: %{}
 end
