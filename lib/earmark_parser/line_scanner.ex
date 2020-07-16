@@ -1,7 +1,6 @@
 defmodule EarmarkParser.LineScanner do
-
   @moduledoc false
-  
+
   alias EarmarkParser.Helpers
   alias EarmarkParser.Line
   alias EarmarkParser.Options
@@ -49,7 +48,7 @@ defmodule EarmarkParser.LineScanner do
         >
   '''x
   @doc false
-  def void_tag?(tag), do: Regex.match?(@void_tag_rgx, "<#{tag}>") 
+  def void_tag?(tag), do: Regex.match?(@void_tag_rgx, "<#{tag}>")
 
   @doc false
   # We want to add the original source line into every
@@ -109,7 +108,7 @@ defmodule EarmarkParser.LineScanner do
         [_, leading] = match
         %Line.Ruler{type: "*", indent: String.length(leading)}
 
-      match = Regex.run( ~r/\A (\s{0,3}) (?:_\s?){3,} \z/x, line) ->
+      match = Regex.run(~r/\A (\s{0,3}) (?:_\s?){3,} \z/x, line) ->
         [_, leading] = match
         %Line.Ruler{type: "_", indent: String.length(leading)}
 
@@ -124,11 +123,22 @@ defmodule EarmarkParser.LineScanner do
       match = Regex.run(@indent_re, line) ->
         [_, spaces, more_spaces, bullet, rest] = match
         sl = String.length(spaces)
-        %Line.Indent{level: div(sl, 4), bullet: String.trim_trailing(bullet), content: more_spaces <> bullet <> rest, indent: String.length(more_spaces) + sl}
+
+        %Line.Indent{
+          level: div(sl, 4),
+          bullet: String.trim_trailing(bullet),
+          content: more_spaces <> bullet <> rest,
+          indent: String.length(more_spaces) + sl
+        }
 
       match = Regex.run(~r/\A(\s*)(`{3,}|~{3,})\s*([^`\s]*)\s*\z/u, line) ->
         [_, leading, fence, language] = match
-        %Line.Fence{delimiter: fence, language: _attribute_escape(language), indent: String.length(leading)}
+
+        %Line.Fence{
+          delimiter: fence,
+          language: _attribute_escape(language),
+          indent: String.length(leading)
+        }
 
       #   Although no block tags I still think they should close a preceding para as do many other
       #   implementations.
@@ -162,30 +172,26 @@ defmodule EarmarkParser.LineScanner do
         [_, id, first_line] = match
         %Line.FnDef{id: id, content: first_line, indent: 0}
 
-      match = Regex.run(~r/^(\s{0,3})([-*+])\s(\s*)(.*)/, line) ->
+      match = Regex.run(~r/^(\s{0,3})([-*+])(\s+)(.*)/, line) ->
         [_, leading, bullet, spaces, text] = match
 
         %Line.ListItem{
           type: :ul,
-          bullet: bullet,
-          content: spaces <> text,
+          bullet: bullet <> spaces,
+          content: text,
           indent: String.length(leading),
-          list_indent:  String.length(leading <> bullet <> spaces) + 1,
+          list_indent: _compute_list_indent(leading, bullet, spaces)
         }
 
-      match = Regex.run(~r/^(\s{0,3})(\d{1,9}[.)])\s(\s*)(.*)/, line) ->
+      match = Regex.run(~r/^(\s{0,3})(\d{1,9}[.)])(\s+)(.*)/, line) ->
         [_, leading, bullet, spaces, text] = match
 
-        # TODO: Rewrite this mess
-        sl = String.length(spaces)
-        sl1 = if sl > 3, do: 1, else: sl + 1
-        sl2 = sl1 + String.length(bullet)
         %Line.ListItem{
           type: :ol,
-          bullet: bullet,
-          content: spaces <> text,
+          bullet: bullet <> spaces,
+          content: text,
           indent: String.length(leading),
-          list_indent:  String.length(leading) + sl2,
+          list_indent: _compute_list_indent(leading, bullet, spaces)
         }
 
       match = Regex.run(~r/^ (\s{0,3}) \| (?: [^|]+ \|)+ \s* $ /x, line) ->
@@ -197,17 +203,36 @@ defmodule EarmarkParser.LineScanner do
           |> String.trim("|")
 
         columns = split_table_columns(body)
-        %Line.TableLine{content: line, columns: columns, is_header: _determine_if_header(columns), indent: String.length(leading)}
+
+        %Line.TableLine{
+          content: line,
+          columns: columns,
+          is_header: _determine_if_header(columns),
+          indent: String.length(leading)
+        }
 
       match = Regex.run(~r/\A (\s*) .* \s \| \s /x, line) ->
         [_, leading] = match
         columns = split_table_columns(line)
-        %Line.TableLine{content: line, columns: columns, is_header: _determine_if_header(columns), indent: String.length(leading)}
 
-      match = options.gfm_tables && Regex.run( ~r/\A (\s*) .* \| /x, line) ->
+        %Line.TableLine{
+          content: line,
+          columns: columns,
+          is_header: _determine_if_header(columns),
+          indent: String.length(leading)
+        }
+
+      match = options.gfm_tables && Regex.run(~r/\A (\s*) .* \| /x, line) ->
         [_, leading] = match
         columns = split_table_columns(line)
-        %Line.TableLine{content: line, columns: columns, is_header: _determine_if_header(columns), needs_header: true, indent: String.length(leading)}
+
+        %Line.TableLine{
+          content: line,
+          columns: columns,
+          is_header: _determine_if_header(columns),
+          needs_header: true,
+          indent: String.length(leading)
+        }
 
       match = Regex.run(~r/^(=|-)+\s*$/, line) ->
         [_, type] = match
@@ -238,23 +263,31 @@ defmodule EarmarkParser.LineScanner do
     end
   end
 
-
-  defp _attribute_escape(string), do:
-    string
-    |> String.replace("&", "&amp;")
-    |> String.replace("<", "&lt;")
-
+  defp _attribute_escape(string),
+    do:
+      string
+      |> String.replace("&", "&amp;")
+      |> String.replace("<", "&lt;")
 
   # Not sure yet if we shall enforce all tags, in that case we shall enlargen @block_tags to @html_tags
   # @block_tags ~w< address article aside blockquote canvas dd div dl fieldset figcaption h1 h2 h3 h4 h5 h6 header hgroup li main nav noscript ol output p pre section table tfoot ul video>
   #             |> Enum.into(MapSet.new())
   # defp block_tag?(tag), do: MapSet.member?(@block_tags, tag)
 
+  defp _compute_list_indent(leading, bullet, spaces) do
+    sl = String.length(spaces)
+
+    String.length(leading) +
+      String.length(bullet) +
+      if sl > 4, do: 1, else: sl
+  end
+
   @column_rgx ~r{\A[\s|:-]+\z}
   defp _determine_if_header(columns) do
     columns
     |> Enum.all?(fn col -> Regex.run(@column_rgx, col) end)
   end
+
   defp split_table_columns(line) do
     line
     |> String.split(~r{(?<!\\)\|})

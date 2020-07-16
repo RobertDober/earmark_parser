@@ -37,7 +37,15 @@ defmodule Acceptance.Ast.Lists.ListAndInlineCodeTest do
     end
 
     test "even more complex spaced example (checking for one offs)" do
-      markdown = ~s(Prefix1\n* And\n\n  Prefix2\n  `Hello\n   * World)
+      markdown  = """
+      Prefix1
+      * And
+
+        Prefix2
+        `Hello
+         * World
+      """ |> String.trim_trailing
+      
       ast      = [p("Prefix1"), tag("ul", tag("li", ["And", "Prefix2\n`Hello\n * World"]))]
       messages = [{:warning, 5, "Closing unclosed backquotes ` at end of input"}]
 

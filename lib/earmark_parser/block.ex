@@ -1,4 +1,5 @@
 defmodule EarmarkParser.Block do
+  alias EarmarkParser.Block.*
 
   @moduledoc false
 
@@ -58,16 +59,6 @@ defmodule EarmarkParser.Block do
       lnb: 0,
       loose?: false,
       start: "",
-      type: :ul
-  end
-  defmodule ListItem do
-    @moduledoc false
-    defstruct attrs: nil,
-      blocks: [],
-      bullet: "",
-      lnb: 0,
-      loose?: false,
-      spaced: true,
       type: :ul
   end
   defmodule Table do

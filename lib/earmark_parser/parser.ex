@@ -11,7 +11,8 @@ defmodule EarmarkParser.Parser do
   import EarmarkParser.Helpers.AttrParser
   import EarmarkParser.Helpers.ReparseHelpers
   import EarmarkParser.Message, only: [add_message: 2, add_messages: 2]
-  import EarmarkParser.Parser.ListParser, only: [parse_list: 3]
+  # import EarmarkParser.Parser.ListParser, only: [parse_list: 3]
+  import EarmarkParser.List.ListParser, only: [parse_list: 3]
 
   @doc """
   Given a markdown document (as either a list of lines or
@@ -186,7 +187,6 @@ defmodule EarmarkParser.Parser do
   # in the second we combine adjacent items into lists. This is pass one
 
   defp _parse( [ %Line.ListItem{}|_ ]=input, result, options, recursive) do
-
     {with_prepended_lists, rest, options1} = parse_list(input, result, options)
     _parse([%Line.Blank{lnb: 0} | rest], with_prepended_lists, options1, recursive)
 

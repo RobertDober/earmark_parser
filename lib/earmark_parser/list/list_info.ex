@@ -1,4 +1,4 @@
-defmodule EarmarkParser.Parser.ListInfo do
+defmodule EarmarkParser.List.ListInfo do
   import EarmarkParser.Helpers.LookaheadHelpers, only: [opens_inline_code: 1, still_inline_code: 2]
 
   @moduledoc false
@@ -7,6 +7,7 @@ defmodule EarmarkParser.Parser.ListInfo do
 
 
   defstruct(
+    header: true,
     indent: 0,
     pending: @not_pending,
     spaced: false,
@@ -29,3 +30,4 @@ defmodule EarmarkParser.Parser.ListInfo do
     %{info | pending: pending1}
   end
 end
+
