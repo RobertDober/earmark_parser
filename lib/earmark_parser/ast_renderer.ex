@@ -169,7 +169,7 @@ defmodule EarmarkParser.AstRenderer do
         %Block.ListItem{attrs: %{id: ["#fn:#{note.number}"]}, type: :ol, blocks: blocks}
       end)
 
-    prepend(context, render_footnote_list(items))
+    prepend(context, render_footnote_list(items, context))
   end
 
   #######################################
