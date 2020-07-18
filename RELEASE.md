@@ -1,5 +1,7 @@
 ## 1.5.0 ????/??/??
-## 1.4.10 2020/07/11
+## 1.4.10 2020/07/18
+
+- [1-text-of-footnote-definitions-not-converted](https://github.com/robertdober/earmark_parser/issues/1)
 
 - [19-use-spdx-in-hex](https://github.com/robertdober/earmark_parser/issues/19)
     Kudos to [Chulki Lee](https://github.com/chulkilee)
