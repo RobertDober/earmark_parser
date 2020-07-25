@@ -1,4 +1,5 @@
 defmodule EarmarkParser.List.ListParser do
+  alias EarmarkParser.Line
   alias EarmarkParser.List.{ListInfo, ListReader}
   alias EarmarkParser.Block.{Blank, List, ListItem}
 
@@ -7,8 +8,8 @@ defmodule EarmarkParser.List.ListParser do
   @moduledoc false
 
   # @spec parse_list(Lines, Blocks, Option) :: {[List|Blocks], Lines, Option}
-  def parse_list(input, result, options) do
-    list_info = ListInfo.new(input)
+  def parse_list([%Line.ListItem{}=line|_]=input, result, options) do
+    list_info = ListInfo.new(line)
     {list, rest, options1} = parse_list_items(input, [], list_info, options)
     {[list | result], rest, options1}
   end
@@ -26,9 +27,8 @@ defmodule EarmarkParser.List.ListParser do
   end
 
   # @spec parse_list_item(Lines, [Line], ListInfo, Options.t) :: {ListItem, Lines, Option}
-  def parse_list_item([line | _] = input, list_info, options) do
+  def parse_list_item([%Line.ListItem{}=line | _] = input, list_info, options) do
     # Make a new list Item
-    list_item = ListItem.new(line)
     {item_lines, rest, options1} = ListReader.read_list_item(input, input, list_info, options)
     {list_item_blocks, options2} = parse_list_item_lines(item_lines, list_info, options1)
 

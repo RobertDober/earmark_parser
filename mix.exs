@@ -34,6 +34,7 @@ defmodule EarmarkParser.MixProject do
       elixirc_paths: elixirc_paths(Mix.env()),
       deps: @deps,
       description: @description,
+      dialyzer: [flags: ["-Wunmatched_returns", :error_handling, :underspecs]],
       package: package(),
       preferred_cli_env: [
         coveralls: :test,
