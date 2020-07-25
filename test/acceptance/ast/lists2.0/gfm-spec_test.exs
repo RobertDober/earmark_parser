@@ -14,7 +14,7 @@ defmodule  EarmarkParser.Ast.Lists20.GfmSpecTest do
 
     > A block quote.
 """
-    IO.puts markdown
+    # IO.puts markdown
     ast =
 [
   {"ol", [],

@@ -8,7 +8,8 @@ defmodule EarmarkParser.Block.ListItem do
             spaced: true,
             type: :ul
 
-  def new(%EarmarkParser.Line.ListItem{bullet: bullet, type: type}) do
-    %__MODULE__{bullet: bullet, type: type}
+  def new(%EarmarkParser.Line.ListItem{bullet: bullet, type: type}, options \\ []) do
+    blocks = Keyword.get(options, :blocks, [])
+    %__MODULE__{blocks: blocks, bullet: bullet, type: type}
   end
 end
