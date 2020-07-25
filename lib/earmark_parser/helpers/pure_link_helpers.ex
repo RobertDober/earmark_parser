@@ -7,7 +7,7 @@ defmodule EarmarkParser.Helpers.PureLinkHelpers do
   @pure_link_rgx ~r{\A(\s*)(\()?(https?://[[:alnum:]"'*@:+-_{\}()/.%\#]*)}u
   def convert_pure_link(src) do
     case Regex.run(@pure_link_rgx, src) do
-      [_match, spaces, "", link_text] -> reparse_link(String.length(spaces), link_text, 0)
+      [_match, spaces, "", link_text] -> reparse_link(String.length(spaces), link_text)
       [_match, spaces, _, link_text]  -> remove_trailing_closing_parens(String.length(spaces), link_text) 
       _ -> nil
       end
@@ -37,12 +37,10 @@ defmodule EarmarkParser.Helpers.PureLinkHelpers do
     end
   end
 
-  defp reparse_link(leading_spaces_count, link_text, open_count) do
+  defp reparse_link(leading_spaces_count, link_text) do
     [_, prefix, suffix] = Regex.run(@split_at_ending_parens, link_text)
     nof_closing_parens = String.length(suffix)
-    if nof_closing_parens >= open_count do
-      determine_ending_parens_by_count(leading_spaces_count, prefix, nof_closing_parens - open_count)
-    end
+    determine_ending_parens_by_count(leading_spaces_count, prefix, nof_closing_parens)
   end
 
   defp link(text), do: render_link(text, text)
