@@ -1,4 +1,5 @@
 defmodule EarmarkParser.List.ListInfo do
+  use EarmarkParser.Types
   import EarmarkParser.Helpers.LookaheadHelpers,
     only: [opens_inline_code: 1, still_inline_code: 2]
 
@@ -13,6 +14,14 @@ defmodule EarmarkParser.List.ListInfo do
     spaced: false,
     width: 0
   )
+
+  @type t :: %__MODULE__{
+          header: boolean(),
+          indent: non_neg_integer(),
+          pending: pending_t(),
+          spaced: boolean(),
+          width: non_neg_integer()
+        }
 
   # INLINE CANDIDATE
   def new(%EarmarkParser.Line.ListItem{initial_indent: ii, list_indent: width} = item) do
