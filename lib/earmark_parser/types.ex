@@ -3,6 +3,8 @@ defmodule EarmarkParser.Types do
 
   defmacro __using__(_options \\ []) do
     quote do
+      @type attr_t :: {binary(), binary()}
+      @type attr_ts :: list(attr_t())
       @type pending_t :: {nil, 0} | {String.t(), non_neg_integer()}
 
       @type token :: {atom, String.t()}

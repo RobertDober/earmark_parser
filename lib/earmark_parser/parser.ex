@@ -387,7 +387,7 @@ defmodule EarmarkParser.Parser do
 
   defp compute_list_spacing( list = %Block.List{blocks: items} ) do
     with spaced = any_spaced_items?(items),
-         unified_items = Enum.map(items, &(%{&1 | spaced: spaced}))
+         unified_items = Enum.map(items, &(%{&1 | spaced?: spaced}))
     do
       %{list | blocks: unified_items}
     end

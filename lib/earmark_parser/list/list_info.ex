@@ -30,8 +30,8 @@ defmodule EarmarkParser.List.ListInfo do
   end
 
   def pending?(list_info)
-  def pending?(%__MODULE__{pending: @not_pending}), do: true
-  def pending?(%__MODULE__{}), do: false
+  def pending?(%__MODULE__{pending: @not_pending}), do: false
+  def pending?(%__MODULE__{}), do: true
 
   # INLINE CANDIDATE
   def update_pending(list_info, line)

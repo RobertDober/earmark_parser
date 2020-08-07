@@ -1,6 +1,8 @@
 defmodule EarmarkParser.Block.List do
   @moduledoc false
 
+  use EarmarkParser.Types
+
   alias EarmarkParser.List.ListInfo
   alias EarmarkParser.Block.ListItem
 
@@ -12,10 +14,25 @@ defmodule EarmarkParser.Block.List do
             start: "",
             type: :ul
 
-  def new([%ListItem{bullet: bullet, lnb: lnb, loose?: loose, spaced: spaced1, type: type}|_]=items, %ListInfo{spaced: spaced}) do
+  @type t :: %__MODULE__{
+      attrs: attr_ts(),
+      blocks: EarmarkParser.Block.ts,
+      bullet: binary(),
+      lnb: non_neg_integer,
+      loose?: boolean(),
+      start: binary(),
+      type: atom()
+  }
+
+  def new(
+        [%ListItem{bullet: bullet, lnb: lnb, loose?: loose, spaced?: spaced1, type: type} | _] =
+          items,
+        %ListInfo{spaced: spaced}
+      ) do
     %__MODULE__{
       blocks: items,
       bullet: bullet,
+      lnb: lnb,
       loose?: loose || spaced || spaced1,
       start: _extract_start(bullet),
       type: type

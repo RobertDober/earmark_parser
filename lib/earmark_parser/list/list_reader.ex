@@ -15,7 +15,7 @@ defmodule EarmarkParser.List.ListReader do
   end
 
   def read_list_item([line | rest] = input, item_lines, list_info, options) do
-    case _still_in_list?(line, list_info) do
+    case _still_in_list?(line, list_info)  do
       {true, list_info1} -> read_list_item(rest, [line | item_lines], list_info1, options)
       _ -> {Enum.reverse(item_lines), input, options}
     end
