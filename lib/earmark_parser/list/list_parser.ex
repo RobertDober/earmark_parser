@@ -1,14 +1,17 @@
 defmodule EarmarkParser.List.ListParser do
   use EarmarkParser.Types
-  alias EarmarkParser.{Block, Line, Options}
+  alias EarmarkParser.{Block, Line, Options, Parser}
   alias EarmarkParser.List.{ListInfo, ListReader}
   alias EarmarkParser.Block.{Blank, List, ListItem}
 
   import EarmarkParser.Helpers.StringHelpers, only: [behead_indent: 2]
 
+  @typep list_and_blocks :: [Block.List.t() | Block.ts()]
+  @typep list_and_lines  :: [%Line.ListItem{} | Line.ts()]
   @moduledoc false
 
   # @spec parse_list(Lines, Blocks, Option) :: {[List|Blocks], Lines, Option}
+  @spec parse_list(list_and_lines(), Block.ts, Options.t) :: {list_and_blocks(), Line.ts, Options.t}
   def parse_list([%Line.ListItem{} = line | _] = input, result, options) do
     list_info = ListInfo.new(line)
     {list, rest, options1} = parse_list_items(input, [], list_info, options)

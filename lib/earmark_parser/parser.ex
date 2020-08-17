@@ -1,10 +1,7 @@
 defmodule EarmarkParser.Parser do
 
   @moduledoc false
-  alias EarmarkParser.Block
-  alias EarmarkParser.Line
-  alias EarmarkParser.LineScanner
-  alias EarmarkParser.Options
+  alias EarmarkParser.{Block, Line, LineScanner, Options}
 
   import EarmarkParser.Helpers.LookaheadHelpers, only: [opens_inline_code: 1, still_inline_code: 2]
   import EarmarkParser.Helpers.LineHelpers

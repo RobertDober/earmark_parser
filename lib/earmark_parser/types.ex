@@ -18,6 +18,7 @@ defmodule EarmarkParser.Types do
       @type message :: {message_type, number, String.t()}
       @type maybe(t) :: t | nil
       @type inline_code_continuation :: {nil | String.t(), number}
+
     end
   end
 end

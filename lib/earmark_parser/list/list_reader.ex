@@ -15,7 +15,7 @@ defmodule EarmarkParser.List.ListReader do
   end
 
   def read_list_item([line | rest] = input, item_lines, list_info, options) do
-    case _still_in_list?(line, list_info)  do
+    case _still_in_list?(line, list_info) do
       {true, list_info1} -> read_list_item(rest, [line | item_lines], list_info1, options)
       _ -> {Enum.reverse(item_lines), input, options}
     end
@@ -38,7 +38,7 @@ defmodule EarmarkParser.List.ListReader do
     {true, ListInfo.update_pending(list_info, line)}
   end
 
-  @spec _still_in_np_list?( Line.t, ListInfo.t ) :: maybe({true, ListInfo.t})
+  @spec _still_in_np_list?(Line.t(), ListInfo.t()) :: maybe({true, ListInfo.t()})
   defp _still_in_np_list?(line, list_info)
 
   defp _still_in_np_list?(%Line.Ruler{}, _list_info) do
@@ -48,7 +48,6 @@ defmodule EarmarkParser.List.ListReader do
   defp _still_in_np_list?(%Line.Blank{}, list_info) do
     {true, %{list_info | spaced: true}}
   end
-
 
   defp _still_in_np_list?(_, %ListInfo{spaced: false} = list_info) do
     {true, list_info}
