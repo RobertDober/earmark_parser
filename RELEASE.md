@@ -1,5 +1,8 @@
 ## 1.5.0 ????/??/??
 
+- [24-treat-single-dash-as-text](https://github.com/robertdober/earmark_parser/issues/24)
+    Kudos to [Ben Olive](https://github.com/sionide21)  
+
 - [22-missing-ws-before-links](https://github.com/robertdober/earmark_parser/issues/22)
     Kudos to [Ben Olive](https://github.com/sionide21)  
 
