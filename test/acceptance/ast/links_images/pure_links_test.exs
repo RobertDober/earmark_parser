@@ -18,7 +18,7 @@ defmodule Acceptance.Ast.LinksImages.PureLinksTest do
   describe "enabled pure links" do
     test "two in a row" do
       markdown = "https://github.com/pragdave/earmark https://github.com/RobertDober/extractly"
-      html = "<p><a href=\"https://github.com/pragdave/earmark\">https://github.com/pragdave/earmark</a> <a href=\"https://github.com/RobertDober/extractly\">https://github.com/RobertDober/extractly</a></p>\n"
+      html = "<p><a href=\"https://github.com/pragdave/earmark\">https://github.com/pragdave/earmark</a>&#x20;<a href=\"https://github.com/RobertDober/extractly\">https://github.com/RobertDober/extractly</a></p>\n"
       ast      = parse_html(html)
       messages = []
 
@@ -54,7 +54,17 @@ defmodule Acceptance.Ast.LinksImages.PureLinksTest do
 
     test "correct mix" do
       markdown = "[https://erlang.org](https://erlang.org) https://elixir.lang"
-      html = "<p><a href=\"https://erlang.org\">https://erlang.org</a> <a href=\"https://elixir.lang\">https://elixir.lang</a></p>\n"
+      html = "<p><a href=\"https://erlang.org\">https://erlang.org</a>&#x20;<a href=\"https://elixir.lang\">https://elixir.lang</a></p>\n"
+      ast      = parse_html(html)
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
+
+    test "leading whitespace is preserved" do
+      markdown = "**Test**     https://www.google.com"
+      # This needs to be `&#x20;` instead of ` ` because Floki strips out blank text nodes
+      html = "<p><strong>Test</strong>&#x20;&#x20;&#x20;&#x20;&#x20;<a href=\"https://www.google.com\">https://www.google.com</a></p>\n"
       ast      = parse_html(html)
       messages = []
 
