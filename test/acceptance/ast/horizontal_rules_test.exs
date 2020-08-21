@@ -23,6 +23,24 @@ defmodule Acceptance.Ast.HorizontalRulesTest do
       assert as_ast(markdown) == {:ok, ast, messages}
     end
 
+    test "a dash is just text" do
+      markdown = "-\nTest"
+      html     = "<p>-\nTest</p>"
+      ast      = parse_html(html)
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
+
+    test "two dashes are just text" do
+      markdown = "--\nTest"
+      html     = "<p>--\nTest</p>"
+      ast      = parse_html(html)
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
+
     test "not in code" do
       markdown = "    ***\n    \n     a"
       html     = "<pre><code>***\n\n a</code></pre>\n"

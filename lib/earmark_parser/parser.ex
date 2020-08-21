@@ -179,6 +179,10 @@ defmodule EarmarkParser.Parser do
     end
   end
 
+  defp _parse([%Line.SetextUnderlineHeading{line: line, lnb: lnb, level: 2} | rest], result, options, recursive) do
+    _parse([%Line.Text{line: line, lnb: lnb} | rest], result, options, recursive)
+  end
+
   #########
   # Lists #
   #########
