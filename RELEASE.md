@@ -1,4 +1,8 @@
 ## 1.5.0 ????/??/??
+
+- [22-missing-ws-before-links](https://github.com/robertdober/earmark_parser/issues/22)
+    Kudos to [Ben Olive](https://github.com/sionide21)  
+
 ## 1.4.10 2020/07/18
 
 - [1-text-of-footnote-definitions-not-converted](https://github.com/robertdober/earmark_parser/issues/1)
