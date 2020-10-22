@@ -33,7 +33,7 @@ defmodule Functional.Scanner.LineTypeTest do
 
     { "* *",   %Line.ListItem{type: :ul, bullet: "*", content: "*", list_indent: 2} },
     { "* * *", %Line.Ruler{type: "*"} },
-    { "**",    %Line.Text{content: "**"} },
+    { "**",    %Line.Text{content: "**", line: "**"} },
     { "***",   %Line.Ruler{type: "*"} },
 
     { "_ _",   %Line.Text{content: "_ _"} },
@@ -54,7 +54,7 @@ defmodule Functional.Scanner.LineTypeTest do
     { ">quote",     %Line.BlockQuote{content: "quote"} },
 
     #1234567890123
-    { "   a",         %Line.Text{content: "   a"} },
+    { "   a",         %Line.Text{content: "a", line: "   a"} },
     { "    b",        %Line.Indent{level: 1, content: "b"} },
     { "      c",      %Line.Indent{level: 1, content: "  c"} },
     { "        d",    %Line.Indent{level: 2, content: "d"} },
@@ -148,7 +148,7 @@ defmodule Functional.Scanner.LineTypeTest do
       { "-",        %Line.SetextUnderlineHeading{level: 2} },
       { "= and so", %Line.Text{content: "= and so"} },
 
-      { "   (title)", %Line.Text{content: "   (title)"} },
+      { "   (title)", %Line.Text{content: "(title)", line: "   (title)"} },
 
       { "{: .attr }",       %Line.Ial{attrs: ".attr", verbatim: " .attr "} },
       { "{:.a1 .a2}",       %Line.Ial{attrs: ".a1 .a2", verbatim: ".a1 .a2"} },

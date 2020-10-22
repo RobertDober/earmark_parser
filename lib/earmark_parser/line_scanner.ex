@@ -232,9 +232,10 @@ defmodule EarmarkParser.LineScanner do
       #       true -> %Text
       #
       #
-      match = Regex.run(~r/\A (\s*) .*/x, line) ->
-        [_, leading] = match
-        %Line.Text{content: line, indent: String.length(leading)}
+      match = Regex.run(~r/\A (\s*) (.*)/x, line) ->
+        [_, leading, content] = match
+        %Line.Text{content: content, indent: String.length(leading), line: line}
+      true -> raise "Ooops no such line type"
     end
   end
 
