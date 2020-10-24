@@ -54,6 +54,7 @@ defmodule Functional.Scanner.LineTypeTest do
     { ">    quote", %Line.BlockQuote{content: "   quote"} },
     { ">quote",     %Line.BlockQuote{content: "quote"} },
     { " >  quote",     %Line.BlockQuote{content: " quote"} },
+    { " >", %Line.BlockQuote{content: ""}},
 
     #1234567890123
     { "   a",         %Line.Text{content: "a", line: "   a"} },
