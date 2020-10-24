@@ -23,7 +23,7 @@ defmodule EarmarkParser.Line do
 
   defmodule Indent  do
     @moduledoc false
-    defstruct(lnb: 0, bullet: "", line: "", indent: -1, level: 0, content: "text", inside_code: false)
+    defstruct(lnb: 0, line: "", indent: -1, level: 0, content: "text", inside_code: false)
   end
 
   defmodule Fence  do

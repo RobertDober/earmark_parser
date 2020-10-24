@@ -18,6 +18,7 @@ defmodule Functional.Scanner.LineTypeTest do
 
   id10 = ~S{[ID10]: /url/ "Title with "quotes" inside"}
   id11 = ~S{[ID11]: http://example.com "Title with trailing whitespace" }
+  id12 = ~S{[ID12]: ]hello}
 
   [
     { "",         %Line.Blank{} },
@@ -52,6 +53,7 @@ defmodule Functional.Scanner.LineTypeTest do
     { "> quote",    %Line.BlockQuote{content: "quote"} },
     { ">    quote", %Line.BlockQuote{content: "   quote"} },
     { ">quote",     %Line.BlockQuote{content: "quote"} },
+    { " >  quote",     %Line.BlockQuote{content: " quote"} },
 
     #1234567890123
     { "   a",         %Line.Text{content: "a", line: "   a"} },
@@ -59,9 +61,9 @@ defmodule Functional.Scanner.LineTypeTest do
     { "      c",      %Line.Indent{level: 1, content: "  c"} },
     { "        d",    %Line.Indent{level: 2, content: "d"} },
     { "          e",  %Line.Indent{level: 2, content: "  e"} },
-    { "    - f",      %Line.Indent{bullet: "-", level: 1, content: "- f"} },
-    { "     *  g",    %Line.Indent{bullet: "*", level: 1, content: " *  g"} },
-    { "      012) h", %Line.Indent{bullet: "012)", level: 1, content: "  012) h"} },
+    { "    - f",      %Line.Indent{level: 1, content: "- f"} },
+    { "     *  g",    %Line.Indent{level: 1, content: " *  g"} },
+    { "      012) h", %Line.Indent{level: 1, content: "  012) h"} },
 
     { "```",      %Line.Fence{delimiter: "```", language: "",     line: "```"} },
     { "``` java", %Line.Fence{delimiter: "```", language: "java", line: "``` java"} },
@@ -127,6 +129,7 @@ defmodule Functional.Scanner.LineTypeTest do
 
       {id10, %Line.IdDef{id: "ID10", url: "/url/", title: "Title with \"quotes\" inside"}},
       {id11, %Line.IdDef{id: "ID11", url: "http://example.com", title: "Title with trailing whitespace"}},
+      {id12, %Line.IdDef{id: "ID12", url: "]hello", title: ""}},
 
 
       { "* ul1", %Line.ListItem{ type: :ul, bullet: "*", content: "ul1", list_indent: 2} },

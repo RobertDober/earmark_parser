@@ -22,7 +22,7 @@ defmodule EarmarkParser.LineScanner do
 
   @id_re ~r'''
      ^(\s{0,3})             # leading spaces
-     \[([^\]]*)\]:        # [someid]:
+     \[(.+?)\]:             # [someid]:
      \s+
      (?|
          < (\S+) >          # url in <>s
@@ -38,7 +38,6 @@ defmodule EarmarkParser.LineScanner do
 
   @indent_re ~r'''
     \A ( (?: \s{4})+ ) (\s*)                       # 4 or more leading spaces
-    (?| ([-*] \s+) | (\d{1,9}[.)] \s+) )? # a potential list item indicating bullet (needed in lookahead for recursive parsing)
     (.*)                                  # the rest
   '''x
 
@@ -122,9 +121,9 @@ defmodule EarmarkParser.LineScanner do
         %Line.BlockQuote{content: quote, indent: String.length(leading)}
 
       match = Regex.run(@indent_re, line) ->
-        [_, spaces, more_spaces, bullet, rest] = match
+        [_, spaces, more_spaces, rest] = match
         sl = String.length(spaces)
-        %Line.Indent{level: div(sl, 4), bullet: String.trim_trailing(bullet), content: more_spaces <> bullet <> rest, indent: String.length(more_spaces) + sl}
+        %Line.Indent{level: div(sl, 4), content: more_spaces <> rest, indent: String.length(more_spaces) + sl}
 
       match = Regex.run(~r/\A(\s*)(`{3,}|~{3,})\s*([^`\s]*)\s*\z/u, line) ->
         [_, leading, fence, language] = match
