@@ -88,7 +88,7 @@ In the following example we want more than one additional class, so we add more 
     iex(3)> [
     ...(3)>    "```elixir",
     ...(3)>    " @tag :hello",
-    ...(3)>    "```" 
+    ...(3)>    "```"
     ...(3)> ] |> EarmarkParser.as_ast(%EarmarkParser.Options{code_class_prefix: "lang- language-"})
     {:ok, [{"pre", [], [{"code", [{"class", "elixir lang-elixir language-elixir"}], [" @tag :hello"], %{}}], %{}}], []}
 
@@ -119,7 +119,7 @@ Currently we assume there are always spaces around interior vertical unless
 there are exterior bars.
 
 However in order to be more GFM compatible the `gfm_tables: true` option
-can be used to interpret only interior vertical bars as a table if a seperation
+can be used to interpret only interior vertical bars as a table if a separation
 line is given, therefor
 
      Language|Rating
@@ -135,7 +135,7 @@ never is.
 
 #### HTML Blocks
 
-HTML is not parsed recursively or detected in all conditons right now, though GFM compliance
+HTML is not parsed recursively or detected in all conditions right now, though GFM compliance
 is a goal.
 
 But for now the following holds:
@@ -145,35 +145,35 @@ as one HTML AST node, marked with %{verbatim: true}
 
 E.g.
 
-      iex(4)> lines = [ "<div><span>", "some</span><text>", "</div>more text" ]
-      ...(4)> EarmarkParser.as_ast(lines)
-      {:ok, [{"div", [], ["<span>", "some</span><text>"], %{verbatim: true}}, "more text"], []}
+    iex(4)> lines = [ "<div><span>", "some</span><text>", "</div>more text" ]
+    ...(4)> EarmarkParser.as_ast(lines)
+    {:ok, [{"div", [], ["<span>", "some</span><text>"], %{verbatim: true}}, "more text"], []}
 
 And a line starting with an opening tag and ending with the corresponding closing tag is parsed in similar
 fashion
 
-      iex(5)> EarmarkParser.as_ast(["<span class=\"superspan\">spaniel</span>"])
-      {:ok, [{"span", [{"class", "superspan"}], ["spaniel"], %{verbatim: true}}], []}
+    iex(5)> EarmarkParser.as_ast(["<span class=\"superspan\">spaniel</span>"])
+    {:ok, [{"span", [{"class", "superspan"}], ["spaniel"], %{verbatim: true}}], []}
 
 What is HTML?
 
-We differ from strict GFM by allowing **all** tags not only HTML5 tagsn this holds for oneliners....
+We differ from strict GFM by allowing **all** tags not only HTML5 tags this holds for one liners....
 
-      iex(6)> {:ok, ast, []} = EarmarkParser.as_ast(["<stupid />", "<not>better</not>"])
-      ...(6)> ast
-      [
-        {"stupid", [], [], %{verbatim: true}},
-        {"not", [], ["better"], %{verbatim: true}}]
+    iex(6)> {:ok, ast, []} = EarmarkParser.as_ast(["<stupid />", "<not>better</not>"])
+    ...(6)> ast
+    [
+      {"stupid", [], [], %{verbatim: true}},
+      {"not", [], ["better"], %{verbatim: true}}]
 
-and for multiline blocks
+and for multi line blocks
 
-      iex(7)> {:ok, ast, []} = EarmarkParser.as_ast([ "<hello>", "world", "</hello>"])
-      ...(7)> ast
-      [{"hello", [], ["world"], %{verbatim: true}}]
+    iex(7)> {:ok, ast, []} = EarmarkParser.as_ast([ "<hello>", "world", "</hello>"])
+    ...(7)> ast
+    [{"hello", [], ["world"], %{verbatim: true}}]
 
 #### HTML Comments
 
-Are recoginized if they start a line (after ws and are parsed until the next `-->` is found
+Are recognized if they start a line (after ws and are parsed until the next `-->` is found
 all text after the next '-->' is ignored
 
 E.g.
@@ -243,53 +243,53 @@ containing an IAL-like string, as in the following example
         </div>
         </div>
 
-  will work. However. the following won't
+    will work. However. the following won't
 
         <div>
         hello</div>
 
-* John Gruber's tests contain an ambiguity when it comes to
-  lines that might be the start of a list inside paragraphs.
+  * John Gruber's tests contain an ambiguity when it comes to
+    lines that might be the start of a list inside paragraphs.
 
-  One test says that
+    One test says that
 
         This is the text
         * of a paragraph
         that I wrote
 
-  is a single paragraph. The "*" is not significant. However, another
-  test has
+    is a single paragraph. The "*" is not significant. However, another
+    test has
 
         *   A list item
             * an another
 
-  and expects this to be a nested list. But, in reality, the second could just
-  be the continuation of a paragraph.
+    and expects this to be a nested list. But, in reality, the second could just
+    be the continuation of a paragraph.
 
-  I've chosen always to use the second interpretation—a line that looks like
-  a list item will always be a list item.
+    I've chosen always to use the second interpretation—a line that looks like
+    a list item will always be a list item.
 
-* Rendering of block and inline elements.
+  * Rendering of block and inline elements.
 
-  Block or void HTML elements that are at the absolute beginning of a line end
-  the preceding paragraph.
+    Block or void HTML elements that are at the absolute beginning of a line end
+    the preceding paragraph.
 
-  Thusly
+    Thusly
 
         mypara
         <hr />
 
-  Becomes
+    Becomes
 
         <p>mypara</p>
         <hr />
 
-  While
+    While
 
         mypara
          <hr />
 
-  will be transformed into
+    will be transformed into
 
         <p>mypara
          <hr /></p>
@@ -315,16 +315,16 @@ In both cases one can override the mapper function with either the `mapper` opti
 ## `EarmarkParser.as_ast/2`
 
 <!-- BEGIN inserted functiondoc EarmarkParser.as_ast/2 -->
-      iex(13)> markdown = "My `code` is **best**"
-      ...(13)> {:ok, ast, []} = EarmarkParser.as_ast(markdown)
-      ...(13)> ast
-      [{"p", [], ["My ", {"code", [{"class", "inline"}], ["code"], %{}}, " is ", {"strong", [], ["best"], %{}}], %{}}]
+    iex(13)> markdown = "My `code` is **best**"
+    ...(13)> {:ok, ast, []} = EarmarkParser.as_ast(markdown)
+    ...(13)> ast
+    [{"p", [], ["My ", {"code", [{"class", "inline"}], ["code"], %{}}, " is ", {"strong", [], ["best"], %{}}], %{}}]
 
 
-      iex(14)> markdown = "```elixir\nIO.puts 42\n```"
-      ...(14)> {:ok, ast, []} = EarmarkParser.as_ast(markdown, code_class_prefix: "lang-")
-      ...(14)> ast
-      [{"pre", [], [{"code", [{"class", "elixir lang-elixir"}], ["IO.puts 42"], %{}}], %{}}]
+    iex(14)> markdown = "```elixir\nIO.puts 42\n```"
+    ...(14)> {:ok, ast, []} = EarmarkParser.as_ast(markdown, code_class_prefix: "lang-")
+    ...(14)> ast
+    [{"pre", [], [{"code", [{"class", "elixir lang-elixir"}], ["IO.puts 42"], %{}}], %{}}]
 
 **Rationale**:
 
