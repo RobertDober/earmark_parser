@@ -13,7 +13,7 @@ defmodule EarmarkParser.MixProject do
   ]
 
   @description """
-  Earmark AST the parser and AST Generator for 
+  Earmark AST the parser and AST Generator for
   Dave Thomas' Earmark.
 
   The parser generates
@@ -30,7 +30,7 @@ defmodule EarmarkParser.MixProject do
     [
       app: :earmark_parser,
       version: @version,
-      elixir: "~> 1.7",
+      elixir: "~> 1.10",
       elixirc_paths: elixirc_paths(Mix.env()),
       deps: @deps,
       description: @description,
@@ -53,16 +53,19 @@ defmodule EarmarkParser.MixProject do
         "src/*.xrl",
         "src/*.yrl",
         "mix.exs",
-        "README.md"
+        "README.md",
+        "CHANGELOG.md",
+        "LICENSE"
       ],
       maintainers: [
-        "Robert Dober <robert.dober@gmail.com>",
+        "Robert Dober <robert.dober@gmail.com>"
       ],
       licenses: [
         "Apache-2.0"
       ],
       links: %{
-        "GitHub" => "https://github.com/RobertDober/earmark_parser"
+        "Changelog" => "#{@url}/blob/master/CHANGELOG.md",
+        "GitHub" => @url
       }
     ]
   end
@@ -81,7 +84,9 @@ defmodule EarmarkParser.MixProject do
     Mix.shell().info("Using escript: #{ex_doc} to build the docs")
 
     unless File.exists?(ex_doc) do
-      raise "cannot build docs because escript for ex_doc is not installed, make sure to \n#{@prerequisites}"
+      raise "cannot build docs because escript for ex_doc is not installed, make sure to \n#{
+              @prerequisites
+            }"
     end
 
     args = [@module, @version, Mix.Project.compile_path()]
