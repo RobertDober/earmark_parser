@@ -30,7 +30,7 @@ defmodule EarmarkParser.MixProject do
     [
       app: :earmark_parser,
       version: @version,
-      elixir: "~> 1.7",
+      elixir: "~> 1.10",
       elixirc_paths: elixirc_paths(Mix.env()),
       deps: @deps,
       description: @description,
