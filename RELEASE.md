@@ -1,4 +1,4 @@
-## 1.5.0 ????/??/??
+## 1.4.11 2020/11/26
 
 - [24-treat-single-dash-as-text](https://github.com/robertdober/earmark_parser/issues/24)
     Kudos to [Ben Olive](https://github.com/sionide21)  
