@@ -52,13 +52,69 @@ Standard [Gruber markdown][gruber].
 
 ## Extensions
 
+### Links
+
+#### Links supported by default
+
+##### Oneline HTML Link tags
+
+    iex(1)> EarmarkParser.as_ast(~s{<a href="href">link</a>})
+    {:ok, [{"a", [{"href", "href"}], ["link"], %{verbatim: true}}], []}
+
+##### Markdown links
+
+New style ...
+
+    iex(2)> EarmarkParser.as_ast(~s{[title](destination)}) 
+    {:ok,  [{"p", [], [{"a", [{"href", "destination"}], ["title"], %{}}], %{}}], []}
+
+and old style
+
+    iex(3)> EarmarkParser.as_ast("[foo]: /url \"title\"\n\n[foo]\n")
+    {:ok, [{"p", [], [{"a", [{"href", "/url"}, {"title", "title"}], ["foo"], %{}}], %{}}], []}
+
+#### Autolinks
+  
+    iex(4)> EarmarkParser.as_ast("<https://elixir-lang.com>")
+    {:ok, [{"p", [], [{"a", [{"href", "https://elixir-lang.com"}], ["https://elixir-lang.com"], %{}}], %{}}], []}
+
+#### Additional link parsing via options
+
+
+#### Pure links
+
+**N.B.** that the `pure_links` option is `true` by default
+
+    iex(5)> EarmarkParser.as_ast("https://github.com")
+    {:ok, [{"p", [], [{"a", [{"href", "https://github.com"}], ["https://github.com"], %{}}], %{}}], []}
+
+But can be deactivated
+
+    iex(6)> EarmarkParser.as_ast("https://github.com", pure_links: false)
+    {:ok, [{"p", [], ["https://github.com"], %{}}], []}
+
+
+  #### Wikilinks...
+
+  are disabled by default
+
+    iex(7)> EarmarkParser.as_ast("[[page]]")
+    {:ok, [{"p", [], ["[[page]]"], %{}}], []}
+
+  and can be enabled
+
+    iex(8)> EarmarkParser.as_ast("[[page]]", wikilinks: true)
+    {:ok, [{"p", [], [{"a", [{"href", "page"}], ["page"], %{wikilink: true}}], %{}}], []}
+
+
+
 ### Github Flavored Markdown
 
 GFM is supported by default, however as GFM is a moving target and all GFM extension do not make sense in a general context, EarmarkParser does not support all of it, here is a list of what is supported:
 
 #### Strike Through
 
-    iex(1)> EarmarkParser.as_ast("~~hello~~")
+    iex(9)> EarmarkParser.as_ast("~~hello~~")
     {:ok, [{"p", [], [{"del", [], ["hello"], %{}}], %{}}], []}
 
 #### Syntax Highlighting
@@ -68,11 +124,11 @@ language as a _class_ attribute of the _code_ tag.
 
 For example:
 
-    iex(2)> [
-    ...(2)>    "```elixir",
-    ...(2)>    " @tag :hello",
-    ...(2)>    "```"
-    ...(2)> ] |> EarmarkParser.as_ast()
+    iex(10)> [
+    ...(10)>    "```elixir",
+    ...(10)>    " @tag :hello",
+    ...(10)>    "```"
+    ...(10)> ] |> EarmarkParser.as_ast()
     {:ok, [{"pre", [], [{"code", [{"class", "elixir"}], [" @tag :hello"], %{}}], %{}}], []}
 
 will be rendered as shown in the doctest above.
@@ -85,11 +141,11 @@ as a `code_class_prefix` to `EarmarkParser.Options`.
 
 In the following example we want more than one additional class, so we add more prefixes.
 
-    iex(3)> [
-    ...(3)>    "```elixir",
-    ...(3)>    " @tag :hello",
-    ...(3)>    "```"
-    ...(3)> ] |> EarmarkParser.as_ast(%EarmarkParser.Options{code_class_prefix: "lang- language-"})
+    iex(11)> [
+    ...(11)>    "```elixir",
+    ...(11)>    " @tag :hello",
+    ...(11)>    "```"
+    ...(11)> ] |> EarmarkParser.as_ast(%EarmarkParser.Options{code_class_prefix: "lang- language-"})
     {:ok, [{"pre", [], [{"code", [{"class", "elixir lang-elixir language-elixir"}], [" @tag :hello"], %{}}], %{}}], []}
 
 
@@ -145,30 +201,30 @@ as one HTML AST node, marked with %{verbatim: true}
 
 E.g.
 
-    iex(4)> lines = [ "<div><span>", "some</span><text>", "</div>more text" ]
-    ...(4)> EarmarkParser.as_ast(lines)
+    iex(12)> lines = [ "<div><span>", "some</span><text>", "</div>more text" ]
+    ...(12)> EarmarkParser.as_ast(lines)
     {:ok, [{"div", [], ["<span>", "some</span><text>"], %{verbatim: true}}, "more text"], []}
 
 And a line starting with an opening tag and ending with the corresponding closing tag is parsed in similar
 fashion
 
-    iex(5)> EarmarkParser.as_ast(["<span class=\"superspan\">spaniel</span>"])
+    iex(13)> EarmarkParser.as_ast(["<span class=\"superspan\">spaniel</span>"])
     {:ok, [{"span", [{"class", "superspan"}], ["spaniel"], %{verbatim: true}}], []}
 
 What is HTML?
 
 We differ from strict GFM by allowing **all** tags not only HTML5 tags this holds for one liners....
 
-    iex(6)> {:ok, ast, []} = EarmarkParser.as_ast(["<stupid />", "<not>better</not>"])
-    ...(6)> ast
+    iex(14)> {:ok, ast, []} = EarmarkParser.as_ast(["<stupid />", "<not>better</not>"])
+    ...(14)> ast
     [
       {"stupid", [], [], %{verbatim: true}},
       {"not", [], ["better"], %{verbatim: true}}]
 
 and for multi line blocks
 
-    iex(7)> {:ok, ast, []} = EarmarkParser.as_ast([ "<hello>", "world", "</hello>"])
-    ...(7)> ast
+    iex(15)> {:ok, ast, []} = EarmarkParser.as_ast([ "<hello>", "world", "</hello>"])
+    ...(15)> ast
     [{"hello", [], ["world"], %{verbatim: true}}]
 
 #### HTML Comments
@@ -178,7 +234,7 @@ all text after the next '-->' is ignored
 
 E.g.
 
-    iex(8)> EarmarkParser.as_ast(" <!-- Comment\ncomment line\ncomment --> text -->\nafter")
+    iex(16)> EarmarkParser.as_ast(" <!-- Comment\ncomment line\ncomment --> text -->\nafter")
     {:ok, [{:comment, [], [" Comment", "comment line", "comment "], %{comment: true}}, {"p", [], ["after"], %{}}], []}
 
 
@@ -210,26 +266,26 @@ For example:
 It is possible to add IAL attributes to generated links or images in the following
 format.
 
-    iex(9)> markdown = "[link](url) {: .classy}"
-    ...(9)> EarmarkParser.as_ast(markdown)
+    iex(17)> markdown = "[link](url) {: .classy}"
+    ...(17)> EarmarkParser.as_ast(markdown)
     { :ok, [{"p", [], [{"a", [{"class", "classy"}, {"href", "url"}], ["link"], %{}}], %{}}], []}
 
 For both cases, malformed attributes are ignored and warnings are issued.
 
-    iex(10)> [ "Some text", "{:hello}" ] |> Enum.join("\n") |> EarmarkParser.as_ast()
+    iex(18)> [ "Some text", "{:hello}" ] |> Enum.join("\n") |> EarmarkParser.as_ast()
     {:error, [{"p", [], ["Some text"], %{}}], [{:warning, 2,"Illegal attributes [\"hello\"] ignored in IAL"}]}
 
 It is possible to escape the IAL in both forms if necessary
 
-    iex(11)> markdown = "[link](url)\\{: .classy}"
-    ...(11)> EarmarkParser.as_ast(markdown)
+    iex(19)> markdown = "[link](url)\\{: .classy}"
+    ...(19)> EarmarkParser.as_ast(markdown)
     {:ok, [{"p", [], [{"a", [{"href", "url"}], ["link"], %{}}, "{: .classy}"], %{}}], []}
 
 This of course is not necessary in code blocks or text lines
 containing an IAL-like string, as in the following example
 
-    iex(12)> markdown = "hello {:world}"
-    ...(12)> EarmarkParser.as_ast(markdown)
+    iex(20)> markdown = "hello {:world}"
+    ...(20)> EarmarkParser.as_ast(markdown)
     {:ok, [{"p", [], ["hello {:world}"], %{}}], []}
 
 ## Limitations
@@ -315,15 +371,15 @@ In both cases one can override the mapper function with either the `mapper` opti
 ## `EarmarkParser.as_ast/2`
 
 <!-- BEGIN inserted functiondoc EarmarkParser.as_ast/2 -->
-    iex(13)> markdown = "My `code` is **best**"
-    ...(13)> {:ok, ast, []} = EarmarkParser.as_ast(markdown)
-    ...(13)> ast
+    iex(21)> markdown = "My `code` is **best**"
+    ...(21)> {:ok, ast, []} = EarmarkParser.as_ast(markdown)
+    ...(21)> ast
     [{"p", [], ["My ", {"code", [{"class", "inline"}], ["code"], %{}}, " is ", {"strong", [], ["best"], %{}}], %{}}]
 
 
-    iex(14)> markdown = "```elixir\nIO.puts 42\n```"
-    ...(14)> {:ok, ast, []} = EarmarkParser.as_ast(markdown, code_class_prefix: "lang-")
-    ...(14)> ast
+    iex(22)> markdown = "```elixir\nIO.puts 42\n```"
+    ...(22)> {:ok, ast, []} = EarmarkParser.as_ast(markdown, code_class_prefix: "lang-")
+    ...(22)> ast
     [{"pre", [], [{"code", [{"class", "elixir lang-elixir"}], ["IO.puts 42"], %{}}], %{}}]
 
 **Rationale**:
