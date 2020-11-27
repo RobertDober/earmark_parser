@@ -109,10 +109,14 @@ defmodule EarmarkParser.Ast.Inline do
       {match1, text, href, title, link_or_img} = match
       out =
         case link_or_img do
-          :link  -> output_link(context, text, href, title, lnb)
-          :image -> render_image(text, href, title)
+          :link     -> output_link(context, text, href, title, lnb)
+          :wikilink -> maybe_output_wikilink(context, text, href, title, lnb)
+          :image    -> render_image(text, href, title)
         end
-      {behead(src, match1), lnb, prepend(context, out), use_linky?}
+
+      if out do
+        {behead(src, match1), lnb, prepend(context, out), use_linky?}
+      end
     end
   end
 
@@ -302,6 +306,13 @@ defmodule EarmarkParser.Ast.Inline do
       emit("a", Enum.reverse(context2.value), href: href, title: title)
     else
       emit("a", Enum.reverse(context2.value), href: href)
+    end
+  end
+
+  defp maybe_output_wikilink(context, text, href, title, lnb) do
+    if context.options.wikilinks do
+      {tag, attrs, content, meta} = output_link(context, text, href, title, lnb)
+      {tag, attrs, content, Map.put(meta, :wikilink, true)}
     end
   end
 
