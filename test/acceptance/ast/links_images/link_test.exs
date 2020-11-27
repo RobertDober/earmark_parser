@@ -183,6 +183,14 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       messages = []
       assert as_ast(markdown) == {:ok, ast, messages}
     end
+
+    test "ws between links" do
+      markdown = "[link](/uri \"title\") [link](/uri \"title\")"
+      html     = "<p>\n<a href=\"/uri\" title=\"title\">link</a>&#x20;<a href=\"/uri\" title=\"title\">link</a></p>\n"
+      ast = parse_html(html)
+      messages = []
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
   end
 
 
