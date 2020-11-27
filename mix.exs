@@ -64,7 +64,7 @@ defmodule EarmarkParser.MixProject do
         "Apache-2.0"
       ],
       links: %{
-        "Changelog" => "#{@url}/blob/master/CHANGELOG.md",
+        "Changelog" => "#{@url}/blob/master/RELEASE.md",
         "GitHub" => @url
       }
     ]
