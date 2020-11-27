@@ -1,19 +1,19 @@
 ## 1.4.12 2020/11/27
 
 - [29-broken-changelog-link](https://github.com/robertdober/earmark_parser/pull/29)
-    Kudos to [optikfluffel](https://github.com/optikfluffel)  
+    Kudos to [optikfluffel](https://github.com/optikfluffel)
 
 - [18-support-wikilinks](https://github.com/robertdober/earmark_parser/pull/18)
-    Kudos to [sionide21](https://github.com/sionide21)  
+    Kudos to [sionide21](https://github.com/sionide21)
 
 
 ## 1.4.11 2020/11/26
 
 - [24-treat-single-dash-as-text](https://github.com/robertdober/earmark_parser/issues/24)
-    Kudos to [Ben Olive](https://github.com/sionide21)  
+    Kudos to [Ben Olive](https://github.com/sionide21)
 
 - [22-missing-ws-before-links](https://github.com/robertdober/earmark_parser/issues/22)
-    Kudos to [Ben Olive](https://github.com/sionide21)  
+    Kudos to [Ben Olive](https://github.com/sionide21)
 
 ## 1.4.10 2020/07/18
 

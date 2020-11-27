@@ -40,7 +40,7 @@ defmodule EarmarkParser do
   ## Extensions
 
   ### Links
-  
+
   #### Links supported by default
 
   ##### Oneline HTML Link tags
@@ -52,7 +52,7 @@ defmodule EarmarkParser do
 
   New style ...
 
-      iex(2)> EarmarkParser.as_ast(~s{[title](destination)}) 
+      iex(2)> EarmarkParser.as_ast(~s{[title](destination)})
       {:ok,  [{"p", [], [{"a", [{"href", "destination"}], ["title"], %{}}], %{}}], []}
 
   and old style
@@ -61,7 +61,7 @@ defmodule EarmarkParser do
       {:ok, [{"p", [], [{"a", [{"href", "/url"}, {"title", "title"}], ["foo"], %{}}], %{}}], []}
 
   #### Autolinks
-    
+
       iex(4)> EarmarkParser.as_ast("<https://elixir-lang.com>")
       {:ok, [{"p", [], [{"a", [{"href", "https://elixir-lang.com"}], ["https://elixir-lang.com"], %{}}], %{}}], []}
 
@@ -94,7 +94,7 @@ defmodule EarmarkParser do
       {:ok, [{"p", [], [{"a", [{"href", "page"}], ["page"], %{wikilink: true}}], %{}}], []}
 
 
-  
+
   ### Github Flavored Markdown
 
   GFM is supported by default, however as GFM is a moving target and all GFM extension do not make sense in a general context, EarmarkParser does not support all of it, here is a list of what is supported:

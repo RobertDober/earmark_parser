@@ -1,7 +1,8 @@
 
 # EarmarkParser A Pure Elixir Markdown Parser (split from Earmark)
 
-[![Build Status](https://travis-ci.org/robertdober/earmark_parser.svg?branch=master)](https://travis-ci.org/robertdober/earmark_parser)
+![CI](https://github.com/RobertDober/earmark_parser/workflows/CI/badge.svg)
+[![Coverage Status](https://coveralls.io/repos/github/RobertDober/earmark_parser/badge.svg?branch=master)](https://coveralls.io/github/RobertDober/earmark_parser?branch=master)
 [![Hex.pm](https://img.shields.io/hexpm/v/earmark_parser.svg)](https://hex.pm/packages/earmark_parser)
 [![Hex.pm](https://img.shields.io/hexpm/dw/earmark_parser.svg)](https://hex.pm/packages/earmark_parser)
 [![Hex.pm](https://img.shields.io/hexpm/dt/earmark_parser.svg)](https://hex.pm/packages/earmark_parser)
@@ -49,7 +50,7 @@ Copyright © 2014,5,6,7,8,9;2020 Dave Thomas, The Pragmatic Programmers
 Copyright © 2020 Robert Dober
 robert.dober@gmail.com
 
-# LICENSE
+## LICENSE
 
 Same as Elixir, which is Apache License v2.0. Please refer to [LICENSE](LICENSE) for details.
 
