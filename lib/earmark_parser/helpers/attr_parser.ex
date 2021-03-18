@@ -18,7 +18,7 @@ defmodule EarmarkParser.Helpers.AttrParser do
 
       match = Regex.run(~r{^\.(\S+)\s*}, attrs) ->
         [ leader, class ] = match
-          Map.update(dict, "class", [ class ], &[ class | &1])
+          Map.update(dict, "class", class, fn prev -> "#{prev} #{class}" end)
           |> _parse_attrs(behead(attrs, leader), errors, lnb)
 
       match = Regex.run(~r{^\#(\S+)\s*}, attrs) ->
