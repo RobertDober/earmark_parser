@@ -15,10 +15,22 @@ defmodule EarmarkParser.Ast.Emitter do
   defp _to_atts(atts) when is_map(atts) do
     atts
     |> Enum.into([])
-    |> Enum.map(fn {name, value} -> {to_string(name), to_string(value)} end)
+    |> Enum.map(fn {name, value} -> {to_string(name), render(value)} end)
   end
   defp _to_atts(atts) do
     atts
-    |> Enum.map(fn {name, value} -> {to_string(name), to_string(value)} end)
+    |> Enum.map(fn {name, value} -> {to_string(name), render(value)} end)
   end
+
+  defp render(value)
+  defp render(value) when is_binary(value), do: value
+  # Print attr lists in source order
+  defp render(value) when is_list(value), do: value |> rev() |> Enum.join(" ")
+  defp render(value), do: to_string(value)
+
+  # Efficient, linear, list reversal.
+  defp rev(list, accum \\ [])
+  defp rev([], ys), do: ys
+  defp rev([x], ys), do: [x | ys]
+  defp rev([x | xs], ys), do: rev(xs, [x | ys])
 end
