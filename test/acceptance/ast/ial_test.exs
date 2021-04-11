@@ -47,6 +47,14 @@ defmodule Acceptance.Ast.IalTest do
 
       assert as_ast(markdown) == {:ok, ast, messages}
     end
+    
+    test "multiple values" do
+      markdown = "text with IAL\n{:.class1 .class2}"
+      ast      = [{"p", [{"class", "class2 class1"}], ["text with IAL"], %{}}] 
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
   end
 
   describe "Error Handling" do

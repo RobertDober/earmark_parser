@@ -7,7 +7,7 @@
 
 # EarmarkParser A Pure Elixir Markdown Parser (split from Earmark)
 
-![CI](https://github.com/RobertDober/earmark_parser/workflows/CI/badge.svg)
+[![CI](https://github.com/robertdober/earmark_parser/workflows/CI/badge.svg)](https://github.com/robertdober/earmark_parser/actions)
 [![Coverage Status](https://coveralls.io/repos/github/RobertDober/earmark_parser/badge.svg?branch=master)](https://coveralls.io/github/RobertDober/earmark_parser?branch=master)
 [![Hex.pm](https://img.shields.io/hexpm/v/earmark_parser.svg)](https://hex.pm/packages/earmark_parser)
 [![Hex.pm](https://img.shields.io/hexpm/dw/earmark_parser.svg)](https://hex.pm/packages/earmark_parser)
@@ -73,7 +73,7 @@ Standard [Gruber markdown][gruber].
 
 New style ...
 
-    iex(2)> EarmarkParser.as_ast(~s{[title](destination)}) 
+    iex(2)> EarmarkParser.as_ast(~s{[title](destination)})
     {:ok,  [{"p", [], [{"a", [{"href", "destination"}], ["title"], %{}}], %{}}], []}
 
 and old style
@@ -82,7 +82,7 @@ and old style
     {:ok, [{"p", [], [{"a", [{"href", "/url"}, {"title", "title"}], ["foo"], %{}}], %{}}], []}
 
 #### Autolinks
-  
+
     iex(4)> EarmarkParser.as_ast("<https://elixir-lang.com>")
     {:ok, [{"p", [], [{"a", [{"href", "https://elixir-lang.com"}], ["https://elixir-lang.com"], %{}}], %{}}], []}
 
