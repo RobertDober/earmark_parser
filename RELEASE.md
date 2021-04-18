@@ -1,3 +1,13 @@
+## 1.4.13 2021/04/18
+
+- [37-ial-in-li-raised-key-error](https://github.com/RobertDober/earmark_parser/pull/37)
+
+- [35-clearer-doc-iff-replacement](https://github.com/RobertDober/earmark_parser/pull/35)
+  Kudos to (ream88)[https://github.com/ream88]
+
+- [33-fix-for-bad-multiclass-ial-rendering](https://github.com/RobertDober/earmark_parser/pull/33)
+  Kudos to (myrrlyn)[https://github.com/myrrlyn]
+
 ## 1.4.12 2020/11/27
 
 - [29-broken-changelog-link](https://github.com/robertdober/earmark_parser/pull/29)
