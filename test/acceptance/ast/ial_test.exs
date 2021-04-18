@@ -48,9 +48,36 @@ defmodule Acceptance.Ast.IalTest do
       assert as_ast(markdown) == {:ok, ast, messages}
     end
     
-    test "multiple values" do
+  end
+
+  describe "IAL multiple values" do
+    test "text" do
       markdown = "text with IAL\n{:.class1 .class2}"
       ast      = [{"p", [{"class", "class2 class1"}], ["text with IAL"], %{}}] 
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
+
+    test "block quotes" do
+      markdown = "> bq with IAL\n{:.class1 .class2}"
+      ast      = [{"blockquote", [{"class", "class2 class1"}], [{"p", [], ["bq with IAL"], %{}}], %{}}] 
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
+
+    test "list item ignores IAL" do
+      markdown = "- li with IAL\n{:.class1 .class2}"
+      ast      = [{"ul", [], [ {"li", [], ["li with IAL"], %{}}], %{}}]
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
+
+    test "setext header" do
+      markdown = "Headline\n=========\n{:.alpha .beta}"
+      ast      = [{"h1", [{"class", "beta alpha"}], ["Headline"], %{}}]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -75,7 +102,6 @@ defmodule Acceptance.Ast.IalTest do
 
       assert as_ast(markdown) == {:error, ast, messages}
     end
-
 
   end
 

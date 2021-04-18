@@ -77,14 +77,14 @@ defmodule EarmarkParser.AstRenderer do
        ) do
     context1 = convert(content, lnb, clear_value(context))
     modify_value(context1,
-      fn _ -> [emit("h#{level}", context1.value |> Enum.reverse, attrs)] end)
+      fn _ -> [emit("h#{level}", context1.value |> Enum.reverse, Enum.map(attrs || %{}, &attrs_to_string_keys/1))] end)
   end
   ##############
   # Blockquote #
   ##############
   defp render_block(%Block.BlockQuote{blocks: blocks, attrs: attrs}, context, _loose?) do
     context1 = render(blocks, clear_value(context))
-    modify_value(context1, fn ast -> [emit("blockquote", ast, attrs)] end)
+    modify_value(context1, fn ast -> [emit("blockquote", ast, Enum.map(attrs || %{}, &attrs_to_string_keys/1))] end)
   end
   #########
   # Table #
@@ -103,7 +103,7 @@ defmodule EarmarkParser.AstRenderer do
         {rows_ast, context1}
       end
 
-    prepend(clear_value(context2), emit("table", rows_ast1, attrs))
+    prepend(clear_value(context2), emit("table", rows_ast1, Enum.map(attrs || %{}, &attrs_to_string_keys/1)))
   end
   ########
   # Code #
@@ -116,7 +116,7 @@ defmodule EarmarkParser.AstRenderer do
       if language && language != "", do: [code_classes(language, options.code_class_prefix)], else: []
 
     lines = render_code(block)
-    prepend(context, emit("pre", emit("code", lines, classes), attrs))
+    prepend(context, emit("pre", emit("code", lines, classes), Enum.map(attrs || %{}, &attrs_to_string_keys/1)))
   end
   #########
   # Lists #
@@ -141,7 +141,7 @@ defmodule EarmarkParser.AstRenderer do
     # IO.inspect blocks
     context1 = render(blocks, clear_value(context), loose?)
     # IO.inspect(context1.value, label: :list_item_blocks)
-    prepend(context, emit("li", _fix_text_lines(context1.value, loose?), attrs), context1.options.messages)
+    prepend(context, emit("li", _fix_text_lines(context1.value, loose?), Enum.map(attrs || %{}, &attrs_to_string_keys/1)), context1.options.messages)
   end
 
   ########
