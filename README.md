@@ -190,7 +190,7 @@ line is given, therefor
      --------|------
      Elixir  | awesome
 
-is a table (iff `gfm_tables: true`) while
+is a table (if and only if `gfm_tables: true`) while
 
      Language|Rating
      Elixir  | awesome
