@@ -80,7 +80,7 @@ defmodule EarmarkParser.Block do
   end
   defmodule Text do
     @moduledoc false
-    defstruct lnb: 0, line: ""
+    defstruct attrs: nil, lnb: 0, line: ""
   end
 
   @type t :: %Heading{} |
