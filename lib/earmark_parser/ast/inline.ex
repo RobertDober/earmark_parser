@@ -21,6 +21,7 @@ defmodule EarmarkParser.Ast.Inline do
   def convert(src, lnb, context), do: _convert(src, lnb, context, true)
 
   defp _convert(src, current_lnb, context, use_linky?)
+  defp _convert(src, _, %{options: %{parse_inline: false}} = context, _), do: prepend(context, src)
   defp _convert("", _, context, _), do: context
   defp _convert(src, current_lnb, context, use_linky?) do
     case _convert_next(src, current_lnb, context, use_linky?) do
