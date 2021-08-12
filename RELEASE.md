@@ -1,3 +1,10 @@
+## 1.4.15 ????/??/??
+
+## 1.4.14 2021/08/12
+
+- [43-add-option-to-disable-inline-parsing](https://github.com/RobertDober/earmark_parser/pull/43)
+  Kudos to [jonatanklosko](https://github.com/jonatanklosko)
+
 ## 1.4.13 2021/04/18
 
 - [37-ial-in-li-raised-key-error](https://github.com/RobertDober/earmark_parser/pull/37)
