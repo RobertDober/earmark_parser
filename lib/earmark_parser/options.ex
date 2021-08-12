@@ -13,6 +13,7 @@ defmodule EarmarkParser.Options do
             footnotes: false,
             footnote_offset: 1,
             wikilinks: false,
+            parse_inline: true,
 
             # additional prefies for class of code blocks
             code_class_prefix: nil,
@@ -48,7 +49,8 @@ defmodule EarmarkParser.Options do
         pure_links: boolean,
         smartypants: boolean,
         wikilinks: boolean,
-        timeout: maybe(number)
+        timeout: maybe(number),
+        parse_inline: boolean
   }
 
   @doc false

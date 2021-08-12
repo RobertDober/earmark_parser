@@ -1,6 +1,6 @@
 defmodule Acceptance.Ast.ParagraphsTest do
   use ExUnit.Case, async: true
-  import Support.Helpers, only: [as_ast: 1, parse_html: 1]
+  import Support.Helpers, only: [as_ast: 1, as_ast: 2, parse_html: 1]
   import EarmarkAstDsl
 
   describe "Paragraphs" do
@@ -38,6 +38,14 @@ defmodule Acceptance.Ast.ParagraphsTest do
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
+    end
+
+    test "keeps paragraph source as AST content when :parse_inline is false" do
+      markdown = "this *should* stay [unchanged]()"
+      ast      = [p([markdown])]
+      messages = []
+
+      assert as_ast(markdown, parse_inline: false) == {:ok, ast, messages}
     end
   end
 
