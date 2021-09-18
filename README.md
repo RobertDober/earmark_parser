@@ -184,7 +184,7 @@ there are exterior bars.
 
 However in order to be more GFM compatible the `gfm_tables: true` option
 can be used to interpret only interior vertical bars as a table if a separation
-line is given, therefor
+line is given, therefore
 
      Language|Rating
      --------|------

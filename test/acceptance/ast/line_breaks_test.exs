@@ -47,7 +47,7 @@ defmodule Acceptance.Ast.LineBreaksTest do
 
       assert as_ast(markdown) == {:ok, ast, messages}
     end
-    test "or whitspace lines" do
+    test "or whitespace lines" do
       markdown = "The\n  \nquick"
       html     = "<p>The</p>\n<p>quick</p>\n"
       ast      = parse_html(html)

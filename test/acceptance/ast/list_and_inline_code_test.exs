@@ -45,8 +45,8 @@ defmodule Acceptance.Ast.ListAndInlineCodeTest do
     end
   end
 
-  describe "indention of code (was regtest #85)" do
-    test "loosing som indent" do
+  describe "indentation of code (was regtest #85)" do
+    test "losing some indent" do
       markdown = "1. one\n\n    ```elixir\n    defmodule```\n"
       html     = "<ol>\n<li><p>one</p>\n<pre><code class=\"elixir\"> defmodule```</code></pre>\n</li>\n</ol>\n"
       ast      = parse_html(html)

@@ -5,7 +5,7 @@ defmodule EarmarkParser.Helpers.LinkParser do
   import EarmarkParser.Helpers.YeccHelpers, only: [parse!: 2]
   import EarmarkParser.Helpers.StringHelpers, only: [behead: 2]
 
-  # Hopfully this will go away in v1.3
+  # Hopefully this will go away in v1.3
   # **********************************
   #
   # Right now it needs to parse the url part of strings according to the following grammar

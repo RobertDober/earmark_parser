@@ -32,7 +32,7 @@ defmodule EarmarkParser.Options do
             mapper_with_timeout: &EarmarkParser.pmap/3,
 
             # Filename and initial line number of the markdown block passed in
-            # for meaningfull error messages
+            # for meaningful error messages
             file: "<no file>",
             line: 1,
             # [{:error|:warning, lnb, text},...]

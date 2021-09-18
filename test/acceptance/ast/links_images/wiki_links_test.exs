@@ -39,7 +39,7 @@ defmodule Acceptance.Ast.LinkImages.WikiLinksTest do
       assert as_ast(markdown, wikilinks: true) == {:ok, ast, messages}
     end
 
-    test "illegal urls are not Earmark's responsability" do
+    test "illegal urls are not Earmark's responsibility" do
       markdown = "[[A long & complex title]]"
       html = "<p><a href=\"A long & complex title\">A long &amp; complex title</a></p>\n"
       ast      = parse_html(html, &add_wikilinks_metadata/1)

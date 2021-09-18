@@ -168,7 +168,7 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       assert as_ast(markdown) == {:ok, ast, messages}
     end
 
-    test "illegal ulrs are not EarmarkParser's responsability (was regtest #51)" do
+    test "illegal ulrs are not EarmarkParser's responsibility (was regtest #51)" do
       markdown = "[<<>>/1](http://elixir-lang.org/docs/master/elixir/Kernel.SpecialForms.htm#<<>>/1)"
       html     = ~s[<p><a href="http://elixir-lang.org/docs/master/elixir/Kernel.SpecialForms.htm#<<>>/1">&lt;&lt;&gt;&gt;/1</a></p>]
       ast = parse_html(html)
