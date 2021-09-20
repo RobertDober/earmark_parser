@@ -1,5 +1,8 @@
 ## 1.4.16 ????/??/??
 
+- [46-fixing-typos](https://github.com/RobertDober/earmark_parser/pull/46)
+  Kudos to [kianmeng](https://github.com/kianmeng)
+
 ## 1.4.15 2021/08/12
 
 - [43-add-option-to-disable-inline-parsing](https://github.com/RobertDober/earmark_parser/pull/43)
