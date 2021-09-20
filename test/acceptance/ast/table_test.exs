@@ -93,7 +93,7 @@ defmodule Acceptance.Ast.TableTest do
   end
 
   describe "The order of things (Vorta and Jem'Hadar I guess)" do
-    test "table celles are in the correct order" do
+    test "table cells are in the correct order" do
       markdown = """
       | What              |
       | ----------------- |

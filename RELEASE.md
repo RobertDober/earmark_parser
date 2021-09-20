@@ -162,7 +162,7 @@ underlines for readability.
     HTML suggests the presence of `<tbody>` anyway.
 
 - [281 Urls in links were URL endoded, that is actually a bug ](https://github.com/pragdave/earmark/issues/281)
-    It is the markdown author's responsability to url encode her urls, if she does so correctly
+    It is the markdown author's responsibility to url encode her urls, if she does so correctly
     we double encoded the url before this fix.
 
 - [279 Languages in code blocks were limited to alphanum names, thus excluding, e.g. C# ](https://github.com/pragdave/earmark/issues/279)
@@ -197,7 +197,7 @@ underlines for readability.
 Hopefully the last patch release of 1.3 before the structural changes of 1.4.
 
 -  [#270]( https://github.com/pragdave/earmark/issues/270)
-      Error messages during parsing of table celles were duplicated in a number, exponential to the number of table cells.
+      Error messages during parsing of table cells were duplicated in a number, exponential to the number of table cells.
 
 -  [#268]( https://github.com/pragdave/earmark/issues/268)
       Deprecation warnings concerning pure links showed fixed link to https://github.com/pragdave/earmark, at least a reasonable choice ;),
@@ -243,7 +243,7 @@ Hopefully the last patch release of 1.3 before the structural changes of 1.4.
 - [#158 some pure links implemented](https://github.com/pragdave/earmark/issues/158)
     This GFM like behavior is more and more expected, I will issue a PR for `ex_doc` on this as discussed with
     [José Valim](https://github.com/josevalim)
-    Deprecation Warnings are issued by default, but will be supressed for `ex_doc` in said PR.
+    Deprecation Warnings are issued by default, but will be suppressed for `ex_doc` in said PR.
 
 -  Minor improvements on documentation
     In PR [235](https://github.com/pragdave/earmark/pull/235)
@@ -460,7 +460,7 @@ Hopefully the last patch release of 1.3 before the structural changes of 1.4.
 
 * --version | -v switch for `earmark` escript.
 * added security notice about XSS to docs thanks to remiq
-* PR from alakra (issue #59) to allow Hypens and Unicode in fenced code block names
+* PR from alakra (issue #59) to allow Hyphens and Unicode in fenced code block names
 * PR from sntran to fix unsafe conditional variables from PR
 * PR from riacataquian to use maps instead of dicts
 * PR from gmile to remove duplicate tests

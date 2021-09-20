@@ -4,7 +4,7 @@ defmodule Acceptance.Ast.LinksImages.PureLinksTest do
   import EarmarkAstDsl
 
   describe "simple pure links not yet enabled" do
-    test "issue deprecation warning surpressed" do
+    test "issue deprecation warning suppressed" do
       markdown = "https://github.com/pragdave/earmark"
       html = "<p>https://github.com/pragdave/earmark</p>\n"
       ast      = parse_html(html)
