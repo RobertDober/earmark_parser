@@ -17,9 +17,9 @@ defmodule EarmarkParser.Helpers do
   Remove newlines at end of line and optionally annotations
   """
   # def remove_line_ending(line, annotation \\ nil)
-  # def remove_line_ending(line, nil) do
-  #   _trim_line({line, nil})
-  # end
+  def remove_line_ending(line, nil) do
+    _trim_line({line, nil})
+  end
   def remove_line_ending(line, annotation) do
     case Regex.run(annotation, line) do
       nil -> _trim_line({line, nil})
