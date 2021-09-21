@@ -14,11 +14,20 @@ defmodule EarmarkParser.Helpers do
   end
 
   @doc """
-  Remove newlines at end of line
+  Remove newlines at end of line and optionally annotations
   """
-  def remove_line_ending(line) do
-    line |> String.trim_trailing("\n") |> String.trim_trailing("\r")
+  # def remove_line_ending(line, annotation \\ nil)
+  # def remove_line_ending(line, nil) do
+  #   _trim_line({line, nil})
+  # end
+  def remove_line_ending(line, annotation) do
+    case Regex.run(annotation, line) do
+      nil -> _trim_line({line, nil})
+      match -> match |> tl() |> List.to_tuple |> _trim_line()
+    end
   end
+
+  defp _trim_line({line, annot}), do: {line |> String.trim_trailing("\n") |> String.trim_trailing("\r"), annot}
 
   defp pad(1), do: " "
   defp pad(2), do: "  "

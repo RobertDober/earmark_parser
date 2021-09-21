@@ -15,6 +15,8 @@ defmodule EarmarkParser.Options do
             wikilinks: false,
             parse_inline: true,
 
+            # allow for annotations
+            annotations: nil,
             # additional prefies for class of code blocks
             code_class_prefix: nil,
 
@@ -52,6 +54,23 @@ defmodule EarmarkParser.Options do
         timeout: maybe(number),
         parse_inline: boolean
   }
+
+  @doc """
+  Use normalize before passing it into any API function
+
+        iex(1)> options = normalize(annotations: "%%")
+        ...(1)> options.annotations
+        ~r{\A(.*)(%%.*)}
+  """
+  def normalize(options)
+  def normalize(%__MODULE__{}=options) do
+    case options.annotations do
+      %Regex{} -> options
+      nil      -> options
+      _ -> %{options | annotations: Regex.compile!("\\A(.*)(#{Regex.escape(options.annotations)}.*)")}
+    end
+  end
+  def normalize(options), do: struct(__MODULE__, options) |> normalize()
 
   @doc false
   # Only here we are aware of which mapper function to use!
