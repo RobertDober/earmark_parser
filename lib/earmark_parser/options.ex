@@ -55,7 +55,7 @@ defmodule EarmarkParser.Options do
         parse_inline: boolean
   }
 
-  @doc """
+  @doc ~S"""
   Use normalize before passing it into any API function
 
         iex(1)> options = normalize(annotations: "%%")

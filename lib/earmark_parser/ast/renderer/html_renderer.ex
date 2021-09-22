@@ -2,13 +2,16 @@ defmodule EarmarkParser.Ast.Renderer.HtmlRenderer do
 
   import EarmarkParser.Context, only: [prepend: 2]
   import EarmarkParser.Helpers.HtmlParser
+  import EarmarkParser.Helpers.AstHelpers, only: [annotate: 2]
 
   @moduledoc false
 
   # Structural Renderer for html blocks
-  def render_html_block(lines, context) do
+  def render_html_block(lines, context, annotation \\ nil)
+  def render_html_block(lines, context, annotation) do
     [tag] = parse_html(lines)
-    prepend(context, tag)
+    tag_ = if annotation, do: annotate(tag, annotation), else: tag
+    prepend(context, tag_)
   end
 
   def render_html_oneline([line|_], context) do

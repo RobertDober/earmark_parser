@@ -1,4 +1,4 @@
-defmodule Acceptance.Ast.Html.AnnotatedBlockTest do
+defmodule Acceptance.Ast.Html.Block.UnannotatedBlockTest do
   use ExUnit.Case, async: true
   import Support.Helpers, only: [as_ast: 1]
   import EarmarkAstDsl

@@ -11,8 +11,10 @@ defmodule Support.Helpers do
     %EarmarkParser.Context{}
   end
 
+  def annotated(meta, annotation), do: Map.put(meta, :annotation, annotation)
+
   def as_ast(markdown, options \\ []) do
-    EarmarkParser.as_ast(markdown, struct(EarmarkParser.Options, options))
+    EarmarkParser.as_ast(markdown, options)
   end
 
   def parse_html(html, metadata_fun \\ fn _ -> %{} end) do

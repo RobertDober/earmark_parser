@@ -4,7 +4,7 @@ defmodule Test.Acceptance.Ast.MetadataTest do
 
   describe "just no metadata, but option is allowed" do
     test "with annotations" do
-      assert as_ast("hello", annotations: "%%")
+      assert as_ast("hello", EarmarkParser.Options.normalize(annotations: "%%"))
     end
   end
 end

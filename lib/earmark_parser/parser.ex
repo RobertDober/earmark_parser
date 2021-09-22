@@ -48,6 +48,7 @@ defmodule EarmarkParser.Parser do
   def parse(text_lines, options = %Options{}, recursive) do
     ["" | text_lines ++ [""]]
     |> LineScanner.scan_lines(options, recursive)
+    |> IO.inspect(label: :lines)
     |> parse_lines(options, recursive)
   end
 
@@ -64,7 +65,7 @@ defmodule EarmarkParser.Parser do
 
   defp lines_to_blocks(lines, options, recursive) do
     with {blocks, options1} <- lines |> _parse([], options, recursive) do
-      { blocks |> assign_attributes_to_blocks([]) |> consolidate_list_items([]), options1 }
+      { blocks |> IO.inspect(label: :blocks)|> assign_attributes_to_blocks([]) |> consolidate_list_items([]) , options1 }
     end
   end
 
@@ -77,13 +78,13 @@ defmodule EarmarkParser.Parser do
 
   defp _parse([ %Line.Blank{},
                 %Line.Text{content: heading, lnb: lnb},
-                %Line.SetextUnderlineHeading{level: level}
+                %Line.SetextUnderlineHeading{annotation: annotation, level: level}
 
              |
                 rest
              ], result, options, recursive) do
 
-    _parse(rest, [ %Block.Heading{content: heading, level: level, lnb: lnb} | result ], options, recursive)
+    _parse(rest, [ %Block.Heading{annotation: annotation, content: heading, level: level, lnb: lnb} | result ], options, recursive)
   end
 
   defp _parse([  %Line.Blank{},
@@ -162,7 +163,7 @@ defmodule EarmarkParser.Parser do
 
   defp _parse( lines = [ %Line.Text{lnb: lnb} | _ ], result, options, recursive)
   do
-    {reversed_para_lines, rest, pending} = consolidate_para(lines)
+    {reversed_para_lines, rest, pending, annotation} = consolidate_para(lines)
 
     options1 =
       case pending do
@@ -175,7 +176,7 @@ defmodule EarmarkParser.Parser do
     if recursive == :list do
         _parse(rest, [ %Block.Text{line: line_text, lnb: lnb} | result ], options1, recursive)
     else
-        _parse(rest, [ %Block.Para{lines: line_text, lnb: lnb} | result ], options1, recursive)
+        _parse(rest, [ %Block.Para{annotation: annotation, lines: line_text, lnb: lnb} | result ], options1, recursive)
     end
   end
 
@@ -223,13 +224,13 @@ defmodule EarmarkParser.Parser do
   ##############
   # HTML block #
   ##############
-  defp _parse([ opener = %Line.HtmlOpenTag{tag: tag, lnb: lnb} | rest], result, options, recursive) do
-    {html_lines, rest1, unclosed} = _html_match_to_closing(opener, rest) 
+  defp _parse([ opener = %Line.HtmlOpenTag{annotation: annotation, tag: tag, lnb: lnb} | rest], result, options, recursive) do
+    {html_lines, rest1, unclosed, annotation} = _html_match_to_closing(opener, rest, annotation) #|> IO.inspect(label: :found) 
     options1 = add_messages(options,
                             unclosed
                             |> Enum.map(fn %{lnb: lnb1, tag: tag} -> {:warning, lnb1, "Failed to find closing <#{tag}>"} end))
     html = Enum.reverse(html_lines)
-    _parse(rest1, [ %Block.Html{tag: tag, html: html, lnb: lnb} | result ], options1, recursive)
+    _parse(rest1, [ %Block.Html{tag: tag, html: html, lnb: lnb, annotation: annotation} | result ], options1, recursive)
   end
 
   ####################
@@ -349,16 +350,17 @@ defmodule EarmarkParser.Parser do
   @not_pending {nil, 0}
   # ([#{},...]) -> {[#{}],[#{}],{'nil' | binary(),number()}}
   # @spec consolidate_para( ts ) :: { ts, ts, {nil | String.t, number} }
-  defp consolidate_para( lines ), do: _consolidate_para( lines, [], @not_pending )
+  defp consolidate_para( lines ), do: _consolidate_para( lines, [], @not_pending, nil )
 
-  defp _consolidate_para( [], result, pending ) do
-    {result, [], pending}
+  defp _consolidate_para( [], result, pending, annotation ) do
+    {result, [], pending, annotation}
   end
 
-  defp _consolidate_para( [line | rest] = lines, result, pending ) do
+  defp _consolidate_para( [line | rest] = lines, result, pending, annotation ) do
+    # IO.inspect({line, annotation}, label: :consolidate)
     case _inline_or_text?( line, pending ) do
-      %{pending: still_pending, continue: true} -> _consolidate_para( rest, [line | result], still_pending )
-      _                                         -> {result, lines, @not_pending}
+      %{pending: still_pending, continue: true} -> _consolidate_para( rest, [line | result], still_pending, annotation || line.annotation )
+      _                                         -> {result, lines, @not_pending, annotation}
     end
 
   end
@@ -497,19 +499,19 @@ defmodule EarmarkParser.Parser do
   # Consume HTML, taking care of nesting. Assumes one tag per line. #
   ###################################################################
 
-  defp _html_match_to_closing(opener, rest), do: _find_closing_tags([opener], rest, [String.trim_leading(opener.line)])
+  defp _html_match_to_closing(opener, rest, annotation), do: _find_closing_tags([opener], rest, [String.trim_leading(opener.line)], annotation)
 
-  defp _find_closing_tags(needed, input, html_lines)
+  defp _find_closing_tags(needed, input, html_lines, annotation)
   # No more open tags, happy case
-  defp _find_closing_tags([], rest, html_lines), do: {html_lines, rest, []}
+  defp _find_closing_tags([], rest, html_lines, annotation), do: {html_lines, rest, [], annotation}
   # run out of input, unhappy case
-  defp _find_closing_tags(needed, [], html_lines), do: {html_lines, [], needed}
+  defp _find_closing_tags(needed, [], html_lines, annotation), do: {html_lines, [], needed, annotation}
   # still more lines, still needed closing
-  defp _find_closing_tags(needed = [needed_hd|needed_tl], [rest_hd|rest_tl], html_lines) do
+  defp _find_closing_tags(needed = [needed_hd|needed_tl], [rest_hd|rest_tl], html_lines, annotation) do
     cond do
-      _closes_tag?(rest_hd, needed_hd) -> _find_closing_tags(needed_tl, rest_tl, [String.trim_leading(rest_hd.line)|html_lines])
-      _opens_tag?(rest_hd)             -> _find_closing_tags([rest_hd|needed], rest_tl, [String.trim_leading(rest_hd.line)|html_lines])
-      true                             -> _find_closing_tags(needed, rest_tl, [rest_hd.line|html_lines])
+      _closes_tag?(rest_hd, needed_hd) -> _find_closing_tags(needed_tl, rest_tl, [String.trim_leading(rest_hd.line)|html_lines], _override_annotation(annotation, rest_hd))
+      _opens_tag?(rest_hd)             -> _find_closing_tags([rest_hd|needed], rest_tl, [String.trim_leading(rest_hd.line)|html_lines], annotation)
+      true                             -> _find_closing_tags(needed, rest_tl, [rest_hd.line|html_lines], annotation)
     end
   end
 
@@ -517,7 +519,7 @@ defmodule EarmarkParser.Parser do
   # Helpers #
   ###########
 
-  defp _closes_tag?(%Line.HtmlCloseTag{tag: ctag}, %Line.HtmlOpenTag{tag: otag}) do 
+  defp _closes_tag?(%Line.HtmlCloseTag{tag: ctag}, %Line.HtmlOpenTag{tag: otag}) do
     ctag == otag
   end
   defp _closes_tag?(_, _), do: false
@@ -541,6 +543,8 @@ defmodule EarmarkParser.Parser do
     %{pending: pending, continue: true}
   end
 
+
+  defp _override_annotation(annotation, line), do: annotation || line.annotation
 
   @start_number_rgx ~r{\A0*(\d+)[.)]}
   defp extract_start(%{bullet: bullet}) do

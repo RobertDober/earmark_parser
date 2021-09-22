@@ -350,6 +350,27 @@ defmodule EarmarkParser do
   In both cases one can override the mapper function with either the `mapper` option (used if and only if `timeout` is nil) or the
   `mapper_with_timeout` function (used otherwise).
 
+  ## Annotations
+
+  **N.B.** this is an experimental feature from v1.4.16-pre on and might change or be removed again
+
+  The idea is that each markdown line can be annotated, as such annotations change the semantics of Markdown
+  they have to be enabled with the `annotations` option.
+
+  If the `annotations` option is set to a string (only one string is supported right now, but a list might
+  be implemented later on, hence the name), the last occurance of that string in a line and all text following
+  it will be added to the line as an annotation.
+
+  Depending on how that line will eventually be parsed, this annotation will be added to the meta map (the 4th element
+  in an AST quadruple) with the key `:annotation`
+
+  In the current version the annotation will only be applied to verbatim HTML tags and paragraphs
+
+  Let us show some examples now:
+
+        iex(21)> as_ast("hello %> annotated", annotations: "%>")
+        {:ok, [{"p", [], ["hello "], %{annotation: "%> annotated"}}], []}
+
   """
 
   alias EarmarkParser.Error
@@ -357,15 +378,16 @@ defmodule EarmarkParser do
   import EarmarkParser.Message, only: [sort_messages: 1]
 
   @doc """
-      iex(21)> markdown = "My `code` is **best**"
-      ...(21)> {:ok, ast, []} = EarmarkParser.as_ast(markdown)
-      ...(21)> ast
+      iex(22)> markdown = "My `code` is **best**"
+      ...(22)> {:ok, ast, []} = EarmarkParser.as_ast(markdown)
+      ...(22)> ast
       [{"p", [], ["My ", {"code", [{"class", "inline"}], ["code"], %{}}, " is ", {"strong", [], ["best"], %{}}], %{}}]
 
 
-      iex(22)> markdown = "```elixir\\nIO.puts 42\\n```"
-      ...(22)> {:ok, ast, []} = EarmarkParser.as_ast(markdown, code_class_prefix: "lang-")
-      ...(22)> ast
+
+      iex(23)> markdown = "```elixir\\nIO.puts 42\\n```"
+      ...(23)> {:ok, ast, []} = EarmarkParser.as_ast(markdown, code_class_prefix: "lang-")
+      ...(23)> ast
       [{"pre", [], [{"code", [{"class", "elixir lang-elixir"}], ["IO.puts 42"], %{}}], %{}}]
 
   **Rationale**:
@@ -395,7 +417,7 @@ defmodule EarmarkParser do
   end
 
   defp _as_ast(lines, options) do
-    {blocks, context} = EarmarkParser.Parser.parse_markdown(lines, options)
+    {blocks, context} = EarmarkParser.Parser.parse_markdown(lines, Options.normalize(options))
     EarmarkParser.AstRenderer.render(blocks, context)
   end
 
