@@ -68,9 +68,9 @@ jobs:
           otp-version: ${{matrix.otp}}
           elixir-version: ${{matrix.elixir}}
       - run: mix deps.get
-      - run: mix test
-      # Deactivated until recoveralls (why am I so funny)
-      # - run: mix coveralls.github
+      # - run: mix test
+      - run: mix coveralls.github
+
 
 # jobs:
 #   mix_test:
