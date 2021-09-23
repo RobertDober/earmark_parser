@@ -7,7 +7,6 @@ defmodule EarmarkParser.Context do
   @type t :: %__MODULE__{
           options: EarmarkParser.Options.t(),
           links: map(),
-          rules: Keyword.t() | nil,
           footnotes: map(),
           value: String.t() | [String.t()]
         }
@@ -91,37 +90,13 @@ defmodule EarmarkParser.Context do
   #                 ( "[" .*? "]"n or anything w/o {"[", "]"}* or "]" ) *
   @link_text ~S{(?:\[[^]]*\]|[^][]|\])*}
   # "
-  @href ~S{\s*<?(.*?)>?(?:\s+['"](.*?)['"])?\s*}
+  # @href ~S{\s*<?(.*?)>?(?:\s+['"](.*?)['"])?\s*}
 
-  @code ~r{^
- (`+)		# $1 = Opening run of `
- (.+?)		# $2 = The code block
- (?<!`)
- \1			# Matching closer
- (?!`)
-    }xs
 
   defp basic_rules do
     [
-      escape: ~r{^\\([\\`*\{\}\[\]()\#+\-.!_>])},
-      # noop
-      url: ~r{\z\A},
-      tag: ~r{
-          ^<!--[\s\S]*?--> |
-          ^<\/?\w+(?: "[^"<]*" | # < inside an attribute is illegal, luckily
-          '[^'<]*' |
-          [^'"<>])*?>}x,
-      inline_ial: ~r<^\s*\{:\s*(.*?)\s*}>,
-      link: ~r{^!?\[(#{@link_text})\]\(#{@href}\)},
-      reflink: ~r{^!?\[(#{@link_text})\]\s*\[([^]]*)\]},
-      nolink: ~r{^!?\[((?:\[[^]]*\]|[^][])*)\]},
-      strong: ~r{^__([\s\S]+?)__(?!_)|^\*\*([\s\S]+?)\*\*(?!\*)},
-      em: ~r{^\b_((?:__|[\s\S])+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)},
-      code: @code,
       br: ~r<^ {2,}\n(?!\s*$)>,
       text: ~r<^[\s\S]+?(?=[\\<!\[_*`]| {2,}\n|$)>,
-      # noop
-      strikethrough: ~r{\z\A}
     ]
   end
 
@@ -146,14 +121,7 @@ defmodule EarmarkParser.Context do
           rules
         end
       else
-        if options.pedantic do
-          [
-            strong: ~r{^__(?=\S)([\s\S]*?\S)__(?!_)|^\*\*(?=\S)([\s\S]*?\S)\*\*(?!\*)},
-            em: ~r{^_(?=\S)([\s\S]*?\S)_(?!_)|^\*(?=\S)([\s\S]*?\S)\*(?!\*)}
-          ]
-        else
-          []
-        end
+        []
       end
 
     footnote = if options.footnotes, do: ~r{^\[\^(#{@link_text})\]}, else: ~r{\z\A}
