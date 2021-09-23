@@ -14,8 +14,10 @@ defmodule EarmarkParser.Ast.Renderer.HtmlRenderer do
     prepend(context, tag_)
   end
 
-  def render_html_oneline([line|_], context) do
-    prepend(context, parse_html([line]))
+  def render_html_oneline([line|_], context, annotation \\ []) do
+    [tag|rest] = parse_html([line])
+    tag_ = if annotation, do: annotate(tag, annotation), else: tag
+    prepend(context, [tag_|rest])
   end
   
   @html_comment_start ~r{\A\s*<!--}

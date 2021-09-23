@@ -1,10 +1,9 @@
 defmodule Acceptance.Ast.Html.Block.AnnotatedBlockTest do
   use ExUnit.Case, async: true
-  import Support.Helpers, only: [annotated: 2, as_ast: 1, as_ast: 2]
+  import Support.Helpers, only: [annotated: 2, as_ast: 2]
   import EarmarkAstDsl
 
   @annotations "*:"
-  @meta %{}
   @verbatim %{verbatim: true}
 
   describe "HTML blocks" do
@@ -299,6 +298,20 @@ defmodule Acceptance.Ast.Html.Block.AnnotatedBlockTest do
       messages = []
 
       assert as_ast(markdown, annotations: @annotations) == {:ok, ast, messages}
+    end
+  end
+
+  describe "Annotations in imbricated tags" do
+    test "a span inside a div" do
+      markdown = """
+      <div> // first
+      <span>text</span> // second
+      </div> // third
+      """
+      ast = [ vtag_annotated("div", "<span>text</span> ", "// first") ]
+      messages = []
+
+      assert as_ast(markdown, annotations: "//") == {:ok, ast, messages}
     end
   end
 end

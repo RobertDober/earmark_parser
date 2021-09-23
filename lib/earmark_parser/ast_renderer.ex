@@ -49,8 +49,8 @@ defmodule EarmarkParser.AstRenderer do
   defp render_block(%Block.Html{annotation: annotation, html: html}, context, _loose?) do
     render_html_block(html, context, annotation)
   end
-  defp render_block(%Block.HtmlOneline{html: html}, context, _loose?) do
-    render_html_oneline(html,context)
+  defp render_block(%Block.HtmlOneline{annotation: annotation, html: html}, context, _loose?) do
+    render_html_oneline(html, context, annotation)
   end
   defp render_block(%Block.HtmlComment{lines: lines}, context, _loose?) do
     lines1 =

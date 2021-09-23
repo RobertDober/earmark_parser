@@ -48,7 +48,7 @@ defmodule EarmarkParser.Parser do
   def parse(text_lines, options = %Options{}, recursive) do
     ["" | text_lines ++ [""]]
     |> LineScanner.scan_lines(options, recursive)
-    |> IO.inspect(label: :lines)
+    # |> IO.inspect(label: :lines)
     |> parse_lines(options, recursive)
   end
 
@@ -65,7 +65,8 @@ defmodule EarmarkParser.Parser do
 
   defp lines_to_blocks(lines, options, recursive) do
     with {blocks, options1} <- lines |> _parse([], options, recursive) do
-      { blocks |> IO.inspect(label: :blocks)|> assign_attributes_to_blocks([]) |> consolidate_list_items([]) , options1 }
+      # { blocks |> IO.inspect(label: :blocks)|> assign_attributes_to_blocks([]) |> consolidate_list_items([]) , options1 }
+      { blocks |> assign_attributes_to_blocks([]) |> consolidate_list_items([]) , options1 }
     end
   end
 
@@ -237,8 +238,8 @@ defmodule EarmarkParser.Parser do
   # HTML on one line #
   ####################
 
-  defp _parse([ %Line.HtmlOneLine{line: line, lnb: lnb} | rest], result, options, recursive) do
-    _parse(rest, [ %Block.HtmlOneline{html: [ line ], lnb: lnb} | result ], options, recursive)
+  defp _parse([ %Line.HtmlOneLine{annotation: annotation, line: line, lnb: lnb} | rest], result, options, recursive) do
+    _parse(rest, [ %Block.HtmlOneline{annotation: annotation, html: [ line ], lnb: lnb} | result ], options, recursive)
   end
 
   ################
