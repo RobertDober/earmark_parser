@@ -1,12 +1,13 @@
-defmodule Acceptance.Ast.Html.BlockTest do
+defmodule Acceptance.Ast.Html.Block.AnnotatedBlockTest do
   use ExUnit.Case, async: true
-  import Support.Helpers, only: [as_ast: 1]
+  import Support.Helpers, only: [annotated: 2, as_ast: 2]
   import EarmarkAstDsl
 
+  @annotations "*:"
   @verbatim %{verbatim: true}
 
   describe "HTML blocks" do
-    test "tables are just tables again (or was that mountains?)" do
+    test "tables are just tables again (or was that mountains?) -- non-regression" do
       markdown =
         "<table>\n  <tr>\n    <td>\n           hi\n    </td>\n  </tr>\n</table>\n\nokay.\n"
 
@@ -17,31 +18,65 @@ defmodule Acceptance.Ast.Html.BlockTest do
 
       messages = []
 
-      assert as_ast(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown, annotations: @annotations) == {:ok, ast, messages}
+    end
+    test "tables are just tables again (or was that mountains?)" do
+      markdown =
+        "<table> *: my_table\n  <tr>\n    <td>\n           hi\n    </td>\n  </tr>\n</table>\n\nokay.\n"
+
+      ast = [
+        {"table", [], ["  <tr>", "    <td>", "           hi", "    </td>", "  </tr>"], annotated(@verbatim, "*: my_table")},
+        p("okay.")
+      ]
+
+      messages = []
+
+      assert as_ast(markdown, annotations: @annotations) == {:ok, ast, messages}
     end
 
-    test "div (ine?)" do
+    test "div (ine?) -- non-regression" do
       markdown = "<div>\n  *hello*\n         <foo><a>\n</div>\n"
       ast = [vtag("div", ["  *hello*", "         <foo><a>"])]
       messages = []
 
-      assert as_ast(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown, annotations: @annotations) == {:ok, ast, messages}
+    end
+    test "div (ine?)" do
+      markdown = "<div>*:my-div\n  *hello*\n         <foo><a>\n</div>\n"
+      ast = [vtag_annotated("div", ["  *hello*", "         <foo><a>"], "*:my-div")]
+      messages = []
+
+      assert as_ast(markdown, annotations: @annotations) == {:ok, ast, messages}
     end
 
-    test "we are leaving html alone" do
+    test "we are leaving html alone -- non-regression" do
       markdown = "<div>\n*Emphasized* text.\n</div>"
       ast = [vtag("div", "*Emphasized* text.")]
       messages = []
 
-      assert as_ast(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown, annotations: @annotations) == {:ok, ast, messages}
+    end
+    test "we are leaving html alone" do
+      markdown = "<div>\n*Emphasized* text.\n</div>*: one line"
+      ast = [vtag_annotated("div", "*Emphasized* text.", "*: one line")]
+      messages = []
+
+      assert as_ast(markdown, annotations: @annotations) == {:ok, ast, messages}
     end
 
-    test "even block elements" do
+    test "even block elements -- non-regression" do
       markdown = "<div>\n```elixir\ndefmodule Mine do\n```\n</div>"
       ast = [vtag("div", ["```elixir", "defmodule Mine do", "```"])]
       messages = []
 
-      assert as_ast(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown, annotations: @annotations) == {:ok, ast, messages}
+    end
+    test "even block elements" do
+      markdown = "<div>\n```elixir\ndefmodule Mine do\n```\n</div>*:at_the_end"
+      ast = [vtag_annotated("div", ["```elixir", "defmodule Mine do", "```"], "*:at_the_end")]
+      messages = []
+
+      assert as_ast(markdown, annotations: @annotations) == {:ok, ast, messages}
     end
   end
 
@@ -55,7 +90,7 @@ defmodule Acceptance.Ast.Html.BlockTest do
       ]
       messages = []
 
-      assert as_ast(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown, annotations: @annotations) == {:ok, ast, messages}
     end
 
     test "we are outside the void now (lucky us)" do
@@ -66,7 +101,7 @@ defmodule Acceptance.Ast.Html.BlockTest do
       ]
       messages = []
 
-      assert as_ast(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown, annotations: @annotations) == {:ok, ast, messages}
     end
 
     test "high regards???" do
@@ -74,7 +109,7 @@ defmodule Acceptance.Ast.Html.BlockTest do
       ast = [vtag("hr"), p([tag("strong", "emphasized"), " text"])]
       messages = []
 
-      assert as_ast(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown, annotations: @annotations) == {:ok, ast, messages}
     end
 
     test "img (a punless test)" do
@@ -82,7 +117,7 @@ defmodule Acceptance.Ast.Html.BlockTest do
       ast = [vtag("img", [], src: "hello"), p([tag("strong", "emphasized"), " text"])]
       messages = []
 
-      assert as_ast(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown, annotations: @annotations) == {:ok, ast, messages}
     end
 
     test "not everybody knows this one (hint: take a break)" do
@@ -93,7 +128,7 @@ defmodule Acceptance.Ast.Html.BlockTest do
       ]
       messages = []
 
-      assert as_ast(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown, annotations: @annotations) == {:ok, ast, messages}
     end
   end
 
@@ -103,7 +138,7 @@ defmodule Acceptance.Ast.Html.BlockTest do
       ast = [p("alpha"), vtag("hr"), "beta"]
       messages = []
 
-      assert as_ast(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown, annotations: @annotations) == {:ok, ast, messages}
     end
 
     test "void elements close para but only at BOL" do
@@ -111,7 +146,7 @@ defmodule Acceptance.Ast.Html.BlockTest do
       ast = [p("alpha\n <hr>beta")]
       messages = []
 
-      assert as_ast(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown, annotations: @annotations) == {:ok, ast, messages}
     end
 
     test "self closing block elements close para" do
@@ -119,7 +154,7 @@ defmodule Acceptance.Ast.Html.BlockTest do
       ast = [p("alpha"), vtag("div"), "beta"]
       messages = []
 
-      assert as_ast(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown, annotations: @annotations) == {:ok, ast, messages}
     end
 
     test "self closing block elements close para, atts do not matter" do
@@ -127,7 +162,7 @@ defmodule Acceptance.Ast.Html.BlockTest do
       ast = [p("alpha"), vtag("div", nil, class: "first"), "beta"]
       messages = []
 
-      assert as_ast(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown, annotations: @annotations) == {:ok, ast, messages}
     end
 
     test "self closing block elements close para, atts and spaces do not matter" do
@@ -139,7 +174,7 @@ defmodule Acceptance.Ast.Html.BlockTest do
         p("gamma")]
       messages = []
 
-      assert as_ast(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown, annotations: @annotations) == {:ok, ast, messages}
     end
 
     test "self closing block elements close para but only at BOL" do
@@ -148,7 +183,7 @@ defmodule Acceptance.Ast.Html.BlockTest do
       ast = [p("alpha\n <div/>beta")]
       messages = []
 
-      assert as_ast(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown, annotations: @annotations) == {:ok, ast, messages}
     end
 
     test "self closing block elements close para but only at BOL, atts do not matter" do
@@ -157,7 +192,7 @@ defmodule Acceptance.Ast.Html.BlockTest do
       ast = [p("alpha\ngamma<div class=\"fourty two\"/>beta")]
       messages = []
 
-      assert as_ast(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown, annotations: @annotations) == {:ok, ast, messages}
     end
 
     test "block elements close para" do
@@ -166,7 +201,7 @@ defmodule Acceptance.Ast.Html.BlockTest do
       ast = [p("alpha"), vtag("div")]
       messages = []
 
-      assert as_ast(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown, annotations: @annotations) == {:ok, ast, messages}
     end
 
     test "block elements close para, atts do not matter" do
@@ -175,7 +210,7 @@ defmodule Acceptance.Ast.Html.BlockTest do
       ast = [p("alpha"), vtag("div", [], class: "first")]
       messages = []
 
-      assert as_ast(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown, annotations: @annotations) == {:ok, ast, messages}
     end
 
     test "block elements close para but only at BOL" do
@@ -184,7 +219,7 @@ defmodule Acceptance.Ast.Html.BlockTest do
       ast = [p("alpha\n <div></div>beta")]
       messages = []
 
-      assert as_ast(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown, annotations: @annotations) == {:ok, ast, messages}
     end
 
     test "block elements close para but only at BOL, atts do not matter" do
@@ -193,7 +228,7 @@ defmodule Acceptance.Ast.Html.BlockTest do
       ast = [p("alpha\ngamma<div class=\"fourty two\"></div>beta")]
       messages = []
 
-      assert as_ast(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown, annotations: @annotations) == {:ok, ast, messages}
     end
   end
 
@@ -203,7 +238,7 @@ defmodule Acceptance.Ast.Html.BlockTest do
       ast = vtag("div", "line", class: "my-div")
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown, annotations: @annotations) == {:ok, [ast], messages}
     end
 
     test "parses unquoted attrs" do
@@ -211,7 +246,7 @@ defmodule Acceptance.Ast.Html.BlockTest do
       ast = [vtag("div", "line")]
       messages = []
 
-      assert as_ast(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown, annotations: @annotations) == {:ok, ast, messages}
     end
 
     test "this is not closing" do
@@ -219,7 +254,7 @@ defmodule Acceptance.Ast.Html.BlockTest do
       ast = [{"div", [], ["line", "</hello></div>"], @verbatim}]
       messages = [{:warning, 1, "Failed to find closing <div>"}]
 
-      assert as_ast(markdown) == {:error, ast, messages}
+      assert as_ast(markdown, annotations: @annotations) == {:error, ast, messages}
     end
 
     test "therefore the div continues" do
@@ -227,7 +262,7 @@ defmodule Acceptance.Ast.Html.BlockTest do
       ast = [vtag("div", ["line", "</hello></div>"])]
       messages = []
 
-      assert as_ast(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown, annotations: @annotations) == {:ok, ast, messages}
     end
 
     test "...nor is this" do
@@ -238,7 +273,7 @@ defmodule Acceptance.Ast.Html.BlockTest do
         {:warning, 3, "Failed to find closing <hello>"}
       ]
 
-      assert as_ast(markdown) == {:error, ast, messages}
+      assert as_ast(markdown, annotations: @annotations) == {:error, ast, messages}
     end
 
     test "however, this closes and keeps the garbage" do
@@ -246,7 +281,7 @@ defmodule Acceptance.Ast.Html.BlockTest do
       ast = [vtag("div", "line"), "<hello>"]
       messages = []
 
-      assert as_ast(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown, annotations: @annotations) == {:ok, ast, messages}
     end
 
     test "however, this closes and keeps **whatever** garbage" do
@@ -254,7 +289,7 @@ defmodule Acceptance.Ast.Html.BlockTest do
       ast = [vtag("div", "line"), "`garbage`"]
       messages = []
 
-      assert as_ast(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown, annotations: @annotations) == {:ok, ast, messages}
     end
 
     test "however, this closes and kept garbage is not even inline formatted" do
@@ -262,7 +297,21 @@ defmodule Acceptance.Ast.Html.BlockTest do
       ast = [vtag("div", "line"), "_garbage_"]
       messages = []
 
-      assert as_ast(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown, annotations: @annotations) == {:ok, ast, messages}
+    end
+  end
+
+  describe "Annotations in imbricated tags" do
+    test "a span inside a div" do
+      markdown = """
+      <div> // first
+      <span>text</span> // second
+      </div> // third
+      """
+      ast = [ vtag_annotated("div", "<span>text</span> ", "// first") ]
+      messages = []
+
+      assert as_ast(markdown, annotations: "//") == {:ok, ast, messages}
     end
   end
 end

@@ -1,4 +1,4 @@
-defmodule Acceptance.Ast.Html.OnelineTest do
+defmodule Acceptance.Ast.Html.Oneline.UnannotatedOnelineTest do
   use ExUnit.Case, async: true
   import Support.Helpers, only: [as_ast: 1]
   import EarmarkAstDsl

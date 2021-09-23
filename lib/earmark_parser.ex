@@ -11,7 +11,7 @@ defmodule EarmarkParser do
   @type ast_node :: binary() | ast_tuple()
   @type ast :: list(ast_node())
 
-  @moduledoc """
+  @moduledoc ~S"""
 
   ### API
 
@@ -57,7 +57,7 @@ defmodule EarmarkParser do
 
   and old style
 
-      iex(3)> EarmarkParser.as_ast("[foo]: /url \\"title\\"\\n\\n[foo]\\n")
+      iex(3)> EarmarkParser.as_ast("[foo]: /url \"title\"\n\n[foo]\n")
       {:ok, [{"p", [], [{"a", [{"href", "/url"}, {"title", "title"}], ["foo"], %{}}], %{}}], []}
 
   #### Autolinks
@@ -195,7 +195,7 @@ defmodule EarmarkParser do
   And a line starting with an opening tag and ending with the corresponding closing tag is parsed in similar
   fashion
 
-      iex(13)> EarmarkParser.as_ast(["<span class=\\"superspan\\">spaniel</span>"])
+      iex(13)> EarmarkParser.as_ast(["<span class=\"superspan\">spaniel</span>"])
       {:ok, [{"span", [{"class", "superspan"}], ["spaniel"], %{verbatim: true}}], []}
 
   What is HTML?
@@ -221,7 +221,7 @@ defmodule EarmarkParser do
 
   E.g.
 
-      iex(16)> EarmarkParser.as_ast(" <!-- Comment\\ncomment line\\ncomment --> text -->\\nafter")
+      iex(16)> EarmarkParser.as_ast(" <!-- Comment\ncomment line\ncomment --> text -->\nafter")
       {:ok, [{:comment, [], [" Comment", "comment line", "comment "], %{comment: true}}, {"p", [], ["after"], %{}}], []}
 
 
@@ -259,12 +259,12 @@ defmodule EarmarkParser do
 
   For both cases, malformed attributes are ignored and warnings are issued.
 
-      iex(18)> [ "Some text", "{:hello}" ] |> Enum.join("\\n") |> EarmarkParser.as_ast()
-      {:error, [{"p", [], ["Some text"], %{}}], [{:warning, 2,"Illegal attributes [\\"hello\\"] ignored in IAL"}]}
+      iex(18)> [ "Some text", "{:hello}" ] |> Enum.join("\n") |> EarmarkParser.as_ast()
+      {:error, [{"p", [], ["Some text"], %{}}], [{:warning, 2,"Illegal attributes [\"hello\"] ignored in IAL"}]}
 
   It is possible to escape the IAL in both forms if necessary
 
-      iex(19)> markdown = "[link](url)\\\\{: .classy}"
+      iex(19)> markdown = "[link](url)\\{: .classy}"
       ...(19)> EarmarkParser.as_ast(markdown)
       {:ok, [{"p", [], [{"a", [{"href", "url"}], ["link"], %{}}, "{: .classy}"], %{}}], []}
 
@@ -350,6 +350,69 @@ defmodule EarmarkParser do
   In both cases one can override the mapper function with either the `mapper` option (used if and only if `timeout` is nil) or the
   `mapper_with_timeout` function (used otherwise).
 
+  ## Annotations
+
+  **N.B.** this is an experimental feature from v1.4.16-pre on and might change or be removed again
+
+  The idea is that each markdown line can be annotated, as such annotations change the semantics of Markdown
+  they have to be enabled with the `annotations` option.
+
+  If the `annotations` option is set to a string (only one string is supported right now, but a list might
+  be implemented later on, hence the name), the last occurance of that string in a line and all text following
+  it will be added to the line as an annotation.
+
+  Depending on how that line will eventually be parsed, this annotation will be added to the meta map (the 4th element
+  in an AST quadruple) with the key `:annotation`
+
+  In the current version the annotation will only be applied to verbatim HTML tags and paragraphs
+
+  Let us show some examples now:
+
+  ### Annotated Paragraphs
+
+      iex(21)> as_ast("hello %> annotated", annotations: "%>")
+      {:ok, [{"p", [], ["hello "], %{annotation: "%> annotated"}}], []}
+
+  If we annotate more than one line in a para the first annotation takes precedence
+
+      iex(22)> as_ast("hello %> annotated\nworld %> discarded", annotations: "%>")
+      {:ok, [{"p", [], ["hello \nworld "], %{annotation: "%> annotated"}}], []}
+
+  ### Annotated HTML elements
+
+  In one line
+
+      iex(23)> as_ast("<span>One Line</span> // a span", annotations: "//")
+      {:ok, [{"span", [], ["One Line"], %{annotation: "// a span", verbatim: true}}], []}
+
+  or block elements
+
+      iex(24)> [
+      ...(24)> "<div> : annotation",
+      ...(24)> "  <span>text</span>",
+      ...(24)> "</div> : discarded"
+      ...(24)> ] |> as_ast(annotations: " : ")
+      {:ok, [{"div", [], ["  <span>text</span>"], %{annotation: " : annotation", verbatim: true}}], []}
+
+  ### Commenting your Markdown
+
+  Although many markdown elements do not support annotations yet, they can be used to comment your markdown, w/o cluttering
+  the generated AST with comments
+
+      iex(25)> [
+      ...(25)> "# Headline --> first line",
+      ...(25)> "- item1 --> a list item",
+      ...(25)> "- item2 --> another list item",
+      ...(25)> "",
+      ...(25)> "<http://somewhere/to/go> --> do not go there"
+      ...(25)> ] |> as_ast(annotations: "-->")
+      {:ok, [
+        {"h1", [], ["Headline"], %{}},
+        {"ul", [], [{"li", [], ["item1 "], %{}}, {"li", [], ["item2 "], %{}}], %{}},
+        {"p", [], [{"a", [{"href", "http://somewhere/to/go"}], ["http://somewhere/to/go"], %{}}, " "], %{annotation: "--> do not go there"}}
+        ], []
+       }
+
   """
 
   alias EarmarkParser.Error
@@ -357,15 +420,16 @@ defmodule EarmarkParser do
   import EarmarkParser.Message, only: [sort_messages: 1]
 
   @doc """
-      iex(21)> markdown = "My `code` is **best**"
-      ...(21)> {:ok, ast, []} = EarmarkParser.as_ast(markdown)
-      ...(21)> ast
+      iex(26)> markdown = "My `code` is **best**"
+      ...(26)> {:ok, ast, []} = EarmarkParser.as_ast(markdown)
+      ...(26)> ast
       [{"p", [], ["My ", {"code", [{"class", "inline"}], ["code"], %{}}, " is ", {"strong", [], ["best"], %{}}], %{}}]
 
 
-      iex(22)> markdown = "```elixir\\nIO.puts 42\\n```"
-      ...(22)> {:ok, ast, []} = EarmarkParser.as_ast(markdown, code_class_prefix: "lang-")
-      ...(22)> ast
+
+      iex(27)> markdown = "```elixir\\nIO.puts 42\\n```"
+      ...(27)> {:ok, ast, []} = EarmarkParser.as_ast(markdown, code_class_prefix: "lang-")
+      ...(27)> ast
       [{"pre", [], [{"code", [{"class", "elixir lang-elixir"}], ["IO.puts 42"], %{}}], %{}}]
 
   **Rationale**:
@@ -395,7 +459,7 @@ defmodule EarmarkParser do
   end
 
   defp _as_ast(lines, options) do
-    {blocks, context} = EarmarkParser.Parser.parse_markdown(lines, options)
+    {blocks, context} = EarmarkParser.Parser.parse_markdown(lines, Options.normalize(options))
     EarmarkParser.AstRenderer.render(blocks, context)
   end
 

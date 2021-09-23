@@ -71,9 +71,9 @@ defmodule EarmarkParser.LineScanner do
       when is_boolean(recursive),
       do: type_of(line, %Options{}, recursive)
 
-  def type_of({line, lnb}, options = %Options{}, recursive) do
-    line = line |> Helpers.expand_tabs() |> Helpers.remove_line_ending()
-    %{_type_of(line, options, recursive) | line: line, lnb: lnb}
+  def type_of({line, lnb}, options = %Options{annotations: annotations}, recursive) do
+    {line1, annotation} = line |> Helpers.expand_tabs() |> Helpers.remove_line_ending(annotations)
+    %{_type_of(line1, options, recursive) | annotation: annotation, line: line1, lnb: lnb}
   end
 
   @doc false

@@ -1,16 +1,25 @@
-defmodule Acceptance.Ast.ParagraphsTest do
+defmodule Acceptance.Ast.Paragraphs.AnnotatedParagraphsTest do
   use ExUnit.Case, async: true
   import Support.Helpers, only: [as_ast: 1, as_ast: 2, parse_html: 1]
   import EarmarkAstDsl
 
+  @annotation "--"
+
   describe "Paragraphs" do
-    test "a para" do
+    test "a para -- non-regression" do
       markdown = "aaa\n\nbbb\n"
       html     = "<p>aaa</p>\n<p>bbb</p>\n"
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown, annotations: @annotation) == {:ok, ast, messages}
+    end
+    test "a para" do
+      markdown = "aaa-- a\n\nbbb-- b\n"
+      ast      = [p_annotated("aaa", "-- a"), p_annotated("bbb", "-- b")]
+      messages = []
+
+      assert as_ast(markdown, annotations: @annotation) == {:ok, ast, messages}
     end
 
     test "and another one" do

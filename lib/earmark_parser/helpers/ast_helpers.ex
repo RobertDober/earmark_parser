@@ -7,7 +7,15 @@ defmodule EarmarkParser.Helpers.AstHelpers do
   import EarmarkParser.Helpers.AttrParser
 
   alias EarmarkParser.Block
-  
+
+  @doc false
+  def annotate(node, from_block)
+  def annotate(node, %{annotation: nil}), do: node
+  def annotate({tag, atts, children, meta}, %{annotation: annotation}),
+    do: {tag, atts, children, Map.put(meta, :annotation, annotation)}
+  def annotate({tag, atts, children, meta}, annotation),
+    do: {tag, atts, children, Map.put(meta, :annotation, annotation)}
+
   @doc false
   def attrs_to_string_keys(key_value_pair)
   def attrs_to_string_keys({k, vs}) when is_list(vs) do

@@ -31,7 +31,7 @@ defmodule EarmarkParser.AstRenderer do
   #############
   # Paragraph #
   #############
-  defp render_block(%Block.Para{lnb: lnb, lines: lines, attrs: attrs}, context, loose?) do
+  defp render_block(%Block.Para{lnb: lnb, lines: lines, attrs: attrs}=para, context, loose?) do
     context1 = convert(lines, lnb, context)
     value    = context1.value |> Enum.reverse
     ast      =
@@ -40,16 +40,17 @@ defmodule EarmarkParser.AstRenderer do
     else
       value
     end
-    prepend(context, ast, context1.options.messages)
+    ast_ = annotate(ast, para)
+    prepend(context, ast_, context1.options.messages)
   end
   ########
   # Html #
   ########
-  defp render_block(%Block.Html{html: html}, context, _loose?) do
-    render_html_block(html, context)
+  defp render_block(%Block.Html{annotation: annotation, html: html}, context, _loose?) do
+    render_html_block(html, context, annotation)
   end
-  defp render_block(%Block.HtmlOneline{html: html}, context, _loose?) do
-    render_html_oneline(html,context)
+  defp render_block(%Block.HtmlOneline{annotation: annotation, html: html}, context, _loose?) do
+    render_html_oneline(html, context, annotation)
   end
   defp render_block(%Block.HtmlComment{lines: lines}, context, _loose?) do
     lines1 =
