@@ -21,7 +21,9 @@ defmodule EarmarkParser.Ast.Inline do
   def convert(src, lnb, context), do: _convert(src, lnb, context, true)
 
   defp _convert(src, current_lnb, context, use_linky?)
-  defp _convert(src, _, %{options: %{parse_inline: false}} = context, _), do: prepend(context, src)
+  defp _convert(src, _, %{options: %{parse_inline: false}} = context, _) do
+    prepend(context, src)
+  end
   defp _convert("", _, context, _), do: context
   defp _convert(src, current_lnb, context, use_linky?) do
     case _convert_next(src, current_lnb, context, use_linky?) do
@@ -132,17 +134,17 @@ defmodule EarmarkParser.Ast.Inline do
   end
 
   @link_text ~S{(?:\[[^]]*\]|[^][]|\])*}
-  @reflink ~r{^!?\[(#{@link_text})\]\s*\[([^]]*)\]}
+  @reflink ~r{^!?\[(#{@link_text})\]\s*\[([^]]*)\]}x
   defp converter_for_reflink({src, lnb, context, use_linky?}) do
     if match = Regex.run(@reflink, src) do
-      {match, alt_text, id} =
+      {match_, alt_text, id} =
         case match do
-          [match, id, ""] -> {match, id, id}
-          [match, alt_text, id] -> {match, alt_text, id}
+          [match__, id, ""] -> {match__, id, id}
+          [match__, alt_text, id] -> {match__, alt_text, id}
         end
 
-      case reference_link(context, match, alt_text, id, lnb) do
-        {:ok, out} -> {behead(src, match), lnb, prepend(context, out), use_linky?}
+      case reference_link(context, match_, alt_text, id, lnb) do
+        {:ok, out} -> {behead(src, match_), lnb, prepend(context, out), use_linky?}
         _ -> nil
       end
     end

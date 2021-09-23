@@ -9,7 +9,7 @@ defmodule EarmarkParser.Options do
             gfm_tables: false,
             breaks: false,
             pedantic: false,
-            smartypants: true,
+            smartypants: false,
             footnotes: false,
             footnote_offset: 1,
             wikilinks: false,
@@ -22,9 +22,6 @@ defmodule EarmarkParser.Options do
 
             # Add possibility to specify a timeout for Task.await
             timeout: nil,
-
-            # Internal—only override if you're brave
-            do_smartypants: nil,
 
             # Very internal—the callback used to perform
             # parallel rendering. Set to &Enum.map/2

@@ -7,6 +7,7 @@ defmodule EarmarkParser.Ast.Renderer.AstWalker do
   def walk_ast(ast, fun), do: _walk_ast(ast, fun, [])
 
 
+  defp _walk(ast, fun, ignore_map_keys, child_of_map)
   defp _walk([], _fun, _ignore_map_keys, _child_of_map), do: []
   defp _walk(list, fun, ignore_map_keys, _child_of_map) when is_list(list) do
     Enum.map(list, &(_walk(&1, fun, ignore_map_keys, false)))
