@@ -17,7 +17,6 @@
 ## Table Of Contents
 
 <!-- BEGIN generated TOC -->
-* [Dependency](#dependency)
 * [Usage](#usage)
 * [Details](#details)
 * [`EarmarkParser.as_ast/2`](#earmarkparseras_ast2)
@@ -25,10 +24,6 @@
 * [Author](#author)
 * [LICENSE](#license)
 <!-- END generated TOC -->
-
-## Dependency
-
-    { :earmark_parser, "~> 1.5.0" }
 
 ## Usage
 
@@ -371,6 +366,69 @@ which will pass `timeout` to `Task.await`.
 In both cases one can override the mapper function with either the `mapper` option (used if and only if `timeout` is nil) or the
 `mapper_with_timeout` function (used otherwise).
 
+## Annotations
+
+**N.B.** this is an experimental feature from v1.4.16-pre on and might change or be removed again
+
+The idea is that each markdown line can be annotated, as such annotations change the semantics of Markdown
+they have to be enabled with the `annotations` option.
+
+If the `annotations` option is set to a string (only one string is supported right now, but a list might
+be implemented later on, hence the name), the last occurance of that string in a line and all text following
+it will be added to the line as an annotation.
+
+Depending on how that line will eventually be parsed, this annotation will be added to the meta map (the 4th element
+in an AST quadruple) with the key `:annotation`
+
+In the current version the annotation will only be applied to verbatim HTML tags and paragraphs
+
+Let us show some examples now:
+
+### Annotated Paragraphs
+
+    iex(21)> as_ast("hello %> annotated", annotations: "%>")
+    {:ok, [{"p", [], ["hello "], %{annotation: "%> annotated"}}], []}
+
+If we annotate more than one line in a para the first annotation takes precedence
+
+    iex(22)> as_ast("hello %> annotated\nworld %> discarded", annotations: "%>")
+    {:ok, [{"p", [], ["hello \nworld "], %{annotation: "%> annotated"}}], []}
+
+### Annotated HTML elements
+
+In one line
+
+    iex(23)> as_ast("<span>One Line</span> // a span", annotations: "//")
+    {:ok, [{"span", [], ["One Line"], %{annotation: "// a span", verbatim: true}}], []}
+
+or block elements
+
+    iex(24)> [
+    ...(24)> "<div> : annotation",
+    ...(24)> "  <span>text</span>",
+    ...(24)> "</div> : discarded"
+    ...(24)> ] |> as_ast(annotations: " : ")
+    {:ok, [{"div", [], ["  <span>text</span>"], %{annotation: " : annotation", verbatim: true}}], []}
+
+### Commenting your Markdown
+
+Although many markdown elements do not support annotations yet, they can be used to comment your markdown, w/o cluttering
+the generated AST with comments
+
+    iex(25)> [
+    ...(25)> "# Headline --> first line",
+    ...(25)> "- item1 --> a list item",
+    ...(25)> "- item2 --> another list item",
+    ...(25)> "",
+    ...(25)> "<http://somewhere/to/go> --> do not go there"
+    ...(25)> ] |> as_ast(annotations: "-->")
+    {:ok, [
+      {"h1", [], ["Headline"], %{}},
+      {"ul", [], [{"li", [], ["item1 "], %{}}, {"li", [], ["item2 "], %{}}], %{}},
+      {"p", [], [{"a", [{"href", "http://somewhere/to/go"}], ["http://somewhere/to/go"], %{}}, " "], %{annotation: "--> do not go there"}}
+      ], []
+     }
+
 
 <!-- END inserted moduledoc EarmarkParser -->
 
@@ -379,15 +437,16 @@ In both cases one can override the mapper function with either the `mapper` opti
 ## `EarmarkParser.as_ast/2`
 
 <!-- BEGIN inserted functiondoc EarmarkParser.as_ast/2 -->
-    iex(21)> markdown = "My `code` is **best**"
-    ...(21)> {:ok, ast, []} = EarmarkParser.as_ast(markdown)
-    ...(21)> ast
+    iex(26)> markdown = "My `code` is **best**"
+    ...(26)> {:ok, ast, []} = EarmarkParser.as_ast(markdown)
+    ...(26)> ast
     [{"p", [], ["My ", {"code", [{"class", "inline"}], ["code"], %{}}, " is ", {"strong", [], ["best"], %{}}], %{}}]
 
 
-    iex(22)> markdown = "```elixir\nIO.puts 42\n```"
-    ...(22)> {:ok, ast, []} = EarmarkParser.as_ast(markdown, code_class_prefix: "lang-")
-    ...(22)> ast
+
+    iex(27)> markdown = "```elixir\nIO.puts 42\n```"
+    ...(27)> {:ok, ast, []} = EarmarkParser.as_ast(markdown, code_class_prefix: "lang-")
+    ...(27)> ast
     [{"pre", [], [{"code", [{"class", "elixir lang-elixir"}], ["IO.puts 42"], %{}}], %{}}]
 
 **Rationale**:
