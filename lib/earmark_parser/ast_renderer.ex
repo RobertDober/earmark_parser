@@ -142,7 +142,9 @@ defmodule EarmarkParser.AstRenderer do
     # IO.inspect blocks
     context1 = render(blocks, clear_value(context), loose?)
     # IO.inspect(context1.value, label: :list_item_blocks)
-    prepend(context, emit("li", _fix_text_lines(context1.value, loose?), Enum.map(attrs || %{}, &attrs_to_string_keys/1)), context1.options.messages)
+    # See below why _fix_text_lines is a NOP right now
+    # prepend(context, emit("li", _fix_text_lines(context1.value, loose?), Enum.map(attrs || %{}, &attrs_to_string_keys/1)), context1.options.messages)
+    prepend(context, emit("li", context1.value, Enum.map(attrs || %{}, &attrs_to_string_keys/1)), context1.options.messages)
   end
 
   ########
@@ -203,17 +205,20 @@ defmodule EarmarkParser.AstRenderer do
   # -------
 
 
-  defp _fix_text_lines(ast, loose?)
-  defp _fix_text_lines(ast, false), do: Enum.map(ast, &_fix_tight_text_line/1)
-  defp _fix_text_lines(ast, true), do: Enum.map(ast, &_fix_loose_text_line/1)
+  # Seems to be dead code but as GFM list handling is broken maybe we have a bug
+  # that does not call this correctly, anyhow AST triplets do not exits anymore
+  # so this code would break if called
+  # defp _fix_text_lines(ast, loose?)
+  # defp _fix_text_lines(ast, false), do: Enum.map(ast, &_fix_tight_text_line/1)
+  # defp _fix_text_lines(ast, true), do: Enum.map(ast, &_fix_loose_text_line/1)
 
-  defp _fix_loose_text_line(node)
-  defp _fix_loose_text_line({:text, _, lines}), do: emit("p", lines)
-  defp _fix_loose_text_line(node), do: node
+  # defp _fix_loose_text_line(node)
+  # defp _fix_loose_text_line({:text, _, lines}), do: emit("p", lines)
+  # defp _fix_loose_text_line(node), do: node
 
-  defp _fix_tight_text_line(node)
-  defp _fix_tight_text_line({:text, _, lines}), do: lines
-  defp _fix_tight_text_line(node), do: node
+  # defp _fix_tight_text_line(node)
+  # defp _fix_tight_text_line({:text, _, lines}), do: lines
+  # defp _fix_tight_text_line(node), do: node
 
   # INLINE CANDIDATE
   defp _normalize_start(start) do

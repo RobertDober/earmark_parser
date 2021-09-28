@@ -3,13 +3,13 @@ defmodule EarmarkParser.Helpers.HtmlHelpers do
   @moduledoc false
 
   import EarmarkParser.Helpers.AttrParser
-  
+
   @simple_tag ~r{^<(.*?)\s*>}
 
   @doc false
 
-  def augment_tag_with_ial(context, tag, ial, lnb) do 
-    case Regex.run( @simple_tag, tag) do 
+  def augment_tag_with_ial(context, tag, ial, lnb) do
+    case Regex.run( @simple_tag, tag) do
       nil ->
         nil
       ["<code class=\"inline\">", "code class=\"inline\""] ->
@@ -18,13 +18,15 @@ defmodule EarmarkParser.Helpers.HtmlHelpers do
       _   ->
         add_attrs(context, tag, ial, [], lnb)
     end
-    
+
   end
 
 
   ##############################################
   # add attributes to the outer tag in a block #
   ##############################################
+
+
 
   @doc false
   def add_attrs(context, text, attrs_as_string_or_map, default_attrs, lnb )
@@ -35,7 +37,7 @@ defmodule EarmarkParser.Helpers.HtmlHelpers do
     add_attrs(context1, text, attrs, default, lnb)
   end
   def add_attrs(context, text, attrs, default, _lnb) do
-    {context, 
+    {context,
       default
       |> Map.new()
       |> Map.merge(attrs, fn _k, v1, v2 -> v1 ++ v2 end)

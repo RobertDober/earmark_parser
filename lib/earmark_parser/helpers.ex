@@ -49,12 +49,9 @@ defmodule EarmarkParser.Helpers do
   """
 
   @amp_rgx ~r{&(?!#?\w+;)}
-  @never_amp_rgx ~r{&(?!#x[0-9a-f]+;)}i
-  def escape(html, encode \\ false)
 
-  def escape(html, false), do: _escape(Regex.replace(@amp_rgx, html, "&amp;"))
+  def escape(html), do: _escape(Regex.replace(@amp_rgx, html, "&amp;"))
 
-  def escape(html, _), do: _escape(Regex.replace(@never_amp_rgx, html, "&amp;"))
 
   defp _escape(html) do
     html

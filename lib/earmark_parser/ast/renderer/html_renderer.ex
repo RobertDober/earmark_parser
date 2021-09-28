@@ -7,7 +7,7 @@ defmodule EarmarkParser.Ast.Renderer.HtmlRenderer do
   @moduledoc false
 
   # Structural Renderer for html blocks
-  def render_html_block(lines, context, annotation \\ nil)
+  def render_html_block(lines, context, annotation)
   def render_html_block(lines, context, annotation) do
     [tag] = parse_html(lines)
     tag_ = if annotation, do: annotate(tag, annotation), else: tag

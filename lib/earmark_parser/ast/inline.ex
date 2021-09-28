@@ -21,7 +21,9 @@ defmodule EarmarkParser.Ast.Inline do
   def convert(src, lnb, context), do: _convert(src, lnb, context, true)
 
   defp _convert(src, current_lnb, context, use_linky?)
-  defp _convert(src, _, %{options: %{parse_inline: false}} = context, _), do: prepend(context, src)
+  defp _convert(src, _, %{options: %{parse_inline: false}} = context, _) do
+    prepend(context, src)
+  end
   defp _convert("", _, context, _), do: context
   defp _convert(src, current_lnb, context, use_linky?) do
     case _convert_next(src, current_lnb, context, use_linky?) do
@@ -78,8 +80,9 @@ defmodule EarmarkParser.Ast.Inline do
   #  Converters
   #
   ######################
+  @escape_rule ~r{^\\([\\`*\{\}\[\]()\#+\-.!_>])}
   defp converter_for_escape({src, lnb, context, use_linky?}) do
-    if match = Regex.run(context.rules.escape, src) do
+    if match = Regex.run(@escape_rule, src) do
       [match, escaped] = match
       {behead(src, match), lnb, prepend(context, escaped), use_linky?}
     end
@@ -130,16 +133,18 @@ defmodule EarmarkParser.Ast.Inline do
     end
   end
 
+  @link_text ~S{(?:\[[^]]*\]|[^][]|\])*}
+  @reflink ~r{^!?\[(#{@link_text})\]\s*\[([^]]*)\]}x
   defp converter_for_reflink({src, lnb, context, use_linky?}) do
-    if match = Regex.run(context.rules.reflink, src) do
-      {match, alt_text, id} =
+    if match = Regex.run(@reflink, src) do
+      {match_, alt_text, id} =
         case match do
-          [match, id, ""] -> {match, id, id}
-          [match, alt_text, id] -> {match, alt_text, id}
+          [match__, id, ""] -> {match__, id, id}
+          [match__, alt_text, id] -> {match__, alt_text, id}
         end
 
-      case reference_link(context, match, alt_text, id, lnb) do
-        {:ok, out} -> {behead(src, match), lnb, prepend(context, out), use_linky?}
+      case reference_link(context, match_, alt_text, id, lnb) do
+        {:ok, out} -> {behead(src, match_), lnb, prepend(context, out), use_linky?}
         _ -> nil
       end
     end
@@ -158,8 +163,9 @@ defmodule EarmarkParser.Ast.Inline do
     end
   end
 
+  @nolink ~r{^!?\[((?:\[[^]]*\]|[^][])*)\]}
   defp converter_for_nolink({src, lnb, context, use_linky?}) do
-    case Regex.run(context.rules.nolink, src) do
+    case Regex.run(@nolink, src) do
       [match, id] ->
         case reference_link(context, match, id, id, lnb) do
           {:ok, out} -> {behead(src, match), lnb, prepend(context, out), use_linky?}
@@ -194,8 +200,15 @@ defmodule EarmarkParser.Ast.Inline do
   end
 
   @squash_ws ~r{\s+}
+  @code ~r{^
+    (`+)		# $1 = Opening run of `
+    (.+?)		# $2 = The code block
+    (?<!`)
+    \1			# Matching closer
+    (?!`)
+    }xs
   defp converter_for_code({src, lnb, context, use_linky?}) do
-    if match = Regex.run(context.rules.code, src) do
+    if match = Regex.run(@code, src) do
       [match, _, content] = match
       # Commonmark
       content1 = content
@@ -207,11 +220,12 @@ defmodule EarmarkParser.Ast.Inline do
     end
   end
 
+  @inline_ial ~r<^\s*\{:\s*(.*?)\s*}>
   defp converter_for_inline_ial(conv_data)
   defp converter_for_inline_ial(
          {src, lnb, context, use_linky?}
        ) do
-    if match = Regex.run(context.rules.inline_ial, src) do
+    if match = Regex.run(@inline_ial, src) do
       [match, ial] = match
       {context1, ial_attrs} = parse_attrs(context, ial, lnb)
       new_tags = augment_tag_with_ial(context.value, ial_attrs)

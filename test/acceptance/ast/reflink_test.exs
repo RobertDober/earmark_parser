@@ -1,6 +1,7 @@
 defmodule Acceptance.Ast.ReflinkTest do
   use ExUnit.Case, async: true
   import Support.Helpers, only: [as_ast: 1, parse_html: 1]
+  import EarmarkAstDsl
 
   describe "undefined reflinks" do
     test "simple case" do
@@ -23,6 +24,23 @@ defmodule Acceptance.Ast.ReflinkTest do
   end
 
   describe "defined reflinks" do
+    test "empty case" do
+      markdown = "[] [reference]\n[reference]: some_url"
+      html     = "<p><a href=\"some_url\" title=\"\"></a></p>\n"
+      ast      = parse_html(html)
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
+
+    test "empty reference" do
+      markdown = "[text] []\n[]: some_url"
+      ast = p( "[text] []\n[]: some_url")
+      messages = []
+
+      assert as_ast(markdown) == {:ok, [ast], messages}
+    end
+
     test "simple case" do
       markdown = "[text] [reference]\n[reference]: some_url"
       html     = "<p><a href=\"some_url\" title=\"\">text</a></p>\n"

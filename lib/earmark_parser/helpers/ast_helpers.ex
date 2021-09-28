@@ -4,7 +4,6 @@ defmodule EarmarkParser.Helpers.AstHelpers do
 
   import EarmarkParser.Ast.Emitter
   import EarmarkParser.Helpers
-  import EarmarkParser.Helpers.AttrParser
 
   alias EarmarkParser.Block
 
@@ -110,20 +109,6 @@ defmodule EarmarkParser.Helpers.AstHelpers do
     |> Enum.into([])
     |> Enum.map(&attrs_to_string_keys/1)
 
-  end
-
-  @doc false
-  def add_attrs(context, text, attrs_as_string_or_map, default_attrs, lnb)
-  def add_attrs(context, text, nil, [], _lnb), do: {context, text}
-  def add_attrs(context, text, nil, default, lnb), do: add_attrs(context, text, %{}, default, lnb)
-  def add_attrs(context, text, attrs, default, lnb) when is_binary(attrs) do
-    {context1, attrs} = parse_attrs( context, attrs, lnb )
-    add_attrs(context1, text, attrs, default, lnb)
-  end
-  def add_attrs(_context, _text, attrs, default, _lnb) do
-      default
-      |> Map.new()
-      |> Map.merge(attrs, fn _k, v1, v2 -> v1 ++ v2 end)
   end
 
   defp _value_merger(key, val1, val2)
