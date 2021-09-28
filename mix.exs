@@ -9,6 +9,7 @@ defmodule EarmarkParser.MixProject do
     {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
     {:earmark_ast_dsl, "~> 0.3.0", only: [:test]},
     {:excoveralls, "~> 0.13.3", only: [:test]},
+    {:extractly, "~> 0.5.2", only: [:dev]},
     {:floki, "~> 0.21", only: [:dev, :test]}
   ]
 
@@ -42,7 +43,7 @@ defmodule EarmarkParser.MixProject do
         "coveralls.html": :test
       ],
       test_coverage: [tool: ExCoveralls],
-      aliases: [docs: &build_docs/1, readme: &readme/1]
+      aliases: [docs: &build_docs/1]
     ]
   end
 
@@ -97,10 +98,6 @@ defmodule EarmarkParser.MixProject do
     Mix.shell().info("Docs built successfully")
   end
 
-  defp readme(args) do
-    Code.require_file("tasks/readme.exs")
-    Mix.Tasks.Readme.run(args)
-  end
 end
 
 # SPDX-License-Identifier: Apache-2.0

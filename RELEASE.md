@@ -1,5 +1,7 @@
 ## 1.4.16 ????/??/??
 
+- [Use Extractly instead of homemade readme task → Syntax Highlightening for iex> code blocks](https://github.com/robertdober/earmark_parser/pull/51)
+
 - [Refactoring and Dead Code Elimination in Context](https://github.com/robertdober/earmark_parser/pull/50)
 
 - [Annotations for Paragraphs and verbatim HTML](https://github.com/robertdober/earmark_parser/issues/47)
