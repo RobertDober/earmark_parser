@@ -10,17 +10,12 @@
 
 ## Table Of Contents
 
-%toc
+<%= xtra.toc :self, gh_links: true, min_level: 2, max_level: 4, remove_gaps: true %>
 
 ## Usage
 
-%moduledoc EarmarkParser
+<%= xtra.moduledoc "EarmarkParser", include: :all, wrap_code_blocks: "elixir", headline: 3 %>
 
-## Details
-
-## `EarmarkParser.as_ast/2`
-
-%functiondoc EarmarkParser.as_ast/2
 
 ## Contributing
 
