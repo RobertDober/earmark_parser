@@ -1,5 +1,7 @@
 ## 1.4.16 ????/??/??
 
+- [Refactoring and Dead Code Elimination in Context](https://github.com/robertdober/earmark_parser/pull/50)
+
 - [Annotations for Paragraphs and verbatim HTML](https://github.com/robertdober/earmark_parser/issues/47)
 
 - [46-fixing-typos](https://github.com/RobertDober/earmark_parser/pull/46)
