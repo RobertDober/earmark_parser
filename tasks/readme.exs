@@ -26,11 +26,18 @@ defmodule Mix.Tasks.Readme do
     "   It is created from README.template and several docstrings by means of the mix task `readme`",
     "-->"
     ]
-    def run([]) do
-    Mix.Task.run "compile", []
-    File.read!("README.template")
-    |> String.split("\n")
+  def run([]) do
+    Mix.Task.run("compile", [])
+    transform()
+  end
+
+  defp transform do
+    "README.template"
+    |> File.open!
+    |> IO.stream(:line)
+    |> Enum.to_list
     |> expand_docs([])
+      |> IO.inspect
     |> extract_tocs({[], []})
     |> write_lines_to_readme_md()
   end
@@ -38,7 +45,7 @@ defmodule Mix.Tasks.Readme do
 
   defp expand_docs( lines, result )
   defp expand_docs( [], result ), do: result
-  defp expand_docs( ["%toc" | rest], result), do: expand_docs(rest, ["%toc" | result])
+  defp expand_docs( ["%toc\n" | rest], result), do: expand_docs(rest, ["%toc" | result])
   defp expand_docs( ["%" <> line | rest], result), do: expand_docs(rest, [add_doc(line) | result])
   defp expand_docs( [line | rest], result ), do: expand_docs(rest, [line | result])
 
