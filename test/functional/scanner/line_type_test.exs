@@ -22,6 +22,7 @@ defmodule Functional.Scanner.LineTypeTest do
   id11 = ~S{[ID11]: http://example.com "Title with trailing whitespace" }
   id12 = ~S{[ID12]: ]hello}
 
+ # Leave Blanks at the beginning, they will be dropped for IAL tests
   test_cases =
     [
       {"", %Line.Blank{}, nil},
@@ -296,6 +297,61 @@ defmodule Functional.Scanner.LineTypeTest do
     end)
   end
 
+  ial_test_cases = [
+
+      {"--", %Line.SetextUnderlineHeading{level: 2}, nil},
+      {"--", %Line.SetextUnderlineHeading{level: 2}, "underline level 2"},
+      {"---", %Line.Ruler{type: "-"}, nil},
+      {"---", %Line.Ruler{type: "-"}, "ruler 3 elements, again"},
+      {"* * *", %Line.Ruler{type: "*"}, nil},
+      {"* * *", %Line.Ruler{type: "*"}, " 3 stars"},
+      {"***", %Line.Ruler{type: "*"}, nil},
+      {"***", %Line.Ruler{type: "*"}, "***"},
+      {"_ _ _", %Line.Ruler{type: "_"}, nil},
+      {"# H1", %Line.Heading{level: 1, content: "H1"}, nil},
+      {"# H1", %Line.Heading{level: 1, content: "H1"}, "H1"},
+      {"## H2", %Line.Heading{level: 2, content: "H2"}, nil},
+      {"## H2", %Line.Heading{level: 2, content: "H2"}, "H2"},
+      {"### H3", %Line.Heading{level: 3, content: "H3"}, nil},
+      {"### H3", %Line.Heading{level: 3, content: "H3"}, "H3"},
+      {"#### H4", %Line.Heading{level: 4, content: "H4"}, nil},
+      {"#### H4", %Line.Heading{level: 4, content: "H4"}, "H4"},
+      {"##### H5", %Line.Heading{level: 5, content: "H5"}, nil},
+      {"##### H5", %Line.Heading{level: 5, content: "H5"}, "H5"},
+      {"###### H6", %Line.Heading{level: 6, content: "H6"}, nil},
+      {"###### H6", %Line.Heading{level: 6, content: "H6"}, "H6"},
+      {"> quote", %Line.BlockQuote{content: "quote"}, nil},
+      {"> quote", %Line.BlockQuote{content: "quote"}, "annotated"},
+      {">    quote", %Line.BlockQuote{content: "   quote"}, nil},
+      {">    quote", %Line.BlockQuote{content: "   quote"}, "annotated"},
+      {">quote", %Line.BlockQuote{content: "quote"}, nil},
+      {">quote", %Line.BlockQuote{content: "quote"}, "annotated"},
+      {" >  quote", %Line.BlockQuote{content: " quote"}, nil},
+      {" >  quote", %Line.BlockQuote{content: " quote"}, "annotated"},
+      {" >", %Line.BlockQuote{content: ""}, nil},
+      {" >", %Line.BlockQuote{content: ""}, "annotated"},
+    ]
+
+  @ial "{:.ial_class}"
+  describe "scan with IAL" do
+    ial_test_cases
+    |> Enum.with_index
+    |> Enum.map(fn {{input, token, _nil}, test_nb} ->
+      tag = "ial_#{test_nb}" |> String.to_atom()
+      name = "test: #{test_nb} (#{input})"
+      input_ = "#{input}#{@ial}"
+      result =
+        EarmarkParser.LineScanner.type_of({input_, 1774}, false)
+      indent = input |> String.replace(@all_but_leading_ws, "") |> String.length()
+      expected = struct(token, ial: ".ial_class", line: input, indent: indent, lnb: 1774)
+
+      @tag tag
+      test name do
+        assert unquote(Macro.escape(result)) == unquote(Macro.escape(expected))
+      end
+    end)
+  end
+
   describe "debugging" do
     # test "rescan" do
     #   token =
@@ -308,10 +364,15 @@ defmodule Functional.Scanner.LineTypeTest do
     #   assert token == %Line.Blank{annotation: "%% hello", indent: 6, line: "  ", lnb: 1729}
     # end
 
-    test "no rescan" do
-      token = EarmarkParser.LineScanner.type_of({"  ", 1729}, normalize(annotations: "%%"), false)
-      assert token == %Line.Blank{indent: 2, line: "  ", lnb: 1729}
-    end
+    # test "no rescan" do
+    #   token = EarmarkParser.LineScanner.type_of({"  ", 1729}, normalize(annotations: "%%"), false)
+    #   assert token == %Line.Blank{indent: 2, line: "  ", lnb: 1729}
+    # end
+
+    # test "ial" do
+    #   token = EarmarkParser.LineScanner.type_of({">quote {:.emmpty-header}", 1728},false) |> IO.inspect() 
+
+    # end
   end
 end
 

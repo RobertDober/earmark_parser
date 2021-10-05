@@ -73,7 +73,7 @@ defmodule EarmarkParser.LineScanner do
 
   def type_of({line, lnb}, options = %Options{annotations: annotations}, recursive) do
     {line1, annotation} = line |> Helpers.expand_tabs() |> Helpers.remove_line_ending(annotations)
-    %{_type_of(line1, options, recursive) | annotation: annotation, line: line1, lnb: lnb}
+    %{_type_of(line1, options, recursive) | annotation: annotation, lnb: lnb}
   end
 
   @doc false
@@ -87,79 +87,81 @@ defmodule EarmarkParser.LineScanner do
   end
 
   defp _type_of(line, options = %Options{}, recursive) do
+    {ial, stripped_line} = Helpers.extract_ial(line)
+
     cond do
       match = Regex.run(~r/\A (\s*) \z/x, line) ->
         [_, leading] = match
-        %Line.Blank{indent: String.length(leading)}
+        %Line.Blank{indent: String.length(leading), line: line}
 
       match = !recursive && Regex.run(~r/\A (\s{0,3}) <! (?: -- .*? -- \s* )+ > \z/x, line) ->
         [_, leading] = match
-        %Line.HtmlComment{complete: true, indent: String.length(leading)}
+        %Line.HtmlComment{complete: true, indent: String.length(leading), line: line}
 
       match = !recursive && Regex.run(~r/\A (\s{0,3}) <!-- .*? \z/x, line) ->
         [_, leading] = match
-        %Line.HtmlComment{complete: false, indent: String.length(leading)}
+        %Line.HtmlComment{complete: false, indent: String.length(leading), line: line}
 
-      match = Regex.run(~r/^ (\s{0,3}) (?:-\s?){3,} $/x, line) ->
+      match = Regex.run(~r/^ (\s{0,3}) (?:-\s?){3,} $/x, stripped_line) ->
         [_, leading] = match
-        %Line.Ruler{type: "-", indent: String.length(leading)}
+        %Line.Ruler{type: "-", indent: String.length(leading), ial: ial, line: stripped_line}
 
-      match = Regex.run(~r/^ (\s{0,3}) (?:\*\s?){3,} $/x, line) ->
+      match = Regex.run(~r/^ (\s{0,3}) (?:\*\s?){3,} $/x, stripped_line) ->
         [_, leading] = match
-        %Line.Ruler{type: "*", indent: String.length(leading)}
+        %Line.Ruler{type: "*", indent: String.length(leading), ial: ial, line: stripped_line}
 
-      match = Regex.run( ~r/\A (\s{0,3}) (?:_\s?){3,} \z/x, line) ->
+      match = Regex.run( ~r/\A (\s{0,3}) (?:_\s?){3,} \z/x, stripped_line) ->
         [_, leading] = match
-        %Line.Ruler{type: "_", indent: String.length(leading)}
+        %Line.Ruler{type: "_", indent: String.length(leading), ial: ial, line: stripped_line}
 
-      match = Regex.run(~R/^(#{1,6})\s+(?|([^#]+)#*$|(.*))/u, line) ->
+      match = Regex.run(~R/^(#{1,6})\s+(?|([^#]+)#*$|(.*))/u, stripped_line) ->
         [_, level, heading] = match
-        %Line.Heading{level: String.length(level), content: String.trim(heading), indent: 0}
+        %Line.Heading{level: String.length(level), content: String.trim(heading), indent: 0, ial: ial, line: stripped_line}
 
-      match = Regex.run(~r/\A( {0,3})>\s?(.*)/, line) ->
+      match = Regex.run(~r/\A( {0,3})>\s?(.*)/, stripped_line) ->
         [_, leading, quote] = match
-        %Line.BlockQuote{content: quote, indent: String.length(leading)}
+        %Line.BlockQuote{content: quote, indent: String.length(leading), ial: ial, line: stripped_line}
 
       match = Regex.run(@indent_re, line) ->
         [_, spaces, more_spaces, rest] = match
         sl = String.length(spaces)
-        %Line.Indent{level: div(sl, 4), content: more_spaces <> rest, indent: String.length(more_spaces) + sl}
+        %Line.Indent{level: div(sl, 4), content: more_spaces <> rest, indent: String.length(more_spaces) + sl, line: line}
 
       match = Regex.run(~r/\A(\s*)(`{3,}|~{3,})\s*([^`\s]*)\s*\z/u, line) ->
         [_, leading, fence, language] = match
-        %Line.Fence{delimiter: fence, language: _attribute_escape(language), indent: String.length(leading)}
+        %Line.Fence{delimiter: fence, language: _attribute_escape(language), indent: String.length(leading), line: line}
 
       #   Although no block tags I still think they should close a preceding para as do many other
       #   implementations.
       (match = Regex.run(@void_tag_rgx, line)) && !recursive ->
         [_, tag] = match
 
-        %Line.HtmlOneLine{tag: tag, content: line, indent: 0}
+        %Line.HtmlOneLine{tag: tag, content: line, indent: 0, line: line}
 
       match = !recursive && Regex.run(~r{\A<([-\w]+?)(?:\s.*)?>.*</\1>}, line) ->
         [_, tag] = match
-        %Line.HtmlOneLine{tag: tag, content: line, indent: 0}
+        %Line.HtmlOneLine{tag: tag, content: line, indent: 0, line: line}
 
       match = !recursive && Regex.run(~r{\A<([-\w]+?)(?:\s.*)?/>.*}, line) ->
         [_, tag] = match
-        %Line.HtmlOneLine{tag: tag, content: line, indent: 0}
+        %Line.HtmlOneLine{tag: tag, content: line, indent: 0, line: line}
 
       match = !recursive && Regex.run(~r/^<([-\w]+?)(?:\s.*)?>/, line) ->
         [_, tag] = match
-        %Line.HtmlOpenTag{tag: tag, content: line, indent: 0}
+        %Line.HtmlOpenTag{tag: tag, content: line, indent: 0, line: line}
 
       match = !recursive && Regex.run(~r/\A(\s{0,3})<\/([-\w]+?)>/, line) ->
         [_, leading_spaces, tag] = match
-        %Line.HtmlCloseTag{tag: tag, indent: String.length(leading_spaces)}
+        %Line.HtmlCloseTag{tag: tag, indent: String.length(leading_spaces), line: line}
 
       match = Regex.run(@id_re, line) ->
         [_, leading, id, url | title] = match
         title = if(length(title) == 0, do: "", else: hd(title))
-        %Line.IdDef{id: id, url: url, title: title, indent: String.length(leading)}
+        %Line.IdDef{id: id, url: url, title: title, indent: String.length(leading), line: line}
 
       match = options.footnotes && Regex.run(~r/\A\[\^([^\s\]]+)\]:\s+(.*)/, line) ->
         [_, id, first_line] = match
-        %Line.FnDef{id: id, content: first_line, indent: 0}
+        %Line.FnDef{id: id, content: first_line, indent: 0, line: line}
 
       match = Regex.run(~r/^(\s{0,3})([-*+])\s(\s*)(.*)/, line) ->
         [_, leading, bullet, spaces, text] = match
@@ -170,6 +172,7 @@ defmodule EarmarkParser.LineScanner do
           content: spaces <> text,
           indent: String.length(leading),
           list_indent:  String.length(leading <> bullet <> spaces) + 1,
+          line: line
         }
 
       match = Regex.run(~r/^(\s{0,3})(\d{1,9}[.)])\s(\s*)(.*)/, line) ->
@@ -185,6 +188,7 @@ defmodule EarmarkParser.LineScanner do
           content: spaces <> text,
           indent: String.length(leading),
           list_indent:  String.length(leading) + sl2,
+          line: line
         }
 
       match = Regex.run(~r/^ (\s{0,3}) \| (?: [^|]+ \|)+ \s* $ /x, line) ->
@@ -196,26 +200,32 @@ defmodule EarmarkParser.LineScanner do
           |> String.trim("|")
 
         columns = split_table_columns(body)
-        %Line.TableLine{content: line, columns: columns, is_header: _determine_if_header(columns), indent: String.length(leading)}
+        %Line.TableLine{content: line, columns: columns, is_header: _determine_if_header(columns), indent: String.length(leading), line: line}
 
       match = Regex.run(~r/\A (\s*) .* \s \| \s /x, line) ->
         [_, leading] = match
         columns = split_table_columns(line)
-        %Line.TableLine{content: line, columns: columns, is_header: _determine_if_header(columns), indent: String.length(leading)}
+        %Line.TableLine{content: line, columns: columns, is_header: _determine_if_header(columns), indent: String.length(leading), line: line}
 
       match = options.gfm_tables && Regex.run( ~r/\A (\s*) .* \| /x, line) ->
         [_, leading] = match
         columns = split_table_columns(line)
-        %Line.TableLine{content: line, columns: columns, is_header: _determine_if_header(columns), needs_header: true, indent: String.length(leading)}
+        %Line.TableLine{
+          content: line,
+          columns: columns,
+          is_header: _determine_if_header(columns),
+          needs_header: true,
+          indent: String.length(leading),
+          line: line}
 
-      match = Regex.run(~r/^(=|-)+\s*$/, line) ->
+      match = Regex.run(~r/^(=|-)+\s*$/, stripped_line) ->
         [_, type] = match
         level = if(String.starts_with?(type, "="), do: 1, else: 2)
-        %Line.SetextUnderlineHeading{level: level, indent: 0}
+        %Line.SetextUnderlineHeading{level: level, indent: 0, ial: ial, line: stripped_line}
 
       match = Regex.run(~r<^(\s{0,3}){:(\s*[^}]+)}\s*$>, line) ->
         [_, leading, ial] = match
-        %Line.Ial{attrs: String.trim(ial), verbatim: ial, indent: String.length(leading)}
+        %Line.Ial{attrs: String.trim(ial), verbatim: ial, indent: String.length(leading), line: line}
 
       # Hmmmm in case of perf problems
       # Assuming that text lines are the most frequent would it not boost performance (which seems to be good anyway)
