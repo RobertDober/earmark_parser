@@ -73,7 +73,8 @@ defmodule EarmarkParser.LineScanner do
 
   def type_of({line, lnb}, options = %Options{annotations: annotations}, recursive) do
     {line1, annotation} = line |> Helpers.expand_tabs() |> Helpers.remove_line_ending(annotations)
-    %{_type_of(line1, options, recursive) | annotation: annotation, line: line1, lnb: lnb}
+    {ial, line2} = Helpers.extract_ial(line1)
+    %{_type_of(line2, options, recursive) | annotation: annotation, ial: ial, line: line2, lnb: lnb}
   end
 
   @doc false

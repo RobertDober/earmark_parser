@@ -22,6 +22,7 @@ defmodule Functional.Scanner.LineTypeTest do
   id11 = ~S{[ID11]: http://example.com "Title with trailing whitespace" }
   id12 = ~S{[ID12]: ]hello}
 
+ # Leave Blanks at the beginning, they will be dropped for IAL tests
   test_cases =
     [
       {"", %Line.Blank{}, nil},
@@ -296,6 +297,27 @@ defmodule Functional.Scanner.LineTypeTest do
     end)
   end
 
+  @ial "{:.ial_class}"
+  describe "scan with IAL" do
+    test_cases
+    |> Enum.drop_while(fn {{_, token, _}, _} -> Map.get(token, :__struct__) == Line.Blank end)
+    |> Enum.reject(fn {{_, _, annotation}, _} -> annotation end)
+    |> Enum.map(fn {{input, token, _nil}, test_nb} ->
+      tag = "ial_#{test_nb}" |> String.to_atom()
+      name = "test: #{test_nb} (#{input})"
+      input_ = "#{input}#{@ial}"
+      result =
+        EarmarkParser.LineScanner.type_of({input_, 1774}, false)
+      indent = input |> String.replace(@all_but_leading_ws, "") |> String.length()
+      expected = struct(token, ial: ".ial_class", line: input, indent: indent, lnb: 1774)
+
+      @tag tag
+      test name do
+        assert unquote(Macro.escape(result)) == unquote(Macro.escape(expected))
+      end
+    end)
+  end
+
   describe "debugging" do
     # test "rescan" do
     #   token =
@@ -311,6 +333,13 @@ defmodule Functional.Scanner.LineTypeTest do
     test "no rescan" do
       token = EarmarkParser.LineScanner.type_of({"  ", 1729}, normalize(annotations: "%%"), false)
       assert token == %Line.Blank{indent: 2, line: "  ", lnb: 1729}
+    end
+
+    test "ial" do
+      expected = %EarmarkParser.Line.Heading{annotation: nil, content: "", ial: ".emmpty-header", indent: 0, inside_code: false, level: 1, line: "# ", lnb: 1728}
+      token = EarmarkParser.LineScanner.type_of({"# {:.emmpty-header}", 1728},false)
+
+      assert token == expected
     end
   end
 end

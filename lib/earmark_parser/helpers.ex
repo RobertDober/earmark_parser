@@ -8,6 +8,28 @@ defmodule EarmarkParser.Helpers do
     Regex.replace(~r{(.*?)\t}, line, &expander/2)
   end
 
+  @trailing_ial_rgx ~r< (\s* \S .*?) {: \s* ([^}]+) \s* } \s* \z>x
+  @doc ~S"""
+  Returns a tuple containing a potentially present IAL and the line w/o the IAL
+
+      iex(1)> extract_ial("# A headline")
+      {nil, "# A headline"}
+
+      iex(2)> extract_ial("# A classy headline{:.classy}")
+      {".classy", "# A classy headline"}
+
+  An IAL line, remains an IAL line though
+
+      iex(3)> extract_ial("{:.line-ial}")
+      {nil, "{:.line-ial}"}
+  """
+  def extract_ial(line) do
+    case Regex.run(@trailing_ial_rgx, line) do
+      nil -> {nil, line}
+      [_, line_, ial] -> {ial, line_}
+    end
+  end
+
   defp expander(_, leader) do
     extra = 4 - rem(String.length(leader), 4)
     leader <> pad(extra)
