@@ -5,6 +5,7 @@ defmodule EarmarkParser.Helpers.AttrParser do
   import EarmarkParser.Helpers.StringHelpers, only: [ behead: 2 ]
   import EarmarkParser.Message, only: [add_message: 2]
 
+
   @type errorlist :: list(String.t)
 
   def parse_attrs(context, attrs, lnb) do
