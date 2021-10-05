@@ -1,5 +1,8 @@
 ## 1.4.16 ????/??/??
 
+## 1.4.16-pre1 
+- [Inline IALs for headers, rulers and blockquotes](https://github.com/robertdober/earmark_parser/pull/54)
+
 - [Use Extractly instead of homemade readme task → Syntax Highlightening for iex> code blocks](https://github.com/robertdober/earmark_parser/pull/51)
 
 - [Refactoring and Dead Code Elimination in Context](https://github.com/robertdober/earmark_parser/pull/50)
