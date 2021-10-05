@@ -233,6 +233,13 @@ defmodule EarmarkParser do
   HTML attributes can be added to any block-level element. We use
   the Kramdown syntax: add the line `{:` _attrs_ `}` following the block.
 
+      # iex(0)> markdown = ["# Headline", "{:.from-next-line}"]
+      # ...(0)> Earmaekl
+
+  Some elements like headers can also have the IAL string at the end of the line
+
+
+
   _attrs_ can be one or more of:
 
     * `.className`
