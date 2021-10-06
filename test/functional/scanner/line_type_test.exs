@@ -320,16 +320,6 @@ defmodule Functional.Scanner.LineTypeTest do
       {"##### H5", %Line.Heading{level: 5, content: "H5"}, "H5"},
       {"###### H6", %Line.Heading{level: 6, content: "H6"}, nil},
       {"###### H6", %Line.Heading{level: 6, content: "H6"}, "H6"},
-      {"> quote", %Line.BlockQuote{content: "quote"}, nil},
-      {"> quote", %Line.BlockQuote{content: "quote"}, "annotated"},
-      {">    quote", %Line.BlockQuote{content: "   quote"}, nil},
-      {">    quote", %Line.BlockQuote{content: "   quote"}, "annotated"},
-      {">quote", %Line.BlockQuote{content: "quote"}, nil},
-      {">quote", %Line.BlockQuote{content: "quote"}, "annotated"},
-      {" >  quote", %Line.BlockQuote{content: " quote"}, nil},
-      {" >  quote", %Line.BlockQuote{content: " quote"}, "annotated"},
-      {" >", %Line.BlockQuote{content: ""}, nil},
-      {" >", %Line.BlockQuote{content: ""}, "annotated"},
     ]
 
   @ial "{:.ial_class}"
@@ -344,6 +334,32 @@ defmodule Functional.Scanner.LineTypeTest do
         EarmarkParser.LineScanner.type_of({input_, 1774}, false)
       indent = input |> String.replace(@all_but_leading_ws, "") |> String.length()
       expected = struct(token, ial: ".ial_class", line: input, indent: indent, lnb: 1774)
+
+      @tag tag
+      test name do
+        assert unquote(Macro.escape(result)) == unquote(Macro.escape(expected))
+      end
+    end)
+  end
+
+  block_ial_test_cases = [
+      {"> quote", %Line.BlockQuote{content: "quote"}},
+      {">    quote", %Line.BlockQuote{content: "   quote"}},
+      {">quote", %Line.BlockQuote{content: "quote"}},
+      {" >  quote", %Line.BlockQuote{content: " quote"}},
+      {" >", %Line.BlockQuote{content: ""}},
+      ]
+  describe "IAL needs to be passed through content" do
+    block_ial_test_cases
+    |> Enum.with_index
+    |> Enum.map(fn {{input, token}, test_nb} ->
+      tag = "block_ial_#{test_nb}" |> String.to_atom()
+      name = "test: #{test_nb} (#{input})"
+      input_ = "#{input}#{@ial}"
+      result =
+        EarmarkParser.LineScanner.type_of({input_, 1774}, false)
+      indent = input |> String.replace(@all_but_leading_ws, "") |> String.length()
+      expected = struct(token, content: token.content <> @ial, ial: ".ial_class", line: input, indent: indent, lnb: 1774)
 
       @tag tag
       test name do
@@ -370,8 +386,10 @@ defmodule Functional.Scanner.LineTypeTest do
     # end
 
     # test "ial" do
-    #   token = EarmarkParser.LineScanner.type_of({">quote {:.emmpty-header}", 1728},false) |> IO.inspect() 
+    #   token = EarmarkParser.LineScanner.type_of({"> ## Hello {:.inside-bq}", 1728},false) |> IO.inspect()
+    #   expected = struct(token, content: "## Hello {:.inside-bq}")
 
+    #   assert token == expected
     # end
   end
 end

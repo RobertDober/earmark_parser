@@ -1,7 +1,7 @@
 defmodule EarmarkParser.MixProject do
   use Mix.Project
 
-  @version "1.4.16-pre1"
+  @version "1.4.16-pre2"
   @url "https://github.com/RobertDober/earmark_parser"
 
   @deps [
