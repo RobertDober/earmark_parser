@@ -127,13 +127,11 @@ defmodule EarmarkParser.Parser do
   # Block Quote #
   ###############
 
-  defp _parse( lines = [ %Line.BlockQuote{ial: ial, lnb: lnb} | _ ], result, options, recursive) do
+  defp _parse( lines = [ %Line.BlockQuote{lnb: lnb} | _ ], result, options, recursive) do
     {quote_lines, rest} = Enum.split_while(lines, &blockquote_or_text?/1)
     lines = for line <- quote_lines, do: line.content
     {blocks, _, options1} = parse(lines, %{options | line: lnb}, true)
-    {options2, result1} = prepend_ial(
-      options1, ial, lnb, [%Block.BlockQuote{blocks: blocks, lnb: lnb} | result])
-    _parse(rest, result1, options2, recursive)
+    _parse(rest, [%Block.BlockQuote{blocks: blocks, lnb: lnb}|result], options1, recursive)
   end
 
   #########
