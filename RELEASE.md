@@ -1,7 +1,6 @@
-## 1.4.16 ????/??/??
+## 1.4.16 2021/10/07
 
-## 1.4.16-pre1 
-- [Inline IALs for headers, rulers and blockquotes](https://github.com/robertdober/earmark_parser/pull/54)
+- [Inline IALs for headers, rulers and blockquotes](https://github.com/robertdober/earmark_parser/pull/56)
 
 - [Use Extractly instead of homemade readme task → Syntax Highlightening for iex> code blocks](https://github.com/robertdober/earmark_parser/pull/51)
 
