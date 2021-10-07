@@ -79,27 +79,22 @@ defmodule EarmarkParser.Parser do
 
   defp _parse([ %Line.Blank{},
                 %Line.Text{content: heading, lnb: lnb},
-                %Line.SetextUnderlineHeading{annotation: annotation, ial: ial, level: level}
+                %Line.SetextUnderlineHeading{annotation: annotation, level: level}
              |
                 rest
              ], result, options, recursive) do
 
-
-    {options1, result1} = prepend_ial(
-      options, ial, lnb, [%Block.Heading{annotation: annotation, content: heading, level: level, lnb: lnb}|result])
-    _parse(rest, result1, options1, recursive)
+    _parse(rest, [%Block.Heading{annotation: annotation, content: heading, level: level, lnb: lnb}|result], options, recursive)
   end
 
   defp _parse([  %Line.Blank{},
                 %Line.Text{content: heading, lnb: lnb},
-                %Line.Ruler{ial: ial, type: "-"}
+                %Line.Ruler{type: "-"}
              |
                 rest
              ], result, options, recursive) do
 
-    {options1, result1} = prepend_ial(
-      options, ial, lnb, [%Block.Heading{content: heading, level: 2, lnb: lnb} | result])
-    _parse(rest, result1, options1, recursive)
+    _parse(rest, [%Block.Heading{content: heading, level: 2, lnb: lnb} | result], options, recursive)
   end
 
   #################
@@ -117,10 +112,8 @@ defmodule EarmarkParser.Parser do
   # Ruler #
   #########
 
-  defp _parse([ %Line.Ruler{type: type, ial: ial, lnb: lnb} | rest], result, options, recursive) do
-    {options1, result1} = prepend_ial(
-      options, ial, lnb, [%Block.Ruler{type: type, lnb: lnb} | result])
-    _parse(rest, result1, options1, recursive)
+  defp _parse([ %Line.Ruler{type: type, lnb: lnb} | rest], result, options, recursive) do
+    _parse(rest, [%Block.Ruler{type: type, lnb: lnb} | result], options, recursive)
   end
 
   ###############
