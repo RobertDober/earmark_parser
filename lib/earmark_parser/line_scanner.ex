@@ -102,17 +102,17 @@ defmodule EarmarkParser.LineScanner do
         [_, leading] = match
         %Line.HtmlComment{complete: false, indent: String.length(leading), line: line}
 
-      match = Regex.run(~r/^ (\s{0,3}) (?:-\s?){3,} $/x, stripped_line) ->
+      match = Regex.run(~r/^ (\s{0,3}) (?:-\s?){3,} $/x, line) ->
         [_, leading] = match
-        %Line.Ruler{type: "-", indent: String.length(leading), ial: ial, line: stripped_line}
+        %Line.Ruler{type: "-", indent: String.length(leading), line: line}
 
-      match = Regex.run(~r/^ (\s{0,3}) (?:\*\s?){3,} $/x, stripped_line) ->
+      match = Regex.run(~r/^ (\s{0,3}) (?:\*\s?){3,} $/x, line) ->
         [_, leading] = match
-        %Line.Ruler{type: "*", indent: String.length(leading), ial: ial, line: stripped_line}
+        %Line.Ruler{type: "*", indent: String.length(leading), line: line}
 
-      match = Regex.run( ~r/\A (\s{0,3}) (?:_\s?){3,} \z/x, stripped_line) ->
+      match = Regex.run( ~r/\A (\s{0,3}) (?:_\s?){3,} \z/x, line) ->
         [_, leading] = match
-        %Line.Ruler{type: "_", indent: String.length(leading), ial: ial, line: stripped_line}
+        %Line.Ruler{type: "_", indent: String.length(leading), line: line}
 
       match = Regex.run(~R/^(#{1,6})\s+(?|([^#]+)#*$|(.*))/u, stripped_line) ->
         [_, level, heading] = match
@@ -218,10 +218,10 @@ defmodule EarmarkParser.LineScanner do
           indent: String.length(leading),
           line: line}
 
-      match = Regex.run(~r/^(=|-)+\s*$/, stripped_line) ->
+      match = Regex.run(~r/^(=|-)+\s*$/, line) ->
         [_, type] = match
         level = if(String.starts_with?(type, "="), do: 1, else: 2)
-        %Line.SetextUnderlineHeading{level: level, indent: 0, ial: ial, line: stripped_line}
+        %Line.SetextUnderlineHeading{level: level, indent: 0, line: line}
 
       match = Regex.run(~r<^(\s{0,3}){:(\s*[^}]+)}\s*$>, line) ->
         [_, leading, ial] = match

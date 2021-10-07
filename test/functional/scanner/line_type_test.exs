@@ -298,16 +298,6 @@ defmodule Functional.Scanner.LineTypeTest do
   end
 
   ial_test_cases = [
-
-      {"--", %Line.SetextUnderlineHeading{level: 2}, nil},
-      {"--", %Line.SetextUnderlineHeading{level: 2}, "underline level 2"},
-      {"---", %Line.Ruler{type: "-"}, nil},
-      {"---", %Line.Ruler{type: "-"}, "ruler 3 elements, again"},
-      {"* * *", %Line.Ruler{type: "*"}, nil},
-      {"* * *", %Line.Ruler{type: "*"}, " 3 stars"},
-      {"***", %Line.Ruler{type: "*"}, nil},
-      {"***", %Line.Ruler{type: "*"}, "***"},
-      {"_ _ _", %Line.Ruler{type: "_"}, nil},
       {"# H1", %Line.Heading{level: 1, content: "H1"}, nil},
       {"# H1", %Line.Heading{level: 1, content: "H1"}, "H1"},
       {"## H2", %Line.Heading{level: 2, content: "H2"}, nil},
@@ -360,6 +350,43 @@ defmodule Functional.Scanner.LineTypeTest do
         EarmarkParser.LineScanner.type_of({input_, 1774}, false)
       indent = input |> String.replace(@all_but_leading_ws, "") |> String.length()
       expected = struct(token, content: token.content <> @ial, ial: ".ial_class", line: input, indent: indent, lnb: 1774)
+
+      @tag tag
+      test name do
+        assert unquote(Macro.escape(result)) == unquote(Macro.escape(expected))
+      end
+    end)
+  end
+
+  not_ial_test_cases =
+  [
+    {"--", %Line.Text{annotation: nil, indent: 0, inside_code: false, line: "--{:.not-ial}", lnb: 1905, content: "--{:.not-ial}"}},
+    {"* * *", %Line.ListItem{
+              annotation: nil,
+              ial: nil,
+              indent: 0,
+              inside_code: false,
+              line: "* * *{:.not-ial}",
+              lnb: 1905,
+              type: :ul,
+              bullet: "*",
+              content: "* *{:.not-ial}",
+              initial_indent: 0,
+              list_indent: 2
+            }},
+  ]
+
+  describe "not IAL" do
+    not_ial_test_cases
+    |> Enum.with_index
+    |> Enum.map(fn {{input, token}, test_nb} ->
+      tag = "not_ial_#{test_nb + 1}" |> String.to_atom()
+      name = "test: #{test_nb + 1} (#{input})"
+      input_ = "#{input}{:.not-ial}"
+      result =
+        EarmarkParser.LineScanner.type_of({input_, 1905}, false)
+      indent = input |> String.replace(@all_but_leading_ws, "") |> String.length()
+      expected = struct(token, line: input_, indent: indent, lnb: 1905)
 
       @tag tag
       test name do
