@@ -112,9 +112,6 @@ defmodule EarmarkParser.Helpers.AstHelpers do
   end
 
   defp _value_merger(key, val1, val2)
-  defp _value_merger(_, val1, val2) when is_list(val1) and is_list(val2) do
-    val1 ++ val2
-  end
   defp _value_merger(_, val1, val2) when is_list(val1) do
     val1 ++ [val2]
   end

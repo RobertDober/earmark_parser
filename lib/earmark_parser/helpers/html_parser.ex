@@ -8,7 +8,6 @@ defmodule EarmarkParser.Helpers.HtmlParser do
   def parse_html(lines)
   def parse_html([tag_line|rest]) do
     case _parse_tag(tag_line) do
-      nil                   -> [tag_line|rest]
       { :ok, tag, "" }      -> [_parse_rest(rest, tag, [])]
       { :ok, tag, suffix }  -> [_parse_rest(rest, tag, [suffix])]
       { :ext, tag, "" }     -> [_parse_rest(rest, tag, [])]

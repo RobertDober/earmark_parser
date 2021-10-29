@@ -75,6 +75,19 @@ defmodule Acceptance.Ast.LinksImages.TitlesTest do
        assert as_ast(markdown) == {:ok, [ast], messages}
     end
 
+    test "titled, followed by 2 untitled, (quotes interspersed, and escape)" do
+      markdown = "[a](a 't') [b](b) 'xxx' [\\c](c)"
+      ast      = p([
+        tag("a", "a", href: "a", title: "t"),
+        " ",
+        tag("a", "b", href: "b"),
+        " 'xxx' ",
+        tag("a", "\\c", href: "c")])
+       messages = []
+
+       assert as_ast(markdown) == {:ok, [ast], messages}
+    end
+
     test "titled, followed by 2 untitled, (quotes inside parens interspersed)" do
       markdown = "[a](a 't') [b](b) ('xxx') [c](c)"
        ast      = p([
