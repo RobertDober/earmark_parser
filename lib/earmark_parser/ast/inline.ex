@@ -107,7 +107,6 @@ defmodule EarmarkParser.Ast.Inline do
     end
   end
 
-  # !?[...](...)
   defp converter_for_link_and_image({src, lnb, context, use_linky?}) do
     match = LinkParser.parse_link(src, lnb)
     if match do
@@ -144,10 +143,6 @@ defmodule EarmarkParser.Ast.Inline do
           [match__, alt_text, id] -> {match__, alt_text, id}
         end
 
-  # case convert(alt_text, lnb, context).value do
-  #       [{_, _, _, _}|rest] = ast -> alt_text
-  #       _                         -> alt_text
-  #     end
       case reference_link(context, match_, alt_text, id, lnb) do
         {:ok, out} -> {behead(src, match_), lnb, prepend(context, out), use_linky?}
         _ -> nil
@@ -321,7 +316,7 @@ defmodule EarmarkParser.Ast.Inline do
   defp output_link(context, text, href, title, lnb) do
     context1 = %{context | options: %{context.options | pure_links: false}}
 
-    context2 = _convert(text, lnb, set_value(context1, []), true)
+    context2 = _convert(text, lnb, set_value(context1, []), String.starts_with?(text, "!"))
     if title do
       emit("a", Enum.reverse(context2.value), href: href, title: title)
     else
@@ -341,7 +336,6 @@ defmodule EarmarkParser.Ast.Inline do
 
     case Map.fetch(context.links, id) do
       {:ok, link} ->
-
         {:ok, output_image_or_link(context, match, alt_text, link.url, link.title, lnb)}
 
       _ ->

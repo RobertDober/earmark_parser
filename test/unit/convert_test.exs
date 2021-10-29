@@ -43,7 +43,6 @@ defmodule Test.Unit.ConvertTest do
       lnb: 3,
       title: "title",
       url: "lnk1_url",
-      lnb: 4,
     }
     %{ ctxt | links: Map.put(ctxt.links, id, id_def) }
   end

@@ -61,8 +61,11 @@ defmodule Test.Acceptance.Regressions.I028Test do
       [crate_img]:   crate_image_url "Image"
       """
       ast = [
-        p( a([img(src: "create_image_url", alt: "Crate", title: "Image"), href: "crate_url", title: "Link", alt: "crate"]) )
+        p( a([img(src: "crate_image_url", alt: "Crate", title: "Image"), href: "crate_url", title: "Link"]) )
       ]
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
   end
 
@@ -73,7 +76,7 @@ defmodule Test.Acceptance.Regressions.I028Test do
 
       [href]: some_url
       """
-      ast      = [ p(img(src: "some_url", alt: "img", title: "")), a("url", "world") ]
+      ast = [{"p", [], [{"img", [{"src", "some_url"}, {"alt", "img"}, {"title", ""}], [], %{}}, {"a", [{"href", "url"}], ["world"], %{}}], %{}}]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -84,7 +87,7 @@ defmodule Test.Acceptance.Regressions.I028Test do
 
       [href]: some_url
       """
-      ast      = [ p(img(src: "some_url", alt: "img", title: "")), " ", a("url", "world") ]
+      ast = [{"p", [], [{"img", [{"src", "some_url"}, {"alt", "img"}, {"title", ""}], [], %{}}, " ", {"a", [{"href", "url"}], ["world"], %{}}], %{}}]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -125,7 +128,6 @@ defmodule Test.Acceptance.Regressions.I028Test do
     end
   end
 
-  defp a(href, content), do: tag("a", [content], [href: href])
   defp a([content|atts]), do: tag("a", [content], atts)
   defp img(atts), do: tag("img", [], atts)
 end
