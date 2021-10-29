@@ -7,7 +7,7 @@ defmodule Acceptance.Ast.EscapeTest do
     test "dizzy rhs?" do
       markdown = "\\\\!\\\\\""
       ast      = p("\\!\\\"")
-      messages = []
+      messages = [{:deprecated, 0, "The smartypants option has no effect anymore and will be removed in EarmarkParser 1.5"}]
 
       assert as_ast(markdown, smartypants: true) == {:ok, [ast], messages}
     end

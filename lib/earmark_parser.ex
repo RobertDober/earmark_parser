@@ -471,16 +471,17 @@ defmodule EarmarkParser do
   def as_ast(lines, %Options{}=options) do
     context = _as_ast(lines, options)
     messages = sort_messages(context)
+    messages1 = Options.add_deprecations(options, messages)
 
     status =
-      case Enum.any?(messages, fn {severity, _, _} ->
+      case Enum.any?(messages1, fn {severity, _, _} ->
              severity == :error || severity == :warning
            end) do
         true -> :error
         _ -> :ok
       end
 
-    {status, context.value, messages}
+    {status, context.value, messages1}
   end
   def as_ast(lines, options) when is_list(options) do
     as_ast(lines, struct(Options, options))

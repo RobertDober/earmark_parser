@@ -52,6 +52,13 @@ defmodule EarmarkParser.Options do
         parse_inline: boolean
   }
 
+  @doc false
+  def add_deprecations(options, messages)
+  def add_deprecations(%__MODULE__{smartypants: true}, messages) do
+    [{:deprecated, 0, "The smartypants option has no effect anymore and will be removed in EarmarkParser 1.5"}|messages]
+  end
+  def add_deprecations(_options, messages), do: messages
+
   @doc ~S"""
   Use normalize before passing it into any API function
 
