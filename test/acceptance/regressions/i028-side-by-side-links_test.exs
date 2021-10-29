@@ -101,7 +101,22 @@ defmodule Test.Acceptance.Regressions.I028Test do
       """
       ast = [
         p([
-          a([img(src: "img1_url", alt: "Img1", title: "Image1"), href: "lnk1_url", title: "Link1", alt: "lnk1"]),
+          a([img(src: "img1_url", alt: "Img1", title: "Image1"), href: "lnk1_url", title: "Link1"]),
+        ])
+      ]
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
+    test "simple rendering of a reflink" do
+      markdown = """
+      [**strong**][lnk1]
+
+      [lnk1]:       lnk1_url "Link1"
+      """
+      ast = [
+        p([
+          a([{"strong", [], ["strong"], %{}}, href: "lnk1_url", title: "Link1"]),
         ])
       ]
       messages = []

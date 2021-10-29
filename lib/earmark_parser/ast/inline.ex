@@ -144,13 +144,12 @@ defmodule EarmarkParser.Ast.Inline do
           [match__, alt_text, id] -> {match__, alt_text, id}
         end
 
-      # inner =
-      # case convert(alt_text, lnb, context).value |> IO.inspect(label: :inner) do
-      #   [{_, _, _, _}|rest] = ast -> alt_text
-      #   _                         -> alt_text
-      # end |> IO.inspect(label: :inner)
-      case reference_link(context, match, alt_text, id, lnb) |> IO.inspect(label: :reference_link)  do
-        {:ok, out} -> IO.inspect(out);{behead(src, match), lnb, prepend(context, out), use_linky?}
+  # case convert(alt_text, lnb, context).value do
+  #       [{_, _, _, _}|rest] = ast -> alt_text
+  #       _                         -> alt_text
+  #     end
+      case reference_link(context, match_, alt_text, id, lnb) do
+        {:ok, out} -> {behead(src, match_), lnb, prepend(context, out), use_linky?}
         _ -> nil
       end
     end
@@ -322,7 +321,7 @@ defmodule EarmarkParser.Ast.Inline do
   defp output_link(context, text, href, title, lnb) do
     context1 = %{context | options: %{context.options | pure_links: false}}
 
-    context2 = _convert(text, lnb, set_value(context1, []), false)
+    context2 = _convert(text, lnb, set_value(context1, []), true)
     if title do
       emit("a", Enum.reverse(context2.value), href: href, title: title)
     else
@@ -338,13 +337,11 @@ defmodule EarmarkParser.Ast.Inline do
   end
 
   defp reference_link(context, match, alt_text, id, lnb) do
-    IO.inspect(match, label: :inside_reference_link)
     id = id |> replace(~r{\s+}, " ") |> String.downcase()
 
     case Map.fetch(context.links, id) do
       {:ok, link} ->
 
-        IO.inspect({link, alt_text}, label: :link)
         {:ok, output_image_or_link(context, match, alt_text, link.url, link.title, lnb)}
 
       _ ->
