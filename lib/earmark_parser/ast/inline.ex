@@ -316,7 +316,7 @@ defmodule EarmarkParser.Ast.Inline do
   defp output_link(context, text, href, title, lnb) do
     context1 = %{context | options: %{context.options | pure_links: false}}
 
-    context2 = _convert(text, lnb, set_value(context1, []), false)
+    context2 = _convert(text, lnb, set_value(context1, []), String.starts_with?(text, "!"))
     if title do
       emit("a", Enum.reverse(context2.value), href: href, title: title)
     else

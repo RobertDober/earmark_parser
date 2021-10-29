@@ -87,7 +87,9 @@ defmodule EarmarkParser.Helpers.LinkParser do
 
   defp text_of_token(token)
   defp text_of_token({:escaped, text}), do: "\\#{text}"
-  defp text_of_token({_, text}), do: text
+  defp text_of_token({_, text}) do
+    text
+  end
 
   # sic!!! Greedy and not context aware, matching '..." and "...' for backward comp
   @title_rgx ~r{\A\s+(['"])(.*?)\1(?=\))}

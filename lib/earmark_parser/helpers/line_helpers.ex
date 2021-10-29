@@ -33,10 +33,5 @@ defmodule EarmarkParser.Helpers.LineHelpers do
   def indent_or_blank?(%Line.Indent{}), do: true
   def indent_or_blank?(line),           do: blank?(line)
 
-  def blank_line_in?([]),                    do: false
-  def blank_line_in?([ %Line.Blank{} | _ ]), do: true
-  def blank_line_in?([ _ | rest ]),          do: blank_line_in?(rest)
-
 end
-
 # SPDX-License-Identifier: Apache-2.0
