@@ -1,4 +1,6 @@
-## 1.4.17 2021/11/??
+## 1.4.17 2021-10-29
+
+- [44 Multiple Query Params in pure links](https://github.com/robertdober/earmark_parser/issues/44)
 
 - [28 Side By Side Reference Style Links fixed](https://github.com/robertdober/earmark_parser/issues/28)
 
