@@ -1,3 +1,9 @@
+## 1.4.17 2021/11/??
+
+- [28 Side By Side Reference Style Links fixed](https://github.com/robertdober/earmark_parser/issues/28)
+
+- [52 Deprecate Smartypants Options](https://github.com/robertdober/earmark_parser/issues/52)
+
 ## 1.4.16 2021/10/07
 
 - [Inline IALs for headers, rulers and blockquotes](https://github.com/robertdober/earmark_parser/pull/56)
