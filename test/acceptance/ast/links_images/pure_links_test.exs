@@ -12,7 +12,6 @@ defmodule Acceptance.Ast.LinksImages.PureLinksTest do
 
       assert as_ast(markdown, pure_links: false) == {:ok, ast, messages}
     end
-
   end
 
   describe "enabled pure links" do
@@ -30,7 +29,7 @@ defmodule Acceptance.Ast.LinksImages.PureLinksTest do
       html = "<p>Header <a href=\"http://wikipedia.org\">http://wikipedia.org</a> in between <a href=\"http://hex.pm\">http://hex.pm</a> Trailer</p>\n"
       ast      = parse_html(html)
       messages = []
-      
+
       assert as_ast(markdown) == {:ok, ast, messages}
     end
 
@@ -77,7 +76,7 @@ defmodule Acceptance.Ast.LinksImages.PureLinksTest do
       markdown = "http://my.org/robert(is_best)"
       ast      = p(tag("a", ["http://my.org/robert(is_best)"],[{"href", "http://my.org/robert(is_best)"}]))
       messages = []
-      
+
       assert as_ast(markdown) == {:ok, [ast], messages}
     end
 
@@ -85,7 +84,7 @@ defmodule Acceptance.Ast.LinksImages.PureLinksTest do
       markdown = "(http://my.org/robert(is_best)"
       ast      = p(["(", tag("a", ["http://my.org/robert(is_best"],[{"href", "http://my.org/robert(is_best"}]), ")"])
       messages = []
-      
+
       assert as_ast(markdown) == {:ok, [ast], messages}
     end
 
@@ -93,7 +92,7 @@ defmodule Acceptance.Ast.LinksImages.PureLinksTest do
       markdown = "(http://my.org/robert(is_best))"
       ast      = p(["(", tag("a", ["http://my.org/robert(is_best)"],[{"href", "http://my.org/robert(is_best)"}]), ")"])
       messages = []
-      
+
       assert as_ast(markdown) == {:ok, [ast], messages}
     end
 
@@ -101,7 +100,7 @@ defmodule Acceptance.Ast.LinksImages.PureLinksTest do
       markdown = "((http://my.org/robert(c'estça)))"
       ast      = p(["((", tag("a", ["http://my.org/robert(c'estça)"],[{"href", "http://my.org/robert(c'est%C3%A7a)"}]), "))"])
       messages = []
-      
+
       assert as_ast(markdown) == {:ok, [ast], messages}
     end
 
@@ -109,7 +108,7 @@ defmodule Acceptance.Ast.LinksImages.PureLinksTest do
       markdown = "((http://github.com(c'est%C3%A7a)))"
       ast      = p(["((", tag("a", ["http://github.com(c'estça)"], [{"href", "http://github.com(c'est%C3%A7a)"}]), "))"])
       messages = []
-      
+
       assert as_ast(markdown) == {:ok, [ast], messages}
     end
   end
@@ -119,19 +118,35 @@ defmodule Acceptance.Ast.LinksImages.PureLinksTest do
       markdown = "https://mydomain.org/user_or_team/repo_name/blob/master/%{path}#L%{line}"
       ast      = p(tag("a", ["https://mydomain.org/user_or_team/repo_name/blob/master/%{path}#L%{line}"], [{"href", "https://mydomain.org/user_or_team/repo_name/blob/master/%{path}#L%{line}"}]))
       messages = []
-      
+
       assert as_ast(markdown) == {:ok, [ast], messages}
     end
     test "a recursive link" do
       markdown = "https://babelmark.github.io/?text=*+List+item%0A%0A++Text%0A%0A++++*+List+item%0A%0A++Text%0A%0A++++++https%3A%2F%2Fmydomain.org%2Fuser_or_team%2Frepo_name%2Fblob%2Fmaster%2F%25%7Bpath%7D%23L%25%7Bline%7D%0"
       ast      = p(tag("a", markdown, [{"href", markdown}]))
       messages = []
-      
+
       assert as_ast(markdown) == {:ok, [ast], messages}
     end
-    
+  end
+
+  describe "multiple params (was: regression #044)" do
+    test "one query param" do
+      markdown = "https://example.com?foo=1"
+      ast      = p(tag("a", markdown, [{"href", markdown}]))
+      messages = []
+
+      assert as_ast(markdown) == {:ok, [ast], messages}
+    end
+
+    test "two query params" do
+      markdown = "https://example.com?foo=1&bar=2"
+      ast      = p(tag("a", markdown, [{"href", markdown}]))
+      messages = []
+
+      assert as_ast(markdown) == {:ok, [ast], messages}
+    end
   end
 
 end
-
 # SPDX-License-Identifier: Apache-2.0
