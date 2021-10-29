@@ -143,15 +143,14 @@ defmodule EarmarkParser.Ast.Inline do
           [match__, id, ""] -> {match__, id, id}
           [match__, alt_text, id] -> {match__, alt_text, id}
         end
-        IO.inspect(match)
 
       # inner =
       # case convert(alt_text, lnb, context).value |> IO.inspect(label: :inner) do
       #   [{_, _, _, _}|rest] = ast -> alt_text
       #   _                         -> alt_text
-      # end
+      # end |> IO.inspect(label: :inner)
       case reference_link(context, match, alt_text, id, lnb) |> IO.inspect(label: :reference_link)  do
-        {:ok, out} -> {behead(src, match), lnb, prepend(context, out), use_linky?}
+        {:ok, out} -> IO.inspect(out);{behead(src, match), lnb, prepend(context, out), use_linky?}
         _ -> nil
       end
     end
@@ -339,7 +338,7 @@ defmodule EarmarkParser.Ast.Inline do
   end
 
   defp reference_link(context, match, alt_text, id, lnb) do
-    IO.inspect(match, label: :reference_link)
+    IO.inspect(match, label: :inside_reference_link)
     id = id |> replace(~r{\s+}, " ") |> String.downcase()
 
     case Map.fetch(context.links, id) do
