@@ -54,8 +54,13 @@ defmodule EarmarkParser.Options do
 
   @doc false
   def add_deprecations(options, messages)
-  def add_deprecations(%__MODULE__{smartypants: true}, messages) do
-    [{:deprecated, 0, "The smartypants option has no effect anymore and will be removed in EarmarkParser 1.5"}|messages]
+  def add_deprecations(%__MODULE__{smartypants: true}=options, messages) do
+    add_deprecations(%{options|smartypants: false},
+      [{:deprecated, 0, "The smartypants option has no effect anymore and will be removed in EarmarkParser 1.5"}|messages])
+  end
+  def add_deprecations(%__MODULE__{pedantic: true}=options, messages) do
+    add_deprecations(%{options|pedantic: false},
+      [{:deprecated, 0, "The pedantic option has no effect anymore and will be removed in EarmarkParser 1.5"}|messages])
   end
   def add_deprecations(_options, messages), do: messages
 
