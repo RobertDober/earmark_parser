@@ -1,3 +1,7 @@
+## 1.4.18 202?-??-??
+
+- [Deprecate Pedantic Option](https://github.com/robertdober/earmark_parser/pull/60)
+
 ## 1.4.17 2021-10-29
 
 - [44 Multiple Query Params in pure links](https://github.com/robertdober/earmark_parser/issues/44)
