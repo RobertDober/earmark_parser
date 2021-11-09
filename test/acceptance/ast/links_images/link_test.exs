@@ -215,11 +215,11 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
 
     test "now uri encoding with invalid url" do
       markdown = "<http://foo.bar.baz/%{foo}>\n"
-      html = "<p><a href=\"http://foo.bar.baz/%{foo}\">http://foo.bar.baz/%{foo}</a></p>\n"
-      ast      = parse_html(html)
+      # Cannot use Floki here (c.f. https://github.com/philss/floki/issues/370)
+      ast = a(["http://foo.bar.baz/%{foo}"], href: "http://foo.bar.baz/%25%7Bfoo%7D") |> p()
       messages = []
 
-      assert as_ast(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown) == {:ok, [ast], messages}
     end
 
     test "as was this" do
@@ -306,6 +306,8 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       assert as_ast(markdown) == {:ok, ast, messages}
     end
   end
+
+  defp a(content, atts), do: tag("a", content, atts)
 end
 
 # SPDX-License-Identifier: Apache-2.0

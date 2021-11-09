@@ -2,11 +2,12 @@ defmodule EarmarkParser.Helpers.PureLinkHelpers do
   @moduledoc false
 
   import EarmarkParser.Helpers.StringHelpers, only: [betail: 2]
-  import EarmarkParser.Helpers.AstHelpers, only: [render_link: 2]
+  import EarmarkParser.Helpers.AstHelpers, only: [render_link: 1]
 
   @pure_link_rgx ~r{\A(\s*)(\()?(https?://[[:alnum:]"'*@:+-_{\}()/.%\#&]*)}u
+
   def convert_pure_link(src) do
-    case Regex.run(@pure_link_rgx, src)  do
+    case Regex.run(@pure_link_rgx, src) do
       [_match, spaces, "", link_text] -> reparse_link(spaces, link_text)
       [_match, spaces, _, link_text]  -> remove_trailing_closing_parens(spaces, link_text)
       _ -> nil
@@ -22,7 +23,7 @@ defmodule EarmarkParser.Helpers.PureLinkHelpers do
     needed =
     :lists.duplicate(max(0, take), ")")
     |> Enum.join
-    link = link(prefix <> needed)
+    link = render_link(prefix <> needed)
     ast =
       case leading_spaces do
         "" -> link
@@ -48,7 +49,5 @@ defmodule EarmarkParser.Helpers.PureLinkHelpers do
     nof_closing_parens = String.length(suffix)
     determine_ending_parens_by_count(leading_spaces, prefix, nof_closing_parens)
   end
-
-  defp link(text), do: render_link(text, text)
 
 end

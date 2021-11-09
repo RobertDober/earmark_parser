@@ -69,30 +69,30 @@ defmodule EarmarkParser.Helpers.AstHelpers do
   end
 
   @doc false
+  def render_link(url_from_pure_link),
+    do: render_link(url_from_pure_link, url_from_pure_link)
+
   def render_link(url, text) do
-    url =
-      try do
-        url
-        |> URI.decode
-        |> URI.encode
-      rescue
-        _ -> url
-      end
-
-    text =
-      try do
-        URI.decode(text)
-      rescue
-        _ -> text
-      end
-
-    emit("a", text, href: url)
+    emit("a", text, href: _encode(url))
   end
 
 
   ##############################################
   # add attributes to the outer tag in a block #
   ##############################################
+
+
+  @verbatims ~r<%[\da-f]{2}>i
+  defp _encode(url) do
+    url
+    |> String.split(@verbatims, include_captures: true)
+    |> Enum.chunk_every(2)
+    |> Enum.map(&_encode_chunk/1)
+    |> IO.chardata_to_string
+  end
+
+  defp _encode_chunk([encodable, verbatim]), do: [URI.encode(encodable), verbatim]
+  defp _encode_chunk([encodable]), do: URI.encode(encodable)
 
   @doc false
   def merge_attrs(maybe_atts, new_atts)

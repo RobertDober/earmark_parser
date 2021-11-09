@@ -1,4 +1,7 @@
-## 1.4.18 202?-??-??
+
+## 1.4.18/1.5.0 202?-??-??
+
+- [61 Fixes some double URI encoding in links](https://github.com/robertdober/earmark_parser/issues/61)
 
 - [Deprecate Pedantic Option](https://github.com/robertdober/earmark_parser/pull/60)
 
