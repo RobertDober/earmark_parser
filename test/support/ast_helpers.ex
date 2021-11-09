@@ -1,5 +1,5 @@
 defmodule Support.AstHelpers do
-  
+
   def ast_from_md(md) do
     with {:ok, ast, []} <- EarmarkParser.as_ast(md), do: ast
   end
@@ -22,7 +22,7 @@ defmodule Support.AstHelpers do
   defp _atts(atts) do
     atts |> Enum.into(Keyword.new) |> Enum.map(fn {x, y} -> {to_string(x), to_string(y)} end)
   end
-  
+
   defp _content(c)
   defp _content(nil), do: []
   defp _content(s) when is_binary(s), do: [s]

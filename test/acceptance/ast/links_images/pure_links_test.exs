@@ -106,7 +106,7 @@ defmodule Acceptance.Ast.LinksImages.PureLinksTest do
 
     test "recoding is cool" do
       markdown = "((http://github.com(c'est%C3%A7a)))"
-      ast      = p(["((", tag("a", ["http://github.com(c'estça)"], [{"href", "http://github.com(c'est%C3%A7a)"}]), "))"])
+      ast      = p(["((", tag("a", ["http://github.com(c'est%C3%A7a)"], [{"href", "http://github.com(c'est%C3%A7a)"}]), "))"])
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -116,14 +116,19 @@ defmodule Acceptance.Ast.LinksImages.PureLinksTest do
   describe "more acceptable characters (was: regression #350)" do
     test "a Github link" do
       markdown = "https://mydomain.org/user_or_team/repo_name/blob/master/%{path}#L%{line}"
-      ast      = p(tag("a", ["https://mydomain.org/user_or_team/repo_name/blob/master/%{path}#L%{line}"], [{"href", "https://mydomain.org/user_or_team/repo_name/blob/master/%{path}#L%{line}"}]))
+      # Cannot use Floki (c.f. https://github.com/philss/floki/issues/370)
+      ast      = tag("a",
+      ["https://mydomain.org/user_or_team/repo_name/blob/master/%{path}#L%{line}"],
+      [{"href", "https://mydomain.org/user_or_team/repo_name/blob/master/%25%7Bpath%7D#L%25%7Bline%7D"}])
+      |> p()
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
     end
     test "a recursive link" do
       markdown = "https://babelmark.github.io/?text=*+List+item%0A%0A++Text%0A%0A++++*+List+item%0A%0A++Text%0A%0A++++++https%3A%2F%2Fmydomain.org%2Fuser_or_team%2Frepo_name%2Fblob%2Fmaster%2F%25%7Bpath%7D%23L%25%7Bline%7D%0"
-      ast      = p(tag("a", markdown, [{"href", markdown}]))
+      href = "https://babelmark.github.io/?text=*+List+item%0A%0A++Text%0A%0A++++*+List+item%0A%0A++Text%0A%0A++++++https%3A%2F%2Fmydomain.org%2Fuser_or_team%2Frepo_name%2Fblob%2Fmaster%2F%25%7Bpath%7D%23L%25%7Bline%7D%250"
+      ast      = tag("a", markdown, href: href) |> p()
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}

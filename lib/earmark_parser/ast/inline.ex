@@ -16,9 +16,12 @@ defmodule EarmarkParser.Ast.Inline do
 
   @typep conversion_data :: {String.t, non_neg_integer(), EarmarkParser.Context.t, boolean()}
   def convert(src, lnb, context)
-  def convert(list, lnb, context) when is_list(list),
-    do: _convert(Enum.join(list, "\n"), lnb, context, true)
-  def convert(src, lnb, context), do: _convert(src, lnb, context, true)
+  def convert(list, lnb, context) when is_list(list) do
+    _convert(Enum.join(list, "\n"), lnb, context, true)
+  end
+  def convert(src, lnb, context) do
+    _convert(src, lnb, context, true)
+  end
 
   defp _convert(src, current_lnb, context, use_linky?)
   defp _convert(src, _, %{options: %{parse_inline: false}} = context, _) do
@@ -26,9 +29,8 @@ defmodule EarmarkParser.Ast.Inline do
   end
   defp _convert("", _, context, _), do: context
   defp _convert(src, current_lnb, context, use_linky?) do
-    case _convert_next(src, current_lnb, context, use_linky?) do
-      {src1, lnb1, context1, use_linky1?} -> _convert(src1, lnb1, context1, use_linky1?)
-    end
+    {src1, lnb1, context1, use_linky1?} = _convert_next(src, current_lnb, context, use_linky?)
+    _convert(src1, lnb1, context1, use_linky1?)
   end
 
   @linky_converter_names [
