@@ -1,6 +1,12 @@
-defmodule EarmarkParserHelpersTests.LinkParserTest do
+defmodule EarmarkParserHelpersTests.AltLinkParserTest do
   use ExUnit.Case, async: true
+  alias EarmarkParser.Helpers.AltLinkParser, as: P
 
+  describe "text part parsing" do
+    test "empty" do
+      assert P.text_part_parser.("") == {:error, "expected ["}
+    end
+  end
   describe "text part" do
     test "text part: empty" do
       assert parse_link("[]()") == {~s<[]()>, "", "", nil, :link}
@@ -120,7 +126,9 @@ defmodule EarmarkParserHelpersTests.LinkParserTest do
     end
   end
   defp parse_link(markdown) do
-    EarmarkParser.Helpers.LinkParser.parse_link(markdown, 0)
+    with {:ok, %{type: type, parsed: parsed, title: title, url: url, text: text}, _} <-
+      EarmarkParser.Helpers.AltLinkParser.parse(markdown),
+        do: {parsed, text, url, title, type}
   end
 end
 
