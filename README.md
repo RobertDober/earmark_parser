@@ -658,9 +658,35 @@ The `char_range_parser` can also be called with a string which is transformed to
 a charlist with `String.to_charlist`
 
 ```elixir
-      iex(0)> bin_parser = char_range_parser("01")
-      ...(0)> bin_parser.("10a")
+      iex(6)> bin_parser = char_range_parser("01")
+      ...(6)> bin_parser.("10a")
       {:ok, ?1, "a"}
+      ...(6)> bin_parser.("a")
+      {:error, "expected a char in the range '01'"}
+```
+
+```elixir
+      iex(7)> greek_letter_parser = char_range_parser("αβγδεζηθικλμνξοπρςστυφχψω")
+      ...(7)> greek_letter_parser.("σπίτι")
+      {:ok, 963, "πίτι"}
+```
+
+The last example is of course better written as
+
+```elixir
+      iex(8)> greek_letter_parser = char_range_parser(?α..?ω)
+      ...(8)> greek_letter_parser.("σπίτι")
+      {:ok, 963, "πίτι"}
+```
+
+for which reason you can also just pass a range
+
+Be aware of a trap in the utf8 code here `?ί(943)` is not in the specified range
+
+```elixir
+      iex(9)> greek_letter_parser = char_range_parser(?α..?ω)
+      ...(9)> greek_letter_parser.("ίτι")
+      {:error, "expected a char in the range 945..969"}
 ```
 
 
@@ -670,28 +696,39 @@ A parser that combines a list of parsers in a way to parse the input string
 with first succeeding parser
 
 ```elixir
-    iex(6)> choice([char_parser(), empty()]).("")
+    iex(10)> choice([char_parser(), empty()]).("")
     {:ok, "", ""}
 ```
 
 ```elixir
-    iex(7)> choice([char_parser(), empty()]).("a")
+    iex(11)> choice([char_parser(), empty()]).("a")
     {:ok, ?a, ""}
 ```
 
-This is a parser com
+As this is a combinator we can take shortcuts for the usage of `char_range_parser`
+
+```elixir
+    iex(12)> az_parser = choice(["a", "z"])
+    ...(12)> az_parser.("a")
+    {:ok, ?a, ""}
+    ...(12)> az_parser.("b")
+    {:error, ""}
+    ...(12)> az_parser.("z")
+    {:ok, ?z, ""}
+```
+
 
 ### EarmarkParser.Helpers.Parser.digit_parser/1
 
 Parser that only succeeds when a digit is the first char of the input
 
 ```elixir
-    iex(8)> digit_parser().("a")
+    iex(13)> digit_parser().("a")
     {:error, "expected a char in the range #{?0}..#{?9}"}
 ```
 
 ```elixir
-    iex(9)> digit_parser().("42")
+    iex(14)> digit_parser().("42")
     {:ok, ?4, "2"}
 ```
 
@@ -701,12 +738,12 @@ Parser that only succeeds when a digit is the first char of the input
 Always succeedes (be careful when combining this parser)
 
 ```elixir
-      iex(10)> empty().("")
+      iex(15)> empty().("")
       {:ok, "", ""}
 ```
 
 ```elixir
-      iex(11)> empty().("1")
+      iex(16)> empty().("1")
       {:ok, "", "1"}
 ```
 
@@ -753,30 +790,47 @@ Parses the input with the given parser as many times it succeeds, it never fails
 (which it always is in this version), so be careful when combining it
 
 ```elixir
-    iex(12)> parser = many(digit_parser())
-    ...(12)> parser.("12")
+    iex(17)> parser = many(digit_parser())
+    ...(17)> parser.("12")
     {:ok, "12", ""}
-    ...(12)> parser.("2b")
+    ...(17)> parser.("2b")
     {:ok, "2", "b"}
-    ...(12)> parser.("a")
+    ...(17)> parser.("a")
     {:ok, [], "a"}
 ```
 
 **N.B.** that it **always** succeeds
 if you need at least n > 0 parsing steps to succeed use `many!`
 
+As many is a combinator we can also use the `char_range_parser` shortcut
+again
+
+```elixir
+    iex(18)> many("01").("01a")
+    {:ok, '01', "a"}
+```
+
 ### EarmarkParser.Helpers.Parser.many!/3
 
 same as many but a given number of parser runs must succeed
 
 ```elixir
-      iex(0)> two_chars = char_parser() |> many!(2, "need two for tea")
-      ...(0)> two_chars.("")
+      iex(19)> two_chars = char_parser() |> many!(2, "need two for tea")
+      ...(19)> two_chars.("")
       {:error, "need two for tea"}
-      ...(0)> two_chars.("a")
+      ...(19)> two_chars.("a")
       {:error, "need two for tea"}
-      ...(0)> two_chars.("ab")
+      ...(19)> two_chars.("ab")
       {:ok, 'ab', ""}
+```
+
+Same shortcut as for `many` is available
+
+```elixir
+    iex(20)> many!("01", 2).("01a")
+    {:ok, '01', "a"}
+    ...(20)> many!("01", 2).("1a")
+    {:error, "many! failed with 1 parser steps missing"}
 ```
 
 ### EarmarkParser.Helpers.Parser.map/2
@@ -784,34 +838,53 @@ same as many but a given number of parser runs must succeed
 This implemnts the functor interface for parse results
 
 ```elixir
-    iex(13)> number_parser = digit_parser()
-    ...(13)> |> many()
-    ...(13)> |> map(fn digits -> digits |> IO.chardata_to_string |> String.to_integer end)
-    ...(13)> number_parser.("42a")
+    iex(21)> number_parser = digit_parser()
+    ...(21)> |> many()
+    ...(21)> |> map(fn digits -> digits |> IO.chardata_to_string |> String.to_integer end)
+    ...(21)> number_parser.("42a")
     {:ok, 42, "a"}
 ```
 
 Let us show that the functor treats the error case correctly
 
 ```elixir
-    iex(14)> parser = char_parser("my_parser") |> map(fn _ -> raise "That will not happen here" end)
-    ...(14)> parser.("")
+    iex(22)> parser = char_parser("my_parser") |> map(fn _ -> raise "That will not happen here" end)
+    ...(22)> parser.("")
     {:error, "unexpected end of input in char_parser my_parser"}
 ```
 
+we can use the shortcut specification for a parser here too
+
+```elixir
+    iex(23)> parser = map("01", fn x -> if x==?1, do: true end) 
+    ...(23)> parser.("1")
+    {:ok, true, ""}
+```
 
 ### EarmarkParser.Helpers.Parser.optional/1
 
 optional(parser) is just a shortcut for choice([parser, empty()]) and therefore always succeeds
 
 ```elixir
-    iex(15)> optional(digit_parser()).("2")
+    iex(24)> optional(digit_parser()).("2")
     {:ok, ?2, ""}
 ```
 
 ```elixir
-    iex(16)> optional(digit_parser()).("")
+    iex(25)> optional(digit_parser()).("")
     {:ok, "", ""}
+```
+
+again shortcuts are supported
+
+```elixir
+    iex(26)> optional(?a).("a")
+    {:ok, ?a, ""}
+```
+
+```elixir
+    iex(27)> optional(?a).("b")
+    {:ok, "", "b"}
 ```
 
 ### EarmarkParser.Helpers.Parser.satisfy/4
@@ -829,11 +902,22 @@ using char_range_parser, which then uses satisfy in a more general way, too long
 be a good doctest)
 
 ```elixir
-    iex(17)> dparser = char_parser() |> satisfy(&Enum.member?(?0..?9, &1), "not a digit")
-    ...(17)> dparser.("1")
+    iex(28)> dparser = char_parser() |> satisfy(&Enum.member?(?0..?9, &1), "not a digit")
+    ...(28)> dparser.("1")
     {:ok, ?1, ""}
-    ...(17)> dparser.("a")
+    ...(28)> dparser.("a")
     {:error, "not a digit"}
+```
+
+as satisfy is a combinator we can use shortcuts too
+
+```elixir
+    iex(29)> voyel_parser = "abcdefghijklmnopqrstuvwxyz"
+    ...(29)> |> satisfy(&Enum.member?([?a, ?e, ?i, ?o, ?u], &1), "expected a voyel")
+    ...(29)> voyel_parser.("a")
+    {:ok, ?a, ""}
+    ...(29)> voyel_parser.("b")
+    {:error, "expected a voyel"}
 ```
 
 
@@ -843,21 +927,30 @@ sequence combines a list of parser to a parser that succeeds only if all parsers
 in the list succeed one after each other
 
 ```elixir
-    iex(18)> char_range = [?a..?z, ?A..?Z, ?_]
-    ...(18)> initial_char_parser = char_range_parser(char_range, "leading identifier char")
-    ...(18)> ident_parser = sequence(
-    ...(18)>   [ initial_char_parser,
-    ...(18)>     choice([initial_char_parser, digit_parser()]) |> many() ])
-    ...(18)> ident_parser.("a42-")
+    iex(30)> char_range = [?a..?z, ?A..?Z, ?_]
+    ...(30)> initial_char_parser = char_range_parser(char_range, "leading identifier char")
+    ...(30)> ident_parser = sequence(
+    ...(30)>   [ initial_char_parser,
+    ...(30)>     choice([initial_char_parser, digit_parser()]) |> many() ])
+    ...(30)> ident_parser.("a42-")
     {:ok, [?a, ?4, ?2], "-"}
-    ...(18)> ident_parser.("2a42-")
+    ...(30)> ident_parser.("2a42-")
     {:error, ""}
-    ...(18)> ident_parser.("_-")
+    ...(30)> ident_parser.("_-")
     {:ok, [?_, []], "-"}
 ```
 
 The result of the last doctest above also shows how many might return an empty list which combines
 badly that is why the built in identifier parser maps the result with `&IO.chardata_to_string`
+
+```elixir
+    iex(31)> pwd_parser = sequence(["s", "e", "c", "r", "e", "t"])
+    ...(31)> pwd_parser.("secret")
+    {:ok, 'secret', ""}
+    ...(31)> pwd_parser.("secre")
+    {:error, "unexpected end of input in char_parser"}
+```
+
 
 ### EarmarkParser.Helpers.Parser.skip/1
 
@@ -867,12 +960,24 @@ a typical use case is to skip whitespace
 character but ignoring it use `skip!`
 
 ```elixir
-    iex(19)> skip_ws = skip([9, 10, 32])
-    ...(19)> skip_ws.("a b")
+    iex(32)> skip_ws = skip([9, 10, 32])
+    ...(32)> skip_ws.("a b")
     {:ok, "", "a b"}
-    ...(19)> skip_ws.(" \t\na b")
+    ...(32)> skip_ws.(" \t\na b")
     {:ok, "", "a b"}
-    ...(19)> skip_ws.("  ")
+    ...(32)> skip_ws.("  ")
+    {:ok, "", ""}
+```
+
+the more convient form is to use shortcut strings here too
+
+```elixir
+    iex(33)> skip_ws = skip(" \t\n")
+    ...(33)> skip_ws.("a b")
+    {:ok, "", "a b"}
+    ...(33)> skip_ws.(" \t\na b")
+    {:ok, "", "a b"}
+    ...(33)> skip_ws.("  ")
     {:ok, "", ""}
 ```
 
@@ -881,12 +986,24 @@ character but ignoring it use `skip!`
 like skip but returns an error if no char in the range was found
 
 ```elixir
-    iex(20)> skip_ws = skip!([9, 10, 32], "need ws here")
-    ...(20)> skip_ws.("a b")
+    iex(34)> skip_ws = skip!([9, 10, 32], "need ws here")
+    ...(34)> skip_ws.("a b")
     {:error, "need ws here"}
-    ...(20)> skip_ws.(" \t\na b")
+    ...(34)> skip_ws.(" \t\na b")
     {:ok, "", "a b"}
-    ...(20)> skip_ws.("  ")
+    ...(34)> skip_ws.("  ")
+    {:ok, "", ""}
+```
+
+and again...
+
+```elixir
+    iex(35)> skip_ws = skip!(" \t\n", "need ws here")
+    ...(35)> skip_ws.("a b")
+    {:error, "need ws here"}
+    ...(35)> skip_ws.(" \t\na b")
+    {:ok, "", "a b"}
+    ...(35)> skip_ws.("  ")
     {:ok, "", ""}
 ```
 
@@ -895,14 +1012,25 @@ like skip but returns an error if no char in the range was found
 up_to is somehow the contrary to char_range |> many it never fails, because of the many and
 parses all characters up to the terminations char sets
 
+```elixir
+      iex(36)> no_spaces = up_to([32, 10])
+      ...(36)> no_spaces.("a b")
+      {:ok, "a", " b"}
+      ...(36)> no_spaces.(" b")
+      {:ok, "", " b"}
+      ...(36)> no_spaces.("ab")
+      {:ok, "ab", ""}
+```
+
+and the more convenient
 
 ```elixir
-      iex(21)> no_spaces = up_to([32, 10])
-      ...(21)> no_spaces.("a b")
+      iex(37)> no_spaces = up_to("\n ")
+      ...(37)> no_spaces.("a b")
       {:ok, "a", " b"}
-      ...(21)> no_spaces.(" b")
+      ...(37)> no_spaces.(" b")
       {:ok, "", " b"}
-      ...(21)> no_spaces.("ab")
+      ...(37)> no_spaces.("ab")
       {:ok, "ab", ""}
 ```
 

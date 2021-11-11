@@ -293,15 +293,24 @@ defmodule EarmarkParser.Helpers.Parser do
   @doc ~S"""
   optional(parser) is just a shortcut for choice([parser, empty()]) and therefore always succeeds
 
-      iex(23)> optional(digit_parser()).("2")
+      iex(24)> optional(digit_parser()).("2")
       {:ok, ?2, ""}
 
-      iex(24)> optional(digit_parser()).("")
+      iex(25)> optional(digit_parser()).("")
       {:ok, "", ""}
+
+  again shortcuts are supported
+
+      iex(26)> optional(?a).("a")
+      {:ok, ?a, ""}
+
+      iex(27)> optional(?a).("b")
+      {:ok, "", "b"}
   """
   def optional(parser) do
+    parser_ = _make_parser(parser)
     fn input ->
-      case parser.(input) do
+      case parser_.(input) do
         {:ok, _ast, _rest} = result -> result
         {:error, _message} -> {:ok, "", input}
       end
@@ -321,16 +330,26 @@ defmodule EarmarkParser.Helpers.Parser do
   using char_range_parser, which then uses satisfy in a more general way, too long to
   be a good doctest)
 
-      iex(25)> dparser = char_parser() |> satisfy(&Enum.member?(?0..?9, &1), "not a digit")
-      ...(25)> dparser.("1")
+      iex(28)> dparser = char_parser() |> satisfy(&Enum.member?(?0..?9, &1), "not a digit")
+      ...(28)> dparser.("1")
       {:ok, ?1, ""}
-      ...(25)> dparser.("a")
+      ...(28)> dparser.("a")
       {:error, "not a digit"}
+
+  as satisfy is a combinator we can use shortcuts too
+
+      iex(29)> voyel_parser = "abcdefghijklmnopqrstuvwxyz"
+      ...(29)> |> satisfy(&Enum.member?([?a, ?e, ?i, ?o, ?u], &1), "expected a voyel")
+      ...(29)> voyel_parser.("a")
+      {:ok, ?a, ""}
+      ...(29)> voyel_parser.("b")
+      {:error, "expected a voyel"}
 
   """
   def satisfy(parser, fun, error_message \\ nil, name \\ "") do
+    parser_ = _make_parser(parser)
     fn input ->
-      with {:ok, result, rest} <- parser.(input) do
+      with {:ok, result, rest} <- parser_.(input) do
         if fun.(result),
           do: {:ok, result, rest},
           else: _error_message(error_message || "unsatisified parser", name)
@@ -342,33 +361,30 @@ defmodule EarmarkParser.Helpers.Parser do
   sequence combines a list of parser to a parser that succeeds only if all parsers
   in the list succeed one after each other
 
-      iex(26)> char_range = [?a..?z, ?A..?Z, ?_]
-      ...(26)> initial_char_parser = char_range_parser(char_range, "leading identifier char")
-      ...(26)> ident_parser = sequence(
-      ...(26)>   [ initial_char_parser,
-      ...(26)>     choice([initial_char_parser, digit_parser()]) |> many() ])
-      ...(26)> ident_parser.("a42-")
+      iex(30)> char_range = [?a..?z, ?A..?Z, ?_]
+      ...(30)> initial_char_parser = char_range_parser(char_range, "leading identifier char")
+      ...(30)> ident_parser = sequence(
+      ...(30)>   [ initial_char_parser,
+      ...(30)>     choice([initial_char_parser, digit_parser()]) |> many() ])
+      ...(30)> ident_parser.("a42-")
       {:ok, [?a, ?4, ?2], "-"}
-      ...(26)> ident_parser.("2a42-")
+      ...(30)> ident_parser.("2a42-")
       {:error, ""}
-      ...(26)> ident_parser.("_-")
+      ...(30)> ident_parser.("_-")
       {:ok, [?_, []], "-"}
 
   The result of the last doctest above also shows how many might return an empty list which combines
   badly that is why the built in identifier parser maps the result with `&IO.chardata_to_string`
+
+      iex(31)> pwd_parser = sequence(["s", "e", "c", "r", "e", "t"])
+      ...(31)> pwd_parser.("secret")
+      {:ok, 'secret', ""}
+      ...(31)> pwd_parser.("secre")
+      {:error, "unexpected end of input in char_parser"}
+
   """
   def sequence(parsers) do
-    fn input ->
-      case parsers do
-        [] ->
-          {:ok, [], input}
-
-        [fst_parser | rst_parsers] ->
-          with {:ok, ast, rest} <- fst_parser.(input),
-               {:ok, ast1, rest1} <- sequence(rst_parsers).(rest),
-               do: {:ok, [ast | ast1], rest1}
-      end
-    end
+    parsers |> Enum.map(&_make_parser/1) |> _sequence()
   end
 
   @doc ~S"""
@@ -377,12 +393,22 @@ defmodule EarmarkParser.Helpers.Parser do
   **N.B.** that it never fails, if you need to assure the presence of a
   character but ignoring it use `skip!`
 
-      iex(27)> skip_ws = skip([9, 10, 32])
-      ...(27)> skip_ws.("a b")
+      iex(32)> skip_ws = skip([9, 10, 32])
+      ...(32)> skip_ws.("a b")
       {:ok, "", "a b"}
-      ...(27)> skip_ws.(" \t\na b")
+      ...(32)> skip_ws.(" \t\na b")
       {:ok, "", "a b"}
-      ...(27)> skip_ws.("  ")
+      ...(32)> skip_ws.("  ")
+      {:ok, "", ""}
+
+  the more convient form is to use shortcut strings here too
+
+      iex(33)> skip_ws = skip(" \t\n")
+      ...(33)> skip_ws.("a b")
+      {:ok, "", "a b"}
+      ...(33)> skip_ws.(" \t\na b")
+      {:ok, "", "a b"}
+      ...(33)> skip_ws.("  ")
       {:ok, "", ""}
   """
   def skip(char_range) do
@@ -395,12 +421,22 @@ defmodule EarmarkParser.Helpers.Parser do
   @doc ~S"""
   like skip but returns an error if no char in the range was found
 
-      iex(28)> skip_ws = skip!([9, 10, 32], "need ws here")
-      ...(28)> skip_ws.("a b")
+      iex(34)> skip_ws = skip!([9, 10, 32], "need ws here")
+      ...(34)> skip_ws.("a b")
       {:error, "need ws here"}
-      ...(28)> skip_ws.(" \t\na b")
+      ...(34)> skip_ws.(" \t\na b")
       {:ok, "", "a b"}
-      ...(28)> skip_ws.("  ")
+      ...(34)> skip_ws.("  ")
+      {:ok, "", ""}
+
+  and again...
+
+      iex(35)> skip_ws = skip!(" \t\n", "need ws here")
+      ...(35)> skip_ws.("a b")
+      {:error, "need ws here"}
+      ...(35)> skip_ws.(" \t\na b")
+      {:ok, "", "a b"}
+      ...(35)> skip_ws.("  ")
       {:ok, "", ""}
   """
   def skip!(char_range, name \\ "") do
@@ -414,15 +450,31 @@ defmodule EarmarkParser.Helpers.Parser do
   up_to is somehow the contrary to char_range |> many it never fails, because of the many and
   parses all characters up to the terminations char sets
 
-
-        iex(29)> no_spaces = up_to([32, 10])
-        ...(29)> no_spaces.("a b")
+        iex(36)> no_spaces = up_to([32, 10])
+        ...(36)> no_spaces.("a b")
         {:ok, "a", " b"}
-        ...(29)> no_spaces.(" b")
+        ...(36)> no_spaces.(" b")
         {:ok, "", " b"}
-        ...(29)> no_spaces.("ab")
+        ...(36)> no_spaces.("ab")
+        {:ok, "ab", ""}
+
+  and the more convenient
+
+        iex(37)> no_spaces = up_to("\n ")
+        ...(37)> no_spaces.("a b")
+        {:ok, "a", " b"}
+        ...(37)> no_spaces.(" b")
+        {:ok, "", " b"}
+        ...(37)> no_spaces.("ab")
         {:ok, "ab", ""}
   """
+  def up_to(terminations)
+  def up_to(terminations) when is_binary(terminations) do
+    terminations
+    |> String.to_charlist
+    |> up_to()
+  end
+
   def up_to(terminations) do
     char_parser()
     |> satisfy(fn char -> !_in_range?(char, terminations) end)
@@ -449,7 +501,7 @@ defmodule EarmarkParser.Helpers.Parser do
     end
   end
 
-  defp _error_message(message, name \\ "") do
+  defp _error_message(message, name) do
     {:error,
      "#{message} #{name}"
      |> String.trim_trailing()}
@@ -465,6 +517,9 @@ defmodule EarmarkParser.Helpers.Parser do
   end
 
   defp _make_parser(string_or_fun)
+
+  defp _make_parser(number) when is_number(number),
+    do: [number] |> char_range_parser()
 
   defp _make_parser(string) when is_binary(string),
     do: string |> String.to_charlist() |> char_range_parser()
@@ -485,7 +540,7 @@ defmodule EarmarkParser.Helpers.Parser do
     end
   end
 
-  defp _many!(parser, n, name \\ "") do
+  defp _many!(parser, n, name) do
     fn input ->
       case parser.(input) do
         {:error, _reason} ->
@@ -501,6 +556,19 @@ defmodule EarmarkParser.Helpers.Parser do
       end
     end
   end
-end
 
+  defp _sequence(parsers) do
+    fn input ->
+      case parsers do
+        [] ->
+          {:ok, [], input}
+
+        [fst_parser | rst_parsers] ->
+          with {:ok, ast, rest} <- fst_parser.(input),
+               {:ok, ast1, rest1} <- sequence(rst_parsers).(rest),
+               do: {:ok, [ast | ast1], rest1}
+      end
+    end
+  end
+end
 #  SPDX-License-Identifier: Apache-2.0
