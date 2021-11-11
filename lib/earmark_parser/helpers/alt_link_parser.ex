@@ -1,5 +1,4 @@
 defmodule EarmarkParser.Helpers.AltLinkParser do
-
   @moduledoc false
   import EarmarkParser.Helpers.StringHelpers, only: [behead: 2]
   import EarmarkParser.Helpers.Parser
@@ -10,7 +9,6 @@ defmodule EarmarkParser.Helpers.AltLinkParser do
     link_or_img_parser.(src)
   end
 
-
   defp parse_link() do
     ~W< [ ] ( ) >
     |> Enum.map(&string_parser/1)
@@ -20,15 +18,19 @@ defmodule EarmarkParser.Helpers.AltLinkParser do
   defp link_or_img_parser() do
     sequence([
       choice([
-        string_parser("!"), empty()
+        string_parser("!"),
+        empty()
       ]),
-      rest_parser()]) |> map(&LinkAst.finalize/1)
-      # sequence([
-      #   "!"
-      #   |> string_parser()
-      #   |> ignore_ws()
-      #   |> optional(),
-      #   parse_link()])
+      rest_parser()
+    ])
+    |> map(&LinkAst.finalize/1)
+
+    # sequence([
+    #   "!"
+    #   |> string_parser()
+    #   |> ignore_ws()
+    #   |> optional(),
+    #   parse_link()])
   end
 
   defp rest_parser() do
@@ -54,4 +56,5 @@ defmodule EarmarkParser.Helpers.AltLinkParser do
     empty()
   end
 end
+
 # SPDX-License-Identifier: Apache-2.0

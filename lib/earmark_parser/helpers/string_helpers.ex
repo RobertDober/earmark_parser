@@ -1,5 +1,4 @@
 defmodule EarmarkParser.Helpers.StringHelpers do
-
   @moduledoc false
 
   @doc """
@@ -31,9 +30,10 @@ defmodule EarmarkParser.Helpers.StringHelpers do
   end
 
   def betail(str, length)
+
   def betail(str, length) do
     str
-    |> String.slice(0, max(0,String.length(str) - length))
+    |> String.slice(0, max(0, String.length(str) - length))
   end
 end
 

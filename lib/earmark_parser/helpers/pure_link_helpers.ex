@@ -9,9 +9,9 @@ defmodule EarmarkParser.Helpers.PureLinkHelpers do
   def convert_pure_link(src) do
     case Regex.run(@pure_link_rgx, src) do
       [_match, spaces, "", link_text] -> reparse_link(spaces, link_text)
-      [_match, spaces, _, link_text]  -> remove_trailing_closing_parens(spaces, link_text)
+      [_match, spaces, _, link_text] -> remove_trailing_closing_parens(spaces, link_text)
       _ -> nil
-      end
+    end
   end
 
   defp determine_ending_parens_by_count(leading_spaces, prefix, surplus_on_closing_parens) do
@@ -20,27 +20,35 @@ defmodule EarmarkParser.Helpers.PureLinkHelpers do
     close_parens_count = Enum.count(graphemes, &(&1 == ")"))
     delta = open_parens_count - close_parens_count
     take = min(delta, surplus_on_closing_parens)
+
     needed =
-    :lists.duplicate(max(0, take), ")")
-    |> Enum.join
+      :lists.duplicate(max(0, take), ")")
+      |> Enum.join()
+
     link = render_link(prefix <> needed)
+
     ast =
       case leading_spaces do
         "" -> link
         _ -> [leading_spaces, link]
       end
-    {ast, String.length(prefix) + String.length(leading_spaces) + max(0,take)}
+
+    {ast, String.length(prefix) + String.length(leading_spaces) + max(0, take)}
   end
 
   @split_at_ending_parens ~r{(.*?)(\)*)\z}
   defp remove_trailing_closing_parens(leading_spaces, link_text) do
     [_, _prefix, suffix] = Regex.run(@split_at_ending_parens, link_text)
+
     case suffix do
-      "" -> {"(", String.length(leading_spaces) + 1}
-      _  -> case convert_pure_link(betail(link_text, 1)) do
-        {link, length} -> {["(", link, ")"], length + 2}
-        _ -> nil
-      end
+      "" ->
+        {"(", String.length(leading_spaces) + 1}
+
+      _ ->
+        case convert_pure_link(betail(link_text, 1)) do
+          {link, length} -> {["(", link, ")"], length + 2}
+          _ -> nil
+        end
     end
   end
 
@@ -49,6 +57,6 @@ defmodule EarmarkParser.Helpers.PureLinkHelpers do
     nof_closing_parens = String.length(suffix)
     determine_ending_parens_by_count(leading_spaces, prefix, nof_closing_parens)
   end
-
 end
+
 #  SPDX-License-Identifier: Apache-2.0

@@ -41,6 +41,23 @@
   - [Commenting your Markdown](#commenting-your-markdown)
   - [EarmarkParser.as_ast/2](#earmarkparseras_ast2)
   - [EarmarkParser.version/0](#earmarkparserversion0)
+- [Some Dev Notes](#some-dev-notes)
+  - [EarmarkParser.Helpers.Parser](#earmarkparserhelpersparser)
+  - [EarmarkParser.Helpers.Parser.char_parser/1](#earmarkparserhelpersparserchar_parser1)
+  - [EarmarkParser.Helpers.Parser.char_range_parser/2](#earmarkparserhelpersparserchar_range_parser2)
+  - [EarmarkParser.Helpers.Parser.choice/2](#earmarkparserhelpersparserchoice2)
+  - [EarmarkParser.Helpers.Parser.digit_parser/1](#earmarkparserhelpersparserdigit_parser1)
+  - [EarmarkParser.Helpers.Parser.empty/0](#earmarkparserhelpersparserempty0)
+  - [EarmarkParser.Helpers.Parser.lazy/1](#earmarkparserhelpersparserlazy1)
+  - [EarmarkParser.Helpers.Parser.many/1](#earmarkparserhelpersparsermany1)
+  - [EarmarkParser.Helpers.Parser.many!/3](#earmarkparserhelpersparsermany3)
+  - [EarmarkParser.Helpers.Parser.map/2](#earmarkparserhelpersparsermap2)
+  - [EarmarkParser.Helpers.Parser.optional/1](#earmarkparserhelpersparseroptional1)
+  - [EarmarkParser.Helpers.Parser.satisfy/4](#earmarkparserhelpersparsersatisfy4)
+  - [EarmarkParser.Helpers.Parser.sequence/1](#earmarkparserhelpersparsersequence1)
+  - [EarmarkParser.Helpers.Parser.skip/1](#earmarkparserhelpersparserskip1)
+  - [EarmarkParser.Helpers.Parser.skip!/2](#earmarkparserhelpersparserskip2)
+  - [EarmarkParser.Helpers.Parser.up_to/1](#earmarkparserhelpersparserup_to1)
 - [Contributing](#contributing)
 - [Author](#author)
 - [LICENSE](#license)
@@ -568,6 +585,327 @@ The AST is exposed in the spirit of [Floki's](https://hex.pm/packages/floki).
   `iex` usage.
 
 
+## Some Dev Notes
+
+### EarmarkParser.Helpers.Parser
+
+A simple parser combinator
+
+inspired by Saša Jurić's talk [Parsing from first principles](https://www.youtube.com/watch?v=xNzoerDljjo)
+
+A general observation, all combinators, that is all functions that take a parser or list of parsers
+as their first argument accept shortcuts for the char_range_parser, meaning that
+instead of
+
+```iex
+    sequence([
+      optional(char_range_parser([?+, ?-])),
+      many(char_range_parser([?0..?9]),
+      choice([char_range_parser([?a]), char_range_parser([?b])])
+```
+
+one can write
+
+```iex
+    sequence([
+      optional([?+, ?-]),
+      many([?0..?9]),
+      choice([?a, ?b])])
+```
+
+### EarmarkParser.Helpers.Parser.char_parser/1
+
+A parser that succeeds in parsing the next character
+
+```elixir
+    iex(1)> char_parser().("a")
+    {:ok, ?a, ""}
+```
+
+```elixir
+    iex(2)> char_parser().("an")
+    {:ok, ?a, "n"}
+```
+
+```elixir
+    iex(3)> char_parser().("")
+    {:error, "unexpected end of input in char_parser"}
+```
+
+We can name the parser to get a little bit better error messages
+
+```elixir
+    iex(4)> char_parser("identifier").("")
+    {:error, "unexpected end of input in char_parser identifier"}
+```
+
+### EarmarkParser.Helpers.Parser.char_range_parser/2
+
+Parser that succeeds only if the first char of the input is in the indicated
+char_range
+
+```elixir
+      iex(5)> parser = char_range_parser([?1..?9, ?a, [?b, ?c]])
+      ...(5)> parser.("b")
+      {:ok, ?b, ""}
+      ...(5)> parser.("9a")
+      {:ok, ?9, "a"}
+      ...(5)> parser.("d")
+      {:error, "expected a char in the range [49..57, 97, 'bc']"}
+```
+
+The `char_range_parser` can also be called with a string which is transformed to
+a charlist with `String.to_charlist`
+
+```elixir
+      iex(0)> bin_parser = char_range_parser("01")
+      ...(0)> bin_parser.("10a")
+      {:ok, ?1, "a"}
+```
+
+
+### EarmarkParser.Helpers.Parser.choice/2
+
+A parser that combines a list of parsers in a way to parse the input string
+with first succeeding parser
+
+```elixir
+    iex(6)> choice([char_parser(), empty()]).("")
+    {:ok, "", ""}
+```
+
+```elixir
+    iex(7)> choice([char_parser(), empty()]).("a")
+    {:ok, ?a, ""}
+```
+
+This is a parser com
+
+### EarmarkParser.Helpers.Parser.digit_parser/1
+
+Parser that only succeeds when a digit is the first char of the input
+
+```elixir
+    iex(8)> digit_parser().("a")
+    {:error, "expected a char in the range #{?0}..#{?9}"}
+```
+
+```elixir
+    iex(9)> digit_parser().("42")
+    {:ok, ?4, "2"}
+```
+
+
+### EarmarkParser.Helpers.Parser.empty/0
+
+Always succeedes (be careful when combining this parser)
+
+```elixir
+      iex(10)> empty().("")
+      {:ok, "", ""}
+```
+
+```elixir
+      iex(11)> empty().("1")
+      {:ok, "", "1"}
+```
+
+### EarmarkParser.Helpers.Parser.lazy/1
+
+lazy is a parser delaying the execution of a different parser, this is needed to implement
+recursive parsing
+
+Let us assume that we want to parse this grammar
+
+      S ← "(" S ")" | ε
+
+and that we want to count the number of opening "(" in the parsed expression
+A naive approach would be
+
+```elixir
+    def parser do
+      sequence([
+        parse_range_char([?(]),
+        optional(parser()),
+        parse_range_char([?)])
+      ])
+    end
+```
+
+but this would create an endless loop as we call parser() immediately
+however we can remedy this with the lazy combinator
+
+```elixir
+    def parser do
+      sequence([
+        parse_range_char([?(]),
+        optional(lazy(fn -> parser() end),
+        parse_range_char([?)])
+      ])
+    end
+```
+
+Will work just fine as can be seen in this [test](test/earmark_helpers_tests/parser_test.exs)
+
+### EarmarkParser.Helpers.Parser.many/1
+
+Parses the input with the given parser as many times it succeeds, it never fails when count == 0
+(which it always is in this version), so be careful when combining it
+
+```elixir
+    iex(12)> parser = many(digit_parser())
+    ...(12)> parser.("12")
+    {:ok, "12", ""}
+    ...(12)> parser.("2b")
+    {:ok, "2", "b"}
+    ...(12)> parser.("a")
+    {:ok, [], "a"}
+```
+
+**N.B.** that it **always** succeeds
+if you need at least n > 0 parsing steps to succeed use `many!`
+
+### EarmarkParser.Helpers.Parser.many!/3
+
+same as many but a given number of parser runs must succeed
+
+```elixir
+      iex(0)> two_chars = char_parser() |> many!(2, "need two for tea")
+      ...(0)> two_chars.("")
+      {:error, "need two for tea"}
+      ...(0)> two_chars.("a")
+      {:error, "need two for tea"}
+      ...(0)> two_chars.("ab")
+      {:ok, 'ab', ""}
+```
+
+### EarmarkParser.Helpers.Parser.map/2
+
+This implemnts the functor interface for parse results
+
+```elixir
+    iex(13)> number_parser = digit_parser()
+    ...(13)> |> many()
+    ...(13)> |> map(fn digits -> digits |> IO.chardata_to_string |> String.to_integer end)
+    ...(13)> number_parser.("42a")
+    {:ok, 42, "a"}
+```
+
+Let us show that the functor treats the error case correctly
+
+```elixir
+    iex(14)> parser = char_parser("my_parser") |> map(fn _ -> raise "That will not happen here" end)
+    ...(14)> parser.("")
+    {:error, "unexpected end of input in char_parser my_parser"}
+```
+
+
+### EarmarkParser.Helpers.Parser.optional/1
+
+optional(parser) is just a shortcut for choice([parser, empty()]) and therefore always succeeds
+
+```elixir
+    iex(15)> optional(digit_parser()).("2")
+    {:ok, ?2, ""}
+```
+
+```elixir
+    iex(16)> optional(digit_parser()).("")
+    {:ok, "", ""}
+```
+
+### EarmarkParser.Helpers.Parser.satisfy/4
+
+satisfy is a general purpose filtering refinement of a parser
+it takes a perser, a function, an optional error message and an optional name
+
+it creates a parser that parses the input with the passed in parser, if it fails
+nothing changes, however if it succeeds the function is called on the result of
+the parse and the thusly created parser only succeeds if the function call returns
+a truthy value
+
+Here is an example how digit_parser could be implemented (in reality it is implemented
+using char_range_parser, which then uses satisfy in a more general way, too long to
+be a good doctest)
+
+```elixir
+    iex(17)> dparser = char_parser() |> satisfy(&Enum.member?(?0..?9, &1), "not a digit")
+    ...(17)> dparser.("1")
+    {:ok, ?1, ""}
+    ...(17)> dparser.("a")
+    {:error, "not a digit"}
+```
+
+
+### EarmarkParser.Helpers.Parser.sequence/1
+
+sequence combines a list of parser to a parser that succeeds only if all parsers
+in the list succeed one after each other
+
+```elixir
+    iex(18)> char_range = [?a..?z, ?A..?Z, ?_]
+    ...(18)> initial_char_parser = char_range_parser(char_range, "leading identifier char")
+    ...(18)> ident_parser = sequence(
+    ...(18)>   [ initial_char_parser,
+    ...(18)>     choice([initial_char_parser, digit_parser()]) |> many() ])
+    ...(18)> ident_parser.("a42-")
+    {:ok, [?a, ?4, ?2], "-"}
+    ...(18)> ident_parser.("2a42-")
+    {:error, ""}
+    ...(18)> ident_parser.("_-")
+    {:ok, [?_, []], "-"}
+```
+
+The result of the last doctest above also shows how many might return an empty list which combines
+badly that is why the built in identifier parser maps the result with `&IO.chardata_to_string`
+
+### EarmarkParser.Helpers.Parser.skip/1
+
+skip parses over a range of characters but ignoring them in the result
+a typical use case is to skip whitespace
+**N.B.** that it never fails, if you need to assure the presence of a
+character but ignoring it use `skip!`
+
+```elixir
+    iex(19)> skip_ws = skip([9, 10, 32])
+    ...(19)> skip_ws.("a b")
+    {:ok, "", "a b"}
+    ...(19)> skip_ws.(" \t\na b")
+    {:ok, "", "a b"}
+    ...(19)> skip_ws.("  ")
+    {:ok, "", ""}
+```
+
+### EarmarkParser.Helpers.Parser.skip!/2
+
+like skip but returns an error if no char in the range was found
+
+```elixir
+    iex(20)> skip_ws = skip!([9, 10, 32], "need ws here")
+    ...(20)> skip_ws.("a b")
+    {:error, "need ws here"}
+    ...(20)> skip_ws.(" \t\na b")
+    {:ok, "", "a b"}
+    ...(20)> skip_ws.("  ")
+    {:ok, "", ""}
+```
+
+### EarmarkParser.Helpers.Parser.up_to/1
+
+up_to is somehow the contrary to char_range |> many it never fails, because of the many and
+parses all characters up to the terminations char sets
+
+
+```elixir
+      iex(21)> no_spaces = up_to([32, 10])
+      ...(21)> no_spaces.("a b")
+      {:ok, "a", " b"}
+      ...(21)> no_spaces.(" b")
+      {:ok, "", " b"}
+      ...(21)> no_spaces.("ab")
+      {:ok, "ab", ""}
+```
+
 
 ## Contributing
 
@@ -588,9 +926,10 @@ Thank you all who have already helped with Earmark/EarmarkParser, your names are
 
 ## Author
 
-Copyright © 2014,5,6,7,8,9;2020 Dave Thomas, The Pragmatic Programmers
+Copyright © 2014-2021 Dave Thomas, The Pragmatic Programmers
 @/+pragdave,  dave@pragprog.com
-Copyright © 2020 Robert Dober
+
+Copyright © 2020-2021 Robert Dober
 robert.dober@gmail.com
 
 ## LICENSE

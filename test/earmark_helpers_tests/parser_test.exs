@@ -7,8 +7,7 @@ defmodule Test.EarmarkHelpersTests.ParserTest do
 
   describe "debugging tests" do
     test "fails" do
-      assert count_parens().("(((()))") == nil
-
+      assert count_parens().("(((()))") == {:error, "unexpected end of input in char_parser"}
     end
   end
 

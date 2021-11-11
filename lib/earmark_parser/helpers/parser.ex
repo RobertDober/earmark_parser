@@ -3,6 +3,26 @@ defmodule EarmarkParser.Helpers.Parser do
   A simple parser combinator
 
   inspired by Saša Jurić's talk [Parsing from first principles](https://www.youtube.com/watch?v=xNzoerDljjo)
+
+  A general observation, all combinators, that is all functions that take a parser or list of parsers
+  as their first argument accept shortcuts for the char_range_parser, meaning that
+  instead of
+
+  ```iex
+      sequence([
+        optional(char_range_parser([?+, ?-])),
+        many(char_range_parser([?0..?9]),
+        choice([char_range_parser([?a]), char_range_parser([?b])])
+  ```
+
+  one can write
+
+  ```iex
+      sequence([
+        optional([?+, ?-]),
+        many([?0..?9]),
+        choice([?a, ?b])])
+  ```
   """
 
   @doc ~S"""
@@ -42,44 +62,86 @@ defmodule EarmarkParser.Helpers.Parser do
         {:ok, ?9, "a"}
         ...(5)> parser.("d")
         {:error, "expected a char in the range [49..57, 97, 'bc']"}
+
+  The `char_range_parser` can also be called with a string which is transformed to
+  a charlist with `String.to_charlist`
+
+        iex(6)> bin_parser = char_range_parser("01")
+        ...(6)> bin_parser.("10a")
+        {:ok, ?1, "a"}
+        ...(6)> bin_parser.("a")
+        {:error, "expected a char in the range '01'"}
+
+        iex(7)> greek_letter_parser = char_range_parser("αβγδεζηθικλμνξοπρςστυφχψω")
+        ...(7)> greek_letter_parser.("σπίτι")
+        {:ok, 963, "πίτι"}
+
+  The last example is of course better written as
+
+        iex(8)> greek_letter_parser = char_range_parser(?α..?ω)
+        ...(8)> greek_letter_parser.("σπίτι")
+        {:ok, 963, "πίτι"}
+
+  for which reason you can also just pass a range
+
+  Be aware of a trap in the utf8 code here `?ί(943)` is not in the specified range
+
+        iex(9)> greek_letter_parser = char_range_parser(?α..?ω)
+        ...(9)> greek_letter_parser.("ίτι")
+        {:error, "expected a char in the range 945..969"}
+
   """
-  def char_range_parser(char_range, name \\ "") do
+  def char_range_parser(char_range, name \\ "")
+
+  def char_range_parser(string, name) when is_binary(string) do
+    string
+    |> String.to_charlist()
+    |> char_range_parser(name)
+  end
+
+  def char_range_parser(char_range, name) do
     char_parser()
-    |> satisfy(&_in_range?(&1, char_range), "expected a char in the range #{inspect char_range}", name)
+    |> satisfy(
+      &_in_range?(&1, char_range),
+      "expected a char in the range #{inspect(char_range)}",
+      name
+    )
   end
 
   @doc ~S"""
   A parser that combines a list of parsers in a way to parse the input string
   with first succeeding parser
 
-      iex(6)> choice([char_parser(), empty()]).("")
+      iex(10)> choice([char_parser(), empty()]).("")
       {:ok, "", ""}
 
-      iex(7)> choice([char_parser(), empty()]).("a")
+      iex(11)> choice([char_parser(), empty()]).("a")
       {:ok, ?a, ""}
+
+  As this is a combinator we can take shortcuts for the usage of `char_range_parser`
+
+      iex(12)> az_parser = choice(["a", "z"])
+      ...(12)> az_parser.("a")
+      {:ok, ?a, ""}
+      ...(12)> az_parser.("b")
+      {:error, ""}
+      ...(12)> az_parser.("z")
+      {:ok, ?z, ""}
+
   """
   def choice(parsers, name \\ "") do
-    fn input ->
-      case parsers do
-        [] ->
-          {:error, "no choice succeeded #{name}"}
-
-        [hd_parser | tl_parsers] ->
-          case hd_parser.(input) do
-            {:ok, _, _} = result -> result
-            _ -> choice(tl_parsers).(input)
-          end
-      end
-    end
+    parsers
+    |> Enum.map(&_make_parser/1)
+    |> _choice(name)
   end
 
   @doc ~S"""
   Parser that only succeeds when a digit is the first char of the input
 
-      iex(8)> digit_parser().("a")
+      iex(13)> digit_parser().("a")
       {:error, "expected a char in the range #{?0}..#{?9}"}
 
-      iex(9)> digit_parser().("42")
+      iex(14)> digit_parser().("42")
       {:ok, ?4, "2"}
 
   """
@@ -90,10 +152,10 @@ defmodule EarmarkParser.Helpers.Parser do
   @doc ~S"""
   Always succeedes (be careful when combining this parser)
 
-        iex(10)> empty().("")
+        iex(15)> empty().("")
         {:ok, "", ""}
 
-        iex(11)> empty().("1")
+        iex(16)> empty().("1")
         {:ok, "", "1"}
   """
   def empty() do
@@ -141,6 +203,7 @@ defmodule EarmarkParser.Helpers.Parser do
   def lazy(parser) do
     fn input -> parser.().(input) end
   end
+
   # def lookahead(string, parser, name \\ "") do
   #   fn input ->
   #     if String.starts_with?(input, string),
@@ -153,79 +216,76 @@ defmodule EarmarkParser.Helpers.Parser do
   Parses the input with the given parser as many times it succeeds, it never fails when count == 0
   (which it always is in this version), so be careful when combining it
 
-      iex(12)> parser = many(digit_parser())
-      ...(12)> parser.("12")
+      iex(17)> parser = many(digit_parser())
+      ...(17)> parser.("12")
       {:ok, "12", ""}
-      ...(12)> parser.("2b")
+      ...(17)> parser.("2b")
       {:ok, "2", "b"}
-      ...(12)> parser.("a")
+      ...(17)> parser.("a")
       {:ok, [], "a"}
 
   **N.B.** that it **always** succeeds
   if you need at least n > 0 parsing steps to succeed use `many!`
+
+  As many is a combinator we can also use the `char_range_parser` shortcut
+  again
+
+      iex(18)> many("01").("01a")
+      {:ok, '01', "a"}
   """
   def many(parser) do
-    fn input ->
-      case parser.(input) do
-        {:error, _reason} ->
-          {:ok, [], input}
-
-        {:ok, first_term, rest} ->
-          {:ok, rest_terms, rest1} = many(parser).(rest)
-          {:ok, [first_term | rest_terms], rest1}
-      end
-    end
+    parser |> _make_parser |> _many()
   end
-
 
   @doc ~S"""
   same as many but a given number of parser runs must succeed
 
-        iex(0)> two_chars = char_parser() |> many!(2, "need two for tea")
-        ...(0)> two_chars.("")
+        iex(19)> two_chars = char_parser() |> many!(2, "need two for tea")
+        ...(19)> two_chars.("")
         {:error, "need two for tea"}
-        ...(0)> two_chars.("a")
+        ...(19)> two_chars.("a")
         {:error, "need two for tea"}
-        ...(0)> two_chars.("ab")
+        ...(19)> two_chars.("ab")
         {:ok, 'ab', ""}
+
+  Same shortcut as for `many` is available
+
+      iex(20)> many!("01", 2).("01a")
+      {:ok, '01', "a"}
+      ...(20)> many!("01", 2).("1a")
+      {:error, "many! failed with 1 parser steps missing"}
   """
   def many!(parser, n, name \\ "") do
-    fn input ->
-      case parser.(input) do
-        {:error, _reason} ->
-          if n > 0 do
-            _error_message("many! failed with #{n} parser steps missing", name)
-          else
-            {:ok, [], input}
-          end
-
-        {:ok, first_term, rest} ->
-          with {:ok, rest_terms, rest1} <- many!(parser, n-1, name).(rest), do:
-            {:ok, [first_term | rest_terms], rest1}
-      end
-    end
+    parser
+    |> _make_parser()
+    |> _many!(n, name)
   end
-
 
   @doc ~S"""
   This implemnts the functor interface for parse results
 
-      iex(13)> number_parser = digit_parser()
-      ...(13)> |> many()
-      ...(13)> |> map(fn digits -> digits |> IO.chardata_to_string |> String.to_integer end)
-      ...(13)> number_parser.("42a")
+      iex(21)> number_parser = digit_parser()
+      ...(21)> |> many()
+      ...(21)> |> map(fn digits -> digits |> IO.chardata_to_string |> String.to_integer end)
+      ...(21)> number_parser.("42a")
       {:ok, 42, "a"}
 
   Let us show that the functor treats the error case correctly
 
-      iex(14)> parser = char_parser("my_parser") |> map(fn _ -> raise "That will not happen here" end)
-      ...(14)> parser.("")
+      iex(22)> parser = char_parser("my_parser") |> map(fn _ -> raise "That will not happen here" end)
+      ...(22)> parser.("")
       {:error, "unexpected end of input in char_parser my_parser"}
 
+  we can use the shortcut specification for a parser here too
+
+      iex(23)> parser = map("01", fn x -> if x==?1, do: true end) 
+      ...(23)> parser.("1")
+      {:ok, true, ""}
   """
   def map(parser, fun) do
+    parser_ = _make_parser(parser)
     fn input ->
-      with {:ok, term, rest} <- parser.(input),
+      with {:ok, term, rest} <- parser_.(input),
            do: {:ok, fun.(term), rest}
     end
   end
@@ -233,10 +293,10 @@ defmodule EarmarkParser.Helpers.Parser do
   @doc ~S"""
   optional(parser) is just a shortcut for choice([parser, empty()]) and therefore always succeeds
 
-      iex(15)> optional(digit_parser()).("2")
+      iex(23)> optional(digit_parser()).("2")
       {:ok, ?2, ""}
 
-      iex(16)> optional(digit_parser()).("")
+      iex(24)> optional(digit_parser()).("")
       {:ok, "", ""}
   """
   def optional(parser) do
@@ -247,7 +307,6 @@ defmodule EarmarkParser.Helpers.Parser do
       end
     end
   end
-
 
   @doc ~S"""
   satisfy is a general purpose filtering refinement of a parser
@@ -262,10 +321,10 @@ defmodule EarmarkParser.Helpers.Parser do
   using char_range_parser, which then uses satisfy in a more general way, too long to
   be a good doctest)
 
-      iex(17)> dparser = char_parser() |> satisfy(&Enum.member?(?0..?9, &1), "not a digit")
-      ...(17)> dparser.("1")
+      iex(25)> dparser = char_parser() |> satisfy(&Enum.member?(?0..?9, &1), "not a digit")
+      ...(25)> dparser.("1")
       {:ok, ?1, ""}
-      ...(17)> dparser.("a")
+      ...(25)> dparser.("a")
       {:error, "not a digit"}
 
   """
@@ -279,21 +338,20 @@ defmodule EarmarkParser.Helpers.Parser do
     end
   end
 
-
   @doc ~S"""
   sequence combines a list of parser to a parser that succeeds only if all parsers
   in the list succeed one after each other
 
-      iex(18)> char_range = [?a..?z, ?A..?Z, ?_]
-      ...(18)> initial_char_parser = char_range_parser(char_range, "leading identifier char")
-      ...(18)> ident_parser = sequence(
-      ...(18)>   [ initial_char_parser,
-      ...(18)>     choice([initial_char_parser, digit_parser()]) |> many() ])
-      ...(18)> ident_parser.("a42-")
+      iex(26)> char_range = [?a..?z, ?A..?Z, ?_]
+      ...(26)> initial_char_parser = char_range_parser(char_range, "leading identifier char")
+      ...(26)> ident_parser = sequence(
+      ...(26)>   [ initial_char_parser,
+      ...(26)>     choice([initial_char_parser, digit_parser()]) |> many() ])
+      ...(26)> ident_parser.("a42-")
       {:ok, [?a, ?4, ?2], "-"}
-      ...(18)> ident_parser.("2a42-")
+      ...(26)> ident_parser.("2a42-")
       {:error, ""}
-      ...(18)> ident_parser.("_-")
+      ...(26)> ident_parser.("_-")
       {:ok, [?_, []], "-"}
 
   The result of the last doctest above also shows how many might return an empty list which combines
@@ -313,58 +371,56 @@ defmodule EarmarkParser.Helpers.Parser do
     end
   end
 
-
   @doc ~S"""
   skip parses over a range of characters but ignoring them in the result
   a typical use case is to skip whitespace
   **N.B.** that it never fails, if you need to assure the presence of a
   character but ignoring it use `skip!`
 
-      iex(19)> skip_ws = skip([9, 10, 32])
-      ...(19)> skip_ws.("a b")
+      iex(27)> skip_ws = skip([9, 10, 32])
+      ...(27)> skip_ws.("a b")
       {:ok, "", "a b"}
-      ...(19)> skip_ws.(" \t\na b")
+      ...(27)> skip_ws.(" \t\na b")
       {:ok, "", "a b"}
-      ...(19)> skip_ws.("  ")
+      ...(27)> skip_ws.("  ")
       {:ok, "", ""}
   """
   def skip(char_range) do
     char_range
     |> char_range_parser()
     |> many()
-    |> map( fn _ -> "" end)
+    |> map(fn _ -> "" end)
   end
 
   @doc ~S"""
   like skip but returns an error if no char in the range was found
 
-      iex(20)> skip_ws = skip!([9, 10, 32], "need ws here")
-      ...(20)> skip_ws.("a b")
+      iex(28)> skip_ws = skip!([9, 10, 32], "need ws here")
+      ...(28)> skip_ws.("a b")
       {:error, "need ws here"}
-      ...(20)> skip_ws.(" \t\na b")
+      ...(28)> skip_ws.(" \t\na b")
       {:ok, "", "a b"}
-      ...(20)> skip_ws.("  ")
+      ...(28)> skip_ws.("  ")
       {:ok, "", ""}
   """
   def skip!(char_range, name \\ "") do
     char_range
     |> char_range_parser()
     |> many!(1, name)
-    |> map( fn _ -> "" end)
+    |> map(fn _ -> "" end)
   end
-
 
   @doc ~S"""
   up_to is somehow the contrary to char_range |> many it never fails, because of the many and
   parses all characters up to the terminations char sets
 
 
-        iex(21)> no_spaces = up_to([32, 10])
-        ...(21)> no_spaces.("a b")
+        iex(29)> no_spaces = up_to([32, 10])
+        ...(29)> no_spaces.("a b")
         {:ok, "a", " b"}
-        ...(21)> no_spaces.(" b")
+        ...(29)> no_spaces.(" b")
         {:ok, "", " b"}
-        ...(21)> no_spaces.("ab")
+        ...(29)> no_spaces.("ab")
         {:ok, "ab", ""}
   """
   def up_to(terminations) do
@@ -377,6 +433,21 @@ defmodule EarmarkParser.Helpers.Parser do
   #
   # Private Functions
   # =================
+
+  defp _choice(parsers, name) do
+    fn input ->
+      case parsers do
+        [] ->
+          {:error, "no choice succeeded #{name}"}
+
+        [hd_parser | tl_parsers] ->
+          case hd_parser.(input) do
+            {:ok, _, _} = result -> result
+            _ -> _choice(tl_parsers, name).(input)
+          end
+      end
+    end
+  end
 
   defp _error_message(message, name \\ "") do
     {:error,
@@ -391,6 +462,44 @@ defmodule EarmarkParser.Helpers.Parser do
       [_ | _] = l -> _in_range?(element, l)
       x -> element == x
     end)
+  end
+
+  defp _make_parser(string_or_fun)
+
+  defp _make_parser(string) when is_binary(string),
+    do: string |> String.to_charlist() |> char_range_parser()
+
+  defp _make_parser(fun) when is_function(fun),
+    do: fun
+
+  defp _many(parser) do
+    fn input ->
+      case parser.(input) do
+        {:error, _reason} ->
+          {:ok, [], input}
+
+        {:ok, first_term, rest} ->
+          {:ok, rest_terms, rest1} = _many(parser).(rest)
+          {:ok, [first_term | rest_terms], rest1}
+      end
+    end
+  end
+
+  defp _many!(parser, n, name \\ "") do
+    fn input ->
+      case parser.(input) do
+        {:error, _reason} ->
+          if n > 0 do
+            _error_message("many! failed with #{n} parser steps missing", name)
+          else
+            {:ok, [], input}
+          end
+
+        {:ok, first_term, rest} ->
+          with {:ok, rest_terms, rest1} <- _many!(parser, n - 1, name).(rest),
+               do: {:ok, [first_term | rest_terms], rest1}
+      end
+    end
   end
 end
 
