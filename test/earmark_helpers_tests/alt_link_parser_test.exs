@@ -2,6 +2,8 @@ defmodule EarmarkParserHelpersTests.AltLinkParserTest do
   use ExUnit.Case, async: true
   alias EarmarkParser.Helpers.AltLinkParser, as: P
 
+  @moduletag :wip
+
   describe "text part parsing" do
     test "empty" do
       assert P.text_part_parser.("") == {:error, "expected ["}
