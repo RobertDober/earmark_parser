@@ -46,10 +46,14 @@ defmodule Test.Acceptance.Regressions.I065BadLnbRefStyleTest do
     assert message == {:warning, 5, "Closing unclosed backquotes ` at end of input"}
   end
 
-  defp parse(src) do
-    src
-    |> String.split("\n")
-    |> EarmarkParser.LineScanner.scan_lines
-    |> IO.inspect
+  @level_1 """
+  * hello
+
+  * world `
+  """
+  test "level1" do
+    {:error, _ast, [message]} = EarmarkParser.as_ast(@level_1)
+    assert message == {:warning, 3, "Closing unclosed backquotes ` at end of input"}
   end
 end
+#  SPDX-License-Identifier: Apache-2.0
