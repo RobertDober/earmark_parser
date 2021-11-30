@@ -1,4 +1,4 @@
-defmodule EarmarkParser.Parser do
+    defmodule EarmarkParser.Parser do
 
   @moduledoc false
   alias EarmarkParser.Block
@@ -587,9 +587,11 @@ defmodule EarmarkParser.Parser do
   defp footnote_def?(_block), do: false
 
   defp find_footnote_links(%Block.Para{lines: lines, lnb: lnb}) do
-    lines
-    |> Enum.zip(Stream.iterate(lnb, &(&1 + 1)))
-    |> Enum.flat_map(&extract_footnote_links/1)
+    find_footnote_links_in_blocks(lines, lnb)
+  end
+
+  defp find_footnote_links(%Block.Text{line: lines, lnb: lnb}) do
+    find_footnote_links_in_blocks(lines, lnb)
   end
 
   defp find_footnote_links(%{blocks: blocks}) do
@@ -598,6 +600,11 @@ defmodule EarmarkParser.Parser do
 
   defp find_footnote_links(_), do: []
 
+  defp find_footnote_links_in_blocks(lines, lnb) do
+    lines
+    |> Enum.zip(Stream.iterate(lnb, &(&1 + 1)))
+    |> Enum.flat_map(&extract_footnote_links/1)
+  end
   defp extract_footnote_links({line, lnb}) do
     Regex.scan(~r{\[\^([^\]]+)\]}, line)
     |> Enum.map(&tl/1)
