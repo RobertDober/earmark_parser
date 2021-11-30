@@ -4,9 +4,9 @@ defmodule Support.AcceptanceTestCase do
     quote do
       use ExUnit.Case, async: true
       alias EarmarkParser.Options
+      import Support.Helpers
     end
   end
-  
-end
 
+end
 # SPDX-License-Identifier: Apache-2.0
