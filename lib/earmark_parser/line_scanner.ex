@@ -1,10 +1,8 @@
 defmodule EarmarkParser.LineScanner do
 
   @moduledoc false
-  
-  alias EarmarkParser.Helpers
-  alias EarmarkParser.Line
-  alias EarmarkParser.Options
+
+  alias EarmarkParser.{Helpers, Line, Options}
 
   import Options, only: [get_mapper: 1]
 
@@ -48,7 +46,7 @@ defmodule EarmarkParser.LineScanner do
         >
   '''x
   @doc false
-  def void_tag?(tag), do: Regex.match?(@void_tag_rgx, "<#{tag}>") 
+  def void_tag?(tag), do: Regex.match?(@void_tag_rgx, "<#{tag}>")
 
   @doc false
   # We want to add the original source line into every
@@ -114,7 +112,7 @@ defmodule EarmarkParser.LineScanner do
         [_, leading] = match
         %Line.Ruler{type: "_", indent: String.length(leading), line: line}
 
-      match = Regex.run(~R/^(#{1,6})\s+(?|([^#]+)#*$|(.*))/u, stripped_line) ->
+      match = Regex.run(~R/^(#{1,6})\s+(?|([^#]+)#*\s*$|(.*))/u, stripped_line) ->
         [_, level, heading] = match
         %Line.Heading{level: String.length(level), content: String.trim(heading), indent: 0, ial: ial, line: stripped_line}
 
@@ -231,8 +229,8 @@ defmodule EarmarkParser.LineScanner do
       # Assuming that text lines are the most frequent would it not boost performance (which seems to be good anyway)
       # it would be great if we could come up with a regex that is a superset of all the regexen above and then
       # we could match as follows
-      #       
-      #       cond 
+      #
+      #       cond
       #       nil = Regex.run(superset, line) -> %Text
       #       ...
       #       # all other matches from above

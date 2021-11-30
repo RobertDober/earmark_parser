@@ -2,11 +2,27 @@ defmodule Acceptance.Ast.AtxHeadersTest do
   use ExUnit.Case, async: true
   import Support.Helpers, only: [as_ast: 1]
   import EarmarkAstDsl
-  
+
   describe "ATX headers" do
 
     test "from one to six" do
       markdown = "# foo\n## foo\n### foo\n#### foo\n##### foo\n###### foo\n"
+      ast      = (1..6) |> Enum.map(&tag("h#{&1}", "foo"))
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
+
+    test "from one to six with closing" do
+      markdown = "# foo #\n## foo ##\n### foo ###\n#### foo #####\n##### foo #####\n###### foo ######\n"
+      ast      = (1..6) |> Enum.map(&tag("h#{&1}", "foo"))
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
+
+    test "from one to six with closing and trailing ws" do
+      markdown = "# foo # \n## foo ## \n### foo ### \n#### foo ##### \n##### foo ##### \n###### foo ###### \n"
       ast      = (1..6) |> Enum.map(&tag("h#{&1}", "foo"))
       messages = []
 
@@ -69,13 +85,6 @@ defmodule Acceptance.Ast.AtxHeadersTest do
       assert as_ast(markdown) == {:ok, [ast], messages}
     end
 
-    test "yes, they do (prefer closing their header)" do
-      markdown = "### foo ### "
-      ast      = tag("h3", "foo ###")
-      messages = []
-
-      assert as_ast(markdown) == {:ok, [ast], messages}
-    end
   end
 end
 
