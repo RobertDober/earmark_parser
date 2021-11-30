@@ -41,6 +41,7 @@ defmodule Test.Acceptance.Regressions.I065BadLnbRefStyleTest do
 
     * b`
   """
+  @tag :wip
   test "line number ok" do
     {:error, _ast, [message]} = EarmarkParser.as_ast(@nonreg_case)
     assert message == {:warning, 5, "Closing unclosed backquotes ` at end of input"}
