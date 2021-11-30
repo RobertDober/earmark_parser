@@ -1,6 +1,8 @@
 ## 1.4.18/1.5.0 202?-??-??
 
-- [66 Bad line numbers in spaced lists](https://github.com/robertdober/earmark_parser/pull/66)
+- [40 Footnotes in lists](https://github.com/robertdober/earmark_parser/issues/40)
+
+- [65 Bad line numbers in spaced lists](https://github.com/robertdober/earmark_parser/issues/65)
 
 - [61 Fixes some double URI encoding in links](https://github.com/robertdober/earmark_parser/issues/61)
 
