@@ -1,4 +1,6 @@
-## 1.4.18/1.5.0 202?-??-??
+## 1.4.18 2021-11-30
+
+- [5 Whitespace after closing ATX Headers](https://github.com/robertdober/earmark_parser/issues/5)
 
 - [40 Footnotes in lists](https://github.com/robertdober/earmark_parser/issues/40)
 
