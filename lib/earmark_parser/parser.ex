@@ -72,6 +72,7 @@ defmodule EarmarkParser.Parser do
   # setext headings #
   ###################
 
+  # 1 step
   defp _parse([ %Line.Blank{},
                 %Line.Text{content: heading, lnb: lnb},
                 %Line.SetextUnderlineHeading{annotation: annotation, level: level}
@@ -82,6 +83,7 @@ defmodule EarmarkParser.Parser do
     _parse(rest, [%Block.Heading{annotation: annotation, content: heading, level: level, lnb: lnb}|result], options, recursive)
   end
 
+  # 1 step
   defp _parse([  %Line.Blank{},
                 %Line.Text{content: heading, lnb: lnb},
                 %Line.Ruler{type: "-"}
@@ -96,6 +98,7 @@ defmodule EarmarkParser.Parser do
   # Other heading #
   #################
 
+  # 1 step
   defp _parse([ %Line.Heading{content: content, ial: ial, level: level, lnb: lnb} | rest ], result, options, recursive) do
 
     {options1, result1} = prepend_ial(
@@ -107,6 +110,7 @@ defmodule EarmarkParser.Parser do
   # Ruler #
   #########
 
+  # 1 step
   defp _parse([ %Line.Ruler{type: type, lnb: lnb} | rest], result, options, recursive) do
     _parse(rest, [%Block.Ruler{type: type, lnb: lnb} | result], options, recursive)
   end
@@ -115,6 +119,7 @@ defmodule EarmarkParser.Parser do
   # Block Quote #
   ###############
 
+  # split and parse
   defp _parse( lines = [ %Line.BlockQuote{lnb: lnb} | _ ], result, options, recursive) do
     {quote_lines, rest} = Enum.split_while(lines, &blockquote_or_text?/1)
     lines = for line <- quote_lines, do: line.content
@@ -126,6 +131,7 @@ defmodule EarmarkParser.Parser do
   # Table #
   #########
 
+  # subp
   defp _parse( lines = [ %Line.TableLine{columns: cols1, lnb: lnb1, needs_header: false},
                         %Line.TableLine{columns: cols2}
                       | _rest
@@ -133,7 +139,7 @@ defmodule EarmarkParser.Parser do
   when length(cols1) == length(cols2)
   do
     columns = length(cols1)
-    { table, rest } = read_table(lines, columns, Block.Table.new_for_columns(columns))
+    { table, rest } = read_table(lines, columns, [])
     table1          = %{table | lnb: lnb1}
     _parse(rest, [ table1 | result ], options, recursive)
   end
@@ -145,7 +151,7 @@ defmodule EarmarkParser.Parser do
   when length(cols1) == length(cols2)
   do
     columns = length(cols1)
-    { table, rest } = read_table(lines, columns, Block.Table.new_for_columns(columns))
+    { table, rest } = read_table(lines, columns, [])
     table1          = %{table | lnb: lnb1}
     _parse(rest, [ table1 | result ], options, recursive)
   end
@@ -407,15 +413,15 @@ defmodule EarmarkParser.Parser do
   # Read in a table (consecutive TableLines with
   # the same number of columns)
 
-  defp read_table(lines, col_count, into_table)
+  defp read_table(lines, col_count, rows)
   defp read_table([ %Line.TableLine{columns: cols} | rest ],
                     col_count,
-                    table = %Block.Table{})
+                    rows)
   when length(cols) == col_count
   do
-    read_table(rest, col_count, update_in(table.rows, &[ cols | &1 ]))
+    read_table(rest, col_count, [ cols | rows ])
   end
-  defp read_table( rest, col_count, %Block.Table{rows: rows}) do
+  defp read_table( rest, col_count, rows) do
     rows  = Enum.reverse(rows)
     table = Block.Table.new_for_columns(col_count)
     table = case look_for_alignments(rows) do
