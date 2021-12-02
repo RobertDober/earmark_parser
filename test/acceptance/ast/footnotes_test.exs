@@ -63,6 +63,14 @@ defmodule Acceptance.Ast.FootnotesTest do
       assert as_ast(markdown, footnotes: true) == {:ok, ast, messages}
     end
 
+    test "plain text, but no footnotes" do
+      markdown = "foo[^1] again\n\n[^1]: bar baz"
+      ast = [{"p", [], ["foo[^1] again"], %{}}, {"p", [], ["[^1]: bar baz"], %{}}]
+      messages = []
+
+      assert as_ast(markdown, footnotes: false) == {:ok, ast, messages}
+    end
+
     test "A link inside the footnote" do
       markdown = """
       here is my footnote[^1]

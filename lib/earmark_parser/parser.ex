@@ -131,7 +131,7 @@ defmodule EarmarkParser.Parser do
   # Table #
   #########
 
-  # subp
+  # read and add verbatim
   defp _parse( lines = [ %Line.TableLine{columns: cols1, lnb: lnb1, needs_header: false},
                         %Line.TableLine{columns: cols2}
                       | _rest
@@ -159,12 +159,14 @@ defmodule EarmarkParser.Parser do
   # Paragraph #
   #############
 
+  # split and add verbatim
   defp _parse( lines = [ %Line.TableLine{lnb: lnb} | _ ], result, options, recursive) do
     {para_lines, rest} = Enum.split_while(lines, &text?/1)
     line_text = (for line <- para_lines, do: line.line)
     _parse(rest, [ %Block.Para{lines: line_text, lnb: lnb + 1} | result ], options, recursive)
   end
 
+  # read and parse
   defp _parse( lines = [ %Line.Text{lnb: lnb} | _ ], result, options, recursive)
   do
     {reversed_para_lines, rest, pending, annotation} = consolidate_para(lines)

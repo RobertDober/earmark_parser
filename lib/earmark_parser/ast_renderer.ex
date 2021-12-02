@@ -14,7 +14,7 @@ defmodule EarmarkParser.AstRenderer do
   @moduledoc false
 
   def render(blocks, context = %Context{options: %Options{}}, loose? \\ true) do
-    # IO.inspect blocks
+     # IO.inspect blocks
     _render(blocks, context, loose?)
   end
 
