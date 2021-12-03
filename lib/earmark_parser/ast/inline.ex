@@ -1,10 +1,8 @@
 defmodule EarmarkParser.Ast.Inline do
-
   @moduledoc false
 
-  alias EarmarkParser.Context
-  alias EarmarkParser.Helpers.LinkParser
-  alias EarmarkParser.Helpers.PureLinkHelpers
+  alias EarmarkParser.{Context, Message}
+  alias EarmarkParser.Helpers.{LinkParser, PureLinkHelpers}
 
   import EarmarkParser.Ast.Emitter
   import EarmarkParser.Ast.Renderer.AstWalker
@@ -14,20 +12,25 @@ defmodule EarmarkParser.Ast.Inline do
   import EarmarkParser.Helpers.AstHelpers
   import Context, only: [set_value: 2]
 
-  @typep conversion_data :: {String.t, non_neg_integer(), EarmarkParser.Context.t, boolean()}
+  @typep conversion_data :: {String.t(), non_neg_integer(), EarmarkParser.Context.t(), boolean()}
   def convert(src, lnb, context)
+
   def convert(list, lnb, context) when is_list(list) do
     _convert(Enum.join(list, "\n"), lnb, context, true)
   end
+
   def convert(src, lnb, context) do
     _convert(src, lnb, context, true)
   end
 
   defp _convert(src, current_lnb, context, use_linky?)
+
   defp _convert(src, _, %{options: %{parse_inline: false}} = context, _) do
     prepend(context, src)
   end
+
   defp _convert("", _, context, _), do: context
+
   defp _convert(src, current_lnb, context, use_linky?) do
     {src1, lnb1, context1, use_linky1?} = _convert_next(src, current_lnb, context, use_linky?)
     _convert(src1, lnb1, context1, use_linky1?)
@@ -58,7 +61,6 @@ defmodule EarmarkParser.Ast.Inline do
       converter_for_pure_link: &converter_for_pure_link/1,
       converter_for_text: &converter_for_text/1
     ]
-
   end
 
   defp _convert_next(src, lnb, context, use_linky?) do
@@ -68,13 +70,16 @@ defmodule EarmarkParser.Ast.Inline do
       else
         all_converters() |> Keyword.drop(@linky_converter_names)
       end
+
     _find_and_execute_converter({src, lnb, context, use_linky?}, converters)
   end
 
-  @spec _find_and_execute_converter( conversion_data(), list ) :: conversion_data()
+  @spec _find_and_execute_converter(conversion_data(), list) :: conversion_data()
   defp _find_and_execute_converter({src, lnb, context, use_linky?}, converters) do
     converters
-    |> Enum.find_value( fn {_converter_name, converter} -> converter.({src, lnb, context, use_linky?}) end)
+    |> Enum.find_value(fn {_converter_name, converter} ->
+      converter.({src, lnb, context, use_linky?})
+    end)
   end
 
   ######################
@@ -104,20 +109,22 @@ defmodule EarmarkParser.Ast.Inline do
     if context.options.pure_links do
       case PureLinkHelpers.convert_pure_link(src) do
         {ast, length} -> {behead(src, length), lnb, prepend(context, ast), use_linky?}
-        _             -> nil
+        _ -> nil
       end
     end
   end
 
   defp converter_for_link_and_image({src, lnb, context, use_linky?}) do
     match = LinkParser.parse_link(src, lnb)
+
     if match do
       {match1, text, href, title, link_or_img} = match
+
       out =
         case link_or_img do
-          :link     -> output_link(context, text, href, title, lnb)
+          :link -> output_link(context, text, href, title, lnb)
           :wikilink -> maybe_output_wikilink(context, text, href, title, lnb)
-          :image    -> render_image(text, href, title)
+          :image -> render_image(text, href, title)
         end
 
       if out do
@@ -131,7 +138,9 @@ defmodule EarmarkParser.Ast.Inline do
       {match1, text, href, title, :image} ->
         out = render_image(text, href, title)
         {behead(src, match1), lnb, prepend(context, out), use_linky?}
-      _ -> nil
+
+      _ ->
+        nil
     end
   end
 
@@ -156,8 +165,17 @@ defmodule EarmarkParser.Ast.Inline do
     case Regex.run(context.rules.footnote, src) do
       [match, id] ->
         case footnote_link(context, match, id) do
-          {:ok, out} -> {behead(src, match), lnb, prepend(context, out), use_linky?}
-          _ -> nil
+          {:ok, out} ->
+            {behead(src, match), lnb, _prepend_footnote(context, out, id), use_linky?}
+
+          _ ->
+            converter_for_text(
+              {src, lnb,
+               Message.add_message(
+                 context,
+                 {:error, lnb, "footnote #{id} undefined, reference to it ignored"}
+               ), use_linky?}
+            )
         end
 
       _ ->
@@ -183,19 +201,21 @@ defmodule EarmarkParser.Ast.Inline do
   # Simple Tags: em, strong, del #
   ################################
   @strikethrough_rgx ~r{\A~~(?=\S)([\s\S]*?\S)~~}
-  defp converter_for_strikethrough_gfm({src, _, _, _}=conv_tuple) do
+  defp converter_for_strikethrough_gfm({src, _, _, _} = conv_tuple) do
     if match = Regex.run(@strikethrough_rgx, src) do
       _converter_for_simple_tag(conv_tuple, match, "del")
     end
   end
+
   @strong_rgx ~r{\A__([\s\S]+?)__(?!_)|^\*\*([\s\S]+?)\*\*(?!\*)}
-  defp converter_for_strong({src, _, _, _}=conv_tuple) do
+  defp converter_for_strong({src, _, _, _} = conv_tuple) do
     if match = Regex.run(@strong_rgx, src) do
       _converter_for_simple_tag(conv_tuple, match, "strong")
     end
   end
+
   @emphasis_rgx ~r{\A\b_((?:__|[\s\S])+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)}
-  defp converter_for_em({src, _, _, _}=conv_tuple) do
+  defp converter_for_em({src, _, _, _} = conv_tuple) do
     if match = Regex.run(@emphasis_rgx, src) do
       _converter_for_simple_tag(conv_tuple, match, "em")
     end
@@ -213,9 +233,10 @@ defmodule EarmarkParser.Ast.Inline do
     if match = Regex.run(@code, src) do
       [match, _, content] = match
       # Commonmark
-      content1 = content
-      |> String.trim()
-      |> String.replace(@squash_ws, " ")
+      content1 =
+        content
+        |> String.trim()
+        |> String.replace(@squash_ws, " ")
 
       out = codespan(content1)
       {behead(src, match), lnb, prepend(context, out), use_linky?}
@@ -224,16 +245,17 @@ defmodule EarmarkParser.Ast.Inline do
 
   @inline_ial ~r<^\s*\{:\s*(.*?)\s*}>
   defp converter_for_inline_ial(conv_data)
-  defp converter_for_inline_ial(
-         {src, lnb, context, use_linky?}
-       ) do
+
+  defp converter_for_inline_ial({src, lnb, context, use_linky?}) do
     if match = Regex.run(@inline_ial, src) do
       [match, ial] = match
       {context1, ial_attrs} = parse_attrs(context, ial, lnb)
       new_tags = augment_tag_with_ial(context.value, ial_attrs)
-      {behead(src, match), lnb, set_value(context1, new_tags), use_linky?} # |> IO.inspect
+      # |> IO.inspect
+      {behead(src, match), lnb, set_value(context1, new_tags), use_linky?}
     end
   end
+
   defp converter_for_inline_ial(_conv_data), do: nil
 
   defp converter_for_br({src, lnb, context, use_linky?}) do
@@ -244,14 +266,14 @@ defmodule EarmarkParser.Ast.Inline do
   end
 
   @line_ending ~r{\r\n?|\n}
-  @spec converter_for_text( conversion_data() ) :: conversion_data()
+  @spec converter_for_text(conversion_data()) :: conversion_data()
   defp converter_for_text({src, lnb, context, _}) do
     matched =
       case Regex.run(context.rules.text, src) do
         [match] -> match
       end
 
-    line_count = matched |> String.split(@line_ending) |> Enum.count
+    line_count = matched |> String.split(@line_ending) |> Enum.count()
 
     ast = hard_line_breaks(matched, context.options.gfm)
     ast = walk_ast(ast, &gruber_line_breaks/1)
@@ -272,17 +294,25 @@ defmodule EarmarkParser.Ast.Inline do
 
     context1 = _convert(content, lnb, set_value(context, []), use_linky?)
 
-    {behead(src, match1), lnb, prepend(context, emit(for_tag, context1.value|>Enum.reverse)), use_linky?}
+    {behead(src, match1), lnb, prepend(context, emit(for_tag, context1.value |> Enum.reverse())),
+     use_linky?}
   end
 
+  defp _prepend_footnote(context, out, id) do
+    context
+    |> Map.update!(:referenced_footnote_ids, &MapSet.put(&1, id))
+    |> prepend(out)
+  end
 
   defp convert_autolink(link, separator)
+
   defp convert_autolink(link, _separator = "@") do
     link = if String.at(link, 6) == ":", do: behead(link, 7), else: link
     text = link
     href = "mailto:" <> text
     {href, text}
   end
+
   defp convert_autolink(link, _separator) do
     {link, link}
   end
@@ -299,6 +329,7 @@ defmodule EarmarkParser.Ast.Inline do
   defp hard_line_breaks(text, gfm)
   defp hard_line_breaks(text, false), do: text
   defp hard_line_breaks(text, nil), do: text
+
   defp hard_line_breaks(text, _) do
     text
     |> String.split(@gfm_hard_line_break)
@@ -306,11 +337,12 @@ defmodule EarmarkParser.Ast.Inline do
     |> _remove_leading_empty()
   end
 
-
   defp output_image_or_link(context, link_or_image, text, href, title, lnb)
+
   defp output_image_or_link(_context, "!" <> _, text, href, title, _lnb) do
     render_image(text, href, title)
   end
+
   defp output_image_or_link(context, _, text, href, title, lnb) do
     output_link(context, text, href, title, lnb)
   end
@@ -319,6 +351,7 @@ defmodule EarmarkParser.Ast.Inline do
     context1 = %{context | options: %{context.options | pure_links: false}}
 
     context2 = _convert(text, lnb, set_value(context1, []), String.starts_with?(text, "!"))
+
     if title do
       emit("a", Enum.reverse(context2.value), href: href, title: title)
     else
@@ -347,35 +380,40 @@ defmodule EarmarkParser.Ast.Inline do
 
   defp footnote_link(context, _match, id) do
     case Map.fetch(context.footnotes, id) do
-      {:ok, %{number: number}} ->
-        {:ok, render_footnote_link("fn:#{number}", "fnref:#{number}", number)}
+      {:ok, _} ->
+        {:ok, render_footnote_link("fn:#{id}", "fnref:#{id}", id)}
+
       _ ->
         nil
     end
   end
 
-  defp prepend(%Context{}=context, prep) do
+  defp prepend(%Context{} = context, prep) do
     _prepend(context, prep)
   end
 
   defp _prepend(context, value)
-  defp _prepend(context, [bin|rest]) when is_binary(bin) do
+
+  defp _prepend(context, [bin | rest]) when is_binary(bin) do
     _prepend(_prepend(context, bin), rest)
   end
-  defp _prepend(%Context{value: [str|rest]}=context, prep) when is_binary(str) and is_binary(prep) do
-    %{context | value: [str <> prep|rest]}
+
+  defp _prepend(%Context{value: [str | rest]} = context, prep)
+       when is_binary(str) and is_binary(prep) do
+    %{context | value: [str <> prep | rest]}
   end
-  defp _prepend(%Context{value: value}=context, prep) when is_list(prep) do
+
+  defp _prepend(%Context{value: value} = context, prep) when is_list(prep) do
     %{context | value: Enum.reverse(prep) ++ value}
   end
-  defp _prepend(%Context{value: value}=context, prep) do
+
+  defp _prepend(%Context{value: value} = context, prep) do
     %{context | value: [prep | value]}
   end
 
   defp _remove_leading_empty(list)
-  defp _remove_leading_empty([""|rest]), do: rest
+  defp _remove_leading_empty(["" | rest]), do: rest
   defp _remove_leading_empty(list), do: list
-
 end
 
 # SPDX-License-Identifier: Apache-2.0

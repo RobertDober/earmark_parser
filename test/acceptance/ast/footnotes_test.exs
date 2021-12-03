@@ -1,6 +1,7 @@
 defmodule Acceptance.Ast.FootnotesTest do
   use ExUnit.Case, async: true
   import Support.Helpers, only: [as_ast: 2]
+  import Support.FootnoteHelpers
   import EarmarkAstDsl
 
   describe "Correct Footnotes" do
@@ -8,54 +9,26 @@ defmodule Acceptance.Ast.FootnotesTest do
       markdown = "foo[^1] again\n\n[^1]: bar baz"
 
       ast = [
-        {"p", '',
-         [
-           "foo",
-           {"a",
+        p([
+          "foo",
+          footnote(1),
+          " again"
+        ]),
+        footnotes([
+          tag(
+            "ol",
             [
-              {"href", "#fn:1"},
-              {"id", "fnref:1"},
-              {"class", "footnote"},
-              {"title", "see footnote"}
-            ], ["1"], %{}},
-           " again"
-         ], %{}},
-        {
-          "div",
-          [{"class", "footnotes"}],
-          [
-            {"hr", '', '', %{}},
-            {
-              "ol",
-              '',
-              [
-                {
-                  "li",
-                  [{"id", "fn:1"}],
-                  [
-                    {
-                      "p",
-                      '',
-                      [
-                        "bar baz",
-                        {"a",
-                         [
-                           {"class", "reversefootnote"},
-                           {"href", "#fnref:1"},
-                           {"title", "return to article"}
-                         ], ["&#x21A9;"], %{}}
-                      ],
-                      %{}
-                    }
-                  ],
-                  %{}
-                }
-              ],
-              %{}
-            }
-          ],
-          %{}
-        }
+              tag(
+                "li",
+                [
+                  reverse_footnote(1),
+                  p("bar baz")
+                ],
+                id: "fn:1"
+              )
+            ]
+          )
+        ])
       ]
 
       messages = []
@@ -64,8 +37,13 @@ defmodule Acceptance.Ast.FootnotesTest do
     end
 
     test "plain text, but no footnotes" do
-      markdown = "foo[^1] again\n\n[^1]: bar baz"
-      ast = [{"p", [], ["foo[^1] again"], %{}}, {"p", [], ["[^1]: bar baz"], %{}}]
+      markdown = "foo[^1] again\n\n[^1]: bar baz\ngoo"
+
+      ast = [
+        p("foo[^1] again"),
+        p("[^1]: bar baz\ngoo")
+      ]
+
       messages = []
 
       assert as_ast(markdown, footnotes: false) == {:ok, ast, messages}
@@ -79,55 +57,75 @@ defmodule Acceptance.Ast.FootnotesTest do
       """
 
       ast = [
-        {"p", [],
-         [
-           "here is my footnote",
-           {"a",
-            [
-              {"href", "#fn:1"},
-              {"id", "fnref:1"},
-              {"class", "footnote"},
-              {"title", "see footnote"}
-            ], ["1"], %{}}
-         ], %{}},
-        {"div", [{"class", "footnotes"}],
-         [
-           {"hr", [], [], %{}},
-           {"ol", [],
-            [
-              {"li", [{"id", "fn:1"}],
-               [
-                 {"p", [],
-                  [
-                    "which ",
-                    {"a", [{"href", "http://to.some.site"}], ["is a link"], %{}},
-                    {"a",
-                     [
-                       {"class", "reversefootnote"},
-                       {"href", "#fnref:1"},
-                       {"title", "return to article"}
-                     ], ["&#x21A9;"], %{}}
-                  ], %{}}
-               ], %{}}
-            ], %{}}
-         ], %{}}
+        p([
+          "here is my footnote",
+          footnote(1)
+        ]),
+        footnotes([
+          tag(
+            "ol",
+            tag(
+              "li",
+              [
+                reverse_footnote(1),
+                p([
+                  "which ",
+                  a("is a link", href: "http://to.some.site")
+                ])
+              ],
+              id: "fn:1"
+            )
+          )
+        ])
       ]
 
       messages = []
 
-       # as_ast(markdown, footnotes: true, pure_links: true)
+      # as_ast(markdown, footnotes: true, pure_links: true)
       assert as_ast(markdown, footnotes: true, pure_links: true) == {:ok, ast, messages}
     end
 
+    test "A block inside the footnote" do
+      markdown = """
+      here is my footnote[^1]
+
+      [^1]: which describes some
+      code
+      """
+
+      ast = [
+        p([
+          "here is my footnote",
+          footnote(1)
+        ]),
+        footnotes([
+          tag("ol", [
+            tag(
+              "li",
+              [
+                reverse_footnote(1),
+                p("which describes some\ncode")
+              ],
+              id: "fn:1"
+            )
+          ])
+        ])
+      ]
+
+      messages = []
+
+      # as_ast(markdown, footnotes: true, pure_links: true)
+      assert as_ast(markdown, footnotes: true, pure_links: true) == {:ok, ast, messages}
+    end
   end
 
   describe "Incorrect Footnotes" do
     test "undefined footnotes" do
       markdown = "foo[^1]\nhello\n\n[^2]: bar baz"
-      ast = p("foo[^1]\nhello")
+      ast = [p("foo[^1]\nhello")]
       messages = [{:error, 1, "footnote 1 undefined, reference to it ignored"}]
 
-      assert as_ast(markdown, footnotes: true) == {:error, [ast], messages}
+      assert as_ast(markdown, footnotes: true) == {:error, ast, messages}
     end
 
     test "undefined footnotes (none at all)" do
