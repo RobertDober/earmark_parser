@@ -7,6 +7,15 @@ defmodule EarmarkParser.Helpers.LineHelpers do
   def blank?(%Line.Blank{}),   do: true
   def blank?(_),               do: false
 
+  def blockquote_or_text?(%Line.BlockQuote{}), do: true
+  def blockquote_or_text?(struct),             do: text?(struct)
+
+  def indent_or_blank?(%Line.Indent{}), do: true
+  def indent_or_blank?(line),           do: blank?(line)
+
+  def not_fn_def?(%Line.FnDef{}), do: false
+  def not_fn_def?(_), do: false
+
   # Gruber's tests have
   #
   #   para text...
@@ -21,17 +30,10 @@ defmodule EarmarkParser.Helpers.LineHelpers do
   #
   # I think the second is a better interpretation, so I commented
   # out the 2nd match below.
-
   def text?(%Line.Text{}),      do: true
   def text?(%Line.TableLine{}), do: true
 #  def text?(%Line.ListItem{}), do: true
   def text?(_),                 do: false
-
-  def blockquote_or_text?(%Line.BlockQuote{}), do: true
-  def blockquote_or_text?(struct),             do: text?(struct)
-
-  def indent_or_blank?(%Line.Indent{}), do: true
-  def indent_or_blank?(line),           do: blank?(line)
 
 end
 # SPDX-License-Identifier: Apache-2.0

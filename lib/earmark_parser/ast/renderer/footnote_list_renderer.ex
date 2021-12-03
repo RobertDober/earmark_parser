@@ -18,15 +18,18 @@ defmodule EarmarkParser.Ast.Renderer.FootnoteListRenderer do
     |> Enum.map(&_render_footnote_list_item(&1, context))
   end
 
-  defp _render_footnote_list_item(%Block.ListItem{attrs: %{id: [id]}, blocks: [%Block.Para{attrs: atts, lines: lines, lnb: lnb}]}, context) do
+  defp _render_footnote_list_item(%Block.ListItem{attrs: %{id: [id]}, blocks: paras}, context) do
     id1 = String.trim_leading(id, "#")
-    inner_ast = convert(lines, lnb, context).value |> Enum.reverse 
-    emit("li", emit("p",  inner_ast ++ _render_footnote_backlink(atts)), id: id1)
+    inner_ast = paras |> Enum.map(&_render_footnote_content(&1, context)) |> IO.inspect() 
+    emit("li", emit("p",  inner_ast ++ _render_footnote_backlink() |> IO.inspect() ), id: id1)
   end
 
-  defp _render_footnote_backlink(%{class: _, href: _, title: _}=atts) do
-    [emit("a", "&#x21A9;", atts)]
+  defp _render_footnote_content(%Block.Para{lines: lines, lnb: lnb}, context) do
+    convert(lines, lnb, context).value |> Enum.reverse
   end
 
-
+  defp _render_footnote_backlink() do
+    [emit("a", "&#x21A9;")]
+  end
 end
+#  SPDX-License-Identifier: Apache-2.0

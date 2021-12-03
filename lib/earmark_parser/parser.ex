@@ -1,7 +1,7 @@
 defmodule EarmarkParser.Parser do
 
   @moduledoc false
-  alias EarmarkParser.{Block, Line, LineScanner, Options}
+  alias EarmarkParser.{Block, Enum.Ext, Line, LineScanner, Options}
 
   import EarmarkParser.Helpers.{AttrParser, FootnoteHandler, LineHelpers, ReparseHelpers}
   import EarmarkParser.Helpers.LookaheadHelpers, only: [opens_inline_code: 1, still_inline_code: 2]
@@ -54,6 +54,7 @@ defmodule EarmarkParser.Parser do
 
   def parse_lines(lines, options, recursive) do
     {blocks, options} = lines |> remove_trailing_blank_lines() |> lines_to_blocks(options, recursive)
+    # |> IO.inspect
     links  = links_from_blocks(blocks)
     {blocks, links, options}
   end
@@ -297,16 +298,13 @@ defmodule EarmarkParser.Parser do
   # Footnote Definition #
   #######################
 
-  defp _parse( [ defn = %Line.FnDef{id: _id, lnb: lnb} | rest ], result , options, recursive) do
-    {para_lines, rest} = Enum.split_while(rest, &text?/1)
-    first_line = %Line.Text{line: defn.content, lnb: lnb}
-    {para, options1} = _parse([ first_line | para_lines ], [], options, recursive)
-    {indent_lines, rest} = Enum.split_while(rest, &indent_or_blank?/1)
-    {blocks, _, options2} = remove_trailing_blank_lines(indent_lines)
-                |> Enum.map(&(properly_indent(&1, 1)))
-                |> parse(%{options1 | line: lnb + 1}, true)
-    blocks = Enum.concat(para, blocks)
-    _parse( rest, [ %Block.FnDef{id: defn.id, blocks: blocks , lnb: lnb} | result ], options2, recursive)
+  # In 1.5 Footnote Definitions are now always at the end of the document (GFM) meaning that the
+  # `_parse` iteration can now end and we will trigger `_parse_fn_defs`
+  # this has the advantage that we can make the assumption that the top of the `result`
+  # list contains a `Block.FnList` element
+  defp _parse([%Line.FnDef{} | _]=input, result , options, recursive) do
+    {fn_list, options1} = _parse_fn_defs(input, options)
+    {Enum.reverse([fn_list|result]), options1}
   end
 
   ####################
@@ -334,6 +332,33 @@ defmodule EarmarkParser.Parser do
   defp _parse( [ anything = %{lnb: lnb} | rest ], result, options, recursive) do
     _parse( [ %Line.Text{content: anything.line, lnb: lnb} | rest], result,
       add_message(options, {:warning, anything.lnb, "Unexpected line #{anything.line}"}), recursive)
+  end
+
+  def _parse_fn_defs([fn_def | rest], options) do
+    acc = {[fn_def], [], options}
+    rest
+    |> Ext.reduce_with_end(acc, &_parse_fn_def_reduce/2)
+  end
+
+  defp _parse_fn_def_reduce(ele_or_end, acc)
+  defp _parse_fn_def_reduce({:element, %Line.FnDef{}=fn_def_line}, acc) do
+    {result1, options1} = _make_fn_def_block(acc)
+    {[fn_def_line], result1, options1}
+  end
+  defp _parse_fn_def_reduce({:element, %{line: line}}, {blox, result, options}) do
+    {[line|blox], result, options}
+  end
+  defp _parse_fn_def_reduce(:end, acc) do
+    {result1, options1} = _make_fn_def_block(acc)
+    # **N.B.** we can change the shape of the accumulator here for the final result
+    # without impacting the complexity of the reducer function
+    {Enum.reverse(result1), options1}
+  end
+
+
+  defp _make_fn_def_block(acc) do
+    {inner_blocks, options1}  = _parse(Enum.reverse(acc.blocks), [], acc.options, false)
+    {%Block.FnDef{id: acc.id, lnb: acc.lnb, blocks: inner_blocks}, options1}
   end
 
   #######################################################

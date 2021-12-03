@@ -64,8 +64,8 @@ defmodule Acceptance.Ast.FootnotesTest do
     end
 
     test "plain text, but no footnotes" do
-      markdown = "foo[^1] again\n\n[^1]: bar baz"
-      ast = [{"p", [], ["foo[^1] again"], %{}}, {"p", [], ["[^1]: bar baz"], %{}}]
+      markdown = "foo[^1] again\n\n[^1]: bar baz\ngoo"
+      ast = [{"p", [], ["foo[^1] again"], %{}}, {"p", [], ["[^1]: bar baz\ngoo"], %{}}]
       messages = []
 
       assert as_ast(markdown, footnotes: false) == {:ok, ast, messages}
@@ -119,6 +119,48 @@ defmodule Acceptance.Ast.FootnotesTest do
       assert as_ast(markdown, footnotes: true, pure_links: true) == {:ok, ast, messages}
     end
 
+    test "A block inside the footnote" do
+      markdown = """
+      here is my footnote[^1]
+
+      [^1]: which describes some
+            code
+      """
+
+      ast = [
+        {"p", [],
+         [
+           "here is my footnote",
+           {"a",
+            [
+              {"href", "#fn:1"},
+              {"id", "fnref:1"},
+              {"class", "footnote"},
+              {"title", "see footnote"}
+            ], ["1"], %{}}
+         ], %{}},
+        {"div", [{"class", "footnotes"}],
+         [
+           {"hr", [], [], %{}},
+           {"ol", [],
+            [
+              {"li", [{"id", "fn:1"}],
+               [
+                 {"p", [],
+                  [
+                    ["which describes some"], ["  code"], {"a", [], ["&#x21A9;"], %{}}
+                  ], %{}}
+               ], %{}}
+            ], %{}}
+         ], %{}}
+      ]
+
+      messages = []
+
+       # as_ast(markdown, footnotes: true, pure_links: true)
+      assert as_ast(markdown, footnotes: true, pure_links: true) == {:ok, ast, messages}
+    end
+
   end
 
   describe "Incorrect Footnotes" do
@@ -151,5 +193,4 @@ defmodule Acceptance.Ast.FootnotesTest do
     end
   end
 end
-
 # SPDX-License-Identifier: Apache-2.0
