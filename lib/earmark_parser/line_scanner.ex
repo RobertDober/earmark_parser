@@ -56,6 +56,7 @@ defmodule EarmarkParser.LineScanner do
   def scan_lines(lines, options, recursive) do
     lines_with_count(lines, options.line - 1)
     |> with_lookahead(options, recursive)
+    |> IO.inspect
   end
 
   defp lines_with_count(lines, offset) do
