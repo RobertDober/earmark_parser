@@ -245,14 +245,12 @@ defmodule Functional.Scanner.LineTypeTest do
       {"[^1]: bar baz",
        %EarmarkParser.Line.Text{
          content: "[^1]: bar baz",
-         inside_code: false,
          line: "[^1]: bar baz",
          lnb: 42
        }, nil},
       {"[^1]: bar baz",
        %EarmarkParser.Line.Text{
          content: "[^1]: bar baz",
-         inside_code: false,
          line: "[^1]: bar baz",
          lnb: 42
        }, "annotated"},
@@ -360,12 +358,11 @@ defmodule Functional.Scanner.LineTypeTest do
 
   not_ial_test_cases =
   [
-    {"--", %Line.Text{annotation: nil, indent: 0, inside_code: false, line: "--{:.not-ial}", lnb: 1905, content: "--{:.not-ial}"}},
+    {"--", %Line.Text{annotation: nil, indent: 0, line: "--{:.not-ial}", lnb: 1905, content: "--{:.not-ial}"}},
     {"* * *", %Line.ListItem{
               annotation: nil,
               ial: nil,
               indent: 0,
-              inside_code: false,
               line: "* * *{:.not-ial}",
               lnb: 1905,
               type: :ul,

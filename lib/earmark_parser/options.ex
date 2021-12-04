@@ -20,16 +20,6 @@ defmodule EarmarkParser.Options do
             # additional prefies for class of code blocks
             code_class_prefix: nil,
 
-            # Add possibility to specify a timeout for Task.await
-            timeout: nil,
-
-            # Very internal—the callback used to perform
-            # parallel rendering. Set to &Enum.map/2
-            # to keep processing in process and
-            # serial
-            mapper: &EarmarkParser.pmap/2,
-            mapper_with_timeout: &EarmarkParser.pmap/3,
-
             # Filename and initial line number of the markdown block passed in
             # for meaningful error messages
             file: "<no file>",
@@ -48,7 +38,6 @@ defmodule EarmarkParser.Options do
         pure_links: boolean,
         smartypants: boolean,
         wikilinks: boolean,
-        timeout: maybe(number),
         parse_inline: boolean
   }
 
@@ -80,16 +69,6 @@ defmodule EarmarkParser.Options do
     end
   end
   def normalize(options), do: struct(__MODULE__, options) |> normalize()
-
-  @doc false
-  # Only here we are aware of which mapper function to use!
-  def get_mapper(options) do
-    if options.timeout do
-      &options.mapper_with_timeout.(&1, &2, options.timeout)
-    else
-      options.mapper
-    end
-  end
 
   @doc false
   def plugin_for_prefix(options, plugin_name) do

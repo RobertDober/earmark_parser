@@ -368,19 +368,6 @@ defmodule EarmarkParser do
           <p>mypara
            <hr /></p>
 
-  ## Timeouts
-
-  By default, that is if the `timeout` option is not set EarmarkParser uses parallel mapping as implemented in `EarmarkParser.pmap/2`,
-  which uses `Task.await` with its default timeout of 5000ms.
-
-  In rare cases that might not be enough.
-
-  By indicating a longer `timeout` option in milliseconds EarmarkParser will use parallel mapping as implemented in `EarmarkParser.pmap/3`,
-  which will pass `timeout` to `Task.await`.
-
-  In both cases one can override the mapper function with either the `mapper` option (used if and only if `timeout` is nil) or the
-  `mapper_with_timeout` function (used otherwise).
-
   ## Annotations
 
   **N.B.** this is an experimental feature from v1.4.16-pre on and might change or be removed again
@@ -446,7 +433,6 @@ defmodule EarmarkParser do
 
   """
 
-  alias EarmarkParser.Error
   alias EarmarkParser.Options
   import EarmarkParser.Message, only: [sort_messages: 1]
 
@@ -503,28 +489,6 @@ defmodule EarmarkParser do
     with {:ok, version} = :application.get_key(:earmark_parser, :vsn),
       do: to_string(version)
   end
-
-  @default_timeout_in_ms 5000
-  @doc false
-  def pmap(collection, func, timeout \\ @default_timeout_in_ms) do
-    collection
-    |> Enum.map(fn item -> Task.async(fn -> func.(item) end) end)
-    |> Task.yield_many(timeout)
-    |> Enum.map(&_join_pmap_results_or_raise(&1, timeout))
-  end
-
-  defp _join_pmap_results_or_raise(yield_tuples, timeout)
-  defp _join_pmap_results_or_raise({_task, {:ok, result}}, _timeout), do: result
-
-  defp _join_pmap_results_or_raise({task, {:error, reason}}, _timeout),
-    do: raise(Error, "#{inspect(task)} has died with reason #{inspect(reason)}")
-
-  defp _join_pmap_results_or_raise({task, nil}, timeout),
-    do:
-      raise(
-        Error,
-        "#{inspect(task)} has not responded within the set timeout of #{timeout}ms, consider increasing it"
-      )
 end
 
 # SPDX-License-Identifier: Apache-2.0

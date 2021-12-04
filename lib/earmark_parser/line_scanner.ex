@@ -4,8 +4,6 @@ defmodule EarmarkParser.LineScanner do
 
   alias EarmarkParser.{Helpers, Line, Options}
 
-  import Options, only: [get_mapper: 1]
-
   # This is the re that matches the ridiculous "[id]: url title" syntax
 
   @id_title_part ~S"""
