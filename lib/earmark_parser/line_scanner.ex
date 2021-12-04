@@ -67,14 +67,14 @@ defmodule EarmarkParser.LineScanner do
     case type_of(line_lnb, options, recursive) do
       %Line.Fence{delimiter: delimiter, indent: indent} = fence ->
         stop =
-          # We should stop on another code block, any open/close html tag,
+          # We should stop on another code block, any close html tag,
           # or on less indent if there is any indentation.
           case indent do
             0 ->
-              ~r/\A(\s*)(#{delimiter})\s*([^`\s]*)\s*\z|\A<\/?([-\w]+?)(?:\s.*)?>/u
+              ~r/\A(\s*)(#{delimiter})\s*([^`\s]*)\s*\z|\A(\s{0,3})<\/([-\w]+?)>/u
 
             _ ->
-              ~r/\A(\s*)(#{delimiter})\s*([^`\s]*)\s*\z|\A<\/?([-\w]+?)(?:\s.*)?>|\A\s{#{indent - 1}}.+\z/u
+              ~r/\A(\s*)(#{delimiter})\s*([^`\s]*)\s*\z|\A(\s{0,3})<\/([-\w]+?)>|\A\s{#{indent - 1}}.+\z/u
           end
 
         [fence | lookahead_until_match(lines, stop, options, recursive)]
