@@ -17,8 +17,7 @@ defmodule EarmarkParser.LineScanner do
   @id_title_part_re ~r[^\s*#{@id_title_part}\s*$]x
 
   @id_re ~r'''
-     ^(\s{0,3})             # leading spaces
-     \[(.+?)\]:             # [someid]:
+     ^\[(.+?)\]:            # [someid]:
      \s+
      (?|
          < (\S+) >          # url in <>s
@@ -181,8 +180,8 @@ defmodule EarmarkParser.LineScanner do
         [_, tag] = match
         %Line.HtmlCloseTag{tag: tag, indent: indent, line: line}
 
-      match = Regex.run(@id_re, line) ->
-        [_, _, id, url | title] = match
+      match = lt_four? && Regex.run(@id_re, content) ->
+        [_, id, url | title] = match
         title = if(length(title) == 0, do: "", else: hd(title))
         %Line.IdDef{id: id, url: url, title: title, indent: indent, line: line}
 
