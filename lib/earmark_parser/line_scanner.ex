@@ -67,11 +67,14 @@ defmodule EarmarkParser.LineScanner do
     case type_of(line_lnb, options, recursive) do
       %Line.Fence{delimiter: delimiter, indent: indent} = fence ->
         stop =
-          # We should stop on another code block or
-          # on less indent if there is any indentation.
+          # We should stop on another code block, any open/close html tag,
+          # or on less indent if there is any indentation.
           case indent do
-            0 -> ~r/\A(\s*)(#{delimiter})\s*([^`\s]*)\s*\z/u
-            _ -> ~r/\A(\s*)(#{delimiter})\s*([^`\s]*)\s*\z|\A\s{#{indent - 1}}.+\z/u
+            0 ->
+              ~r/\A(\s*)(#{delimiter})\s*([^`\s]*)\s*\z|\A<\/?([-\w]+?)(?:\s.*)?>/u
+
+            _ ->
+              ~r/\A(\s*)(#{delimiter})\s*([^`\s]*)\s*\z|\A<\/?([-\w]+?)(?:\s.*)?>|\A\s{#{indent - 1}}.+\z/u
           end
 
         [fence | lookahead_until_match(lines, stop, options, recursive)]
@@ -157,11 +160,10 @@ defmodule EarmarkParser.LineScanner do
         [_, leading, fence, language] = match
         %Line.Fence{delimiter: fence, language: _attribute_escape(language), indent: String.length(leading), line: line}
 
-      #   Although no block tags I still think they should close a preceding para as do many other
-      #   implementations.
-      (match = Regex.run(@void_tag_rgx, line)) && !recursive ->
+      # Although no block tags I still think they should close a preceding para as do many other
+      # implementations.
+      match = !recursive && Regex.run(@void_tag_rgx, line) ->
         [_, tag] = match
-
         %Line.HtmlOneLine{tag: tag, content: line, indent: 0, line: line}
 
       match = !recursive && Regex.run(~r{\A<([-\w]+?)(?:\s.*)?>.*</\1>}, line) ->

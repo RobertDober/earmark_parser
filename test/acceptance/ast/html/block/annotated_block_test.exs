@@ -71,6 +71,15 @@ defmodule Acceptance.Ast.Html.Block.AnnotatedBlockTest do
 
       assert as_ast(markdown, annotations: @annotations) == {:ok, ast, messages}
     end
+
+    test "even non-closed block elements" do
+      markdown = "<div>\n```elixir\ndefmodule Mine do\n</div>"
+      ast = [vtag("div", ["```elixir", "defmodule Mine do"])]
+      messages = []
+
+      assert as_ast(markdown, annotations: @annotations) == {:ok, ast, messages}
+    end
+
     test "even block elements" do
       markdown = "<div>\n```elixir\ndefmodule Mine do\n```\n</div>*:at_the_end"
       ast = [vtag_annotated("div", ["```elixir", "defmodule Mine do", "```"], "*:at_the_end")]
