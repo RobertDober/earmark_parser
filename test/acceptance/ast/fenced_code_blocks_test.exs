@@ -69,7 +69,7 @@
     end
 
     test "in list" do
-      markdown = "- a\n- ```\n  b\n\n\n  ```\n- c\n"
+      markdown = "- a\n- ```\n  b\n\n\n ```\n- c\n"
       ast = [{ "ul", [],
         [{"li", [], ["a"], %{}},
          {"li", [], [{"pre", [], [{"code", [], ["  b\n\n"], %{}}], %{}}], %{}},

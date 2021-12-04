@@ -56,7 +56,6 @@ defmodule EarmarkParser.LineScanner do
   def scan_lines(lines, options, recursive) do
     lines_with_count(lines, options.line - 1)
     |> with_lookahead(options, recursive)
-    |> IO.inspect
   end
 
   defp lines_with_count(lines, offset) do
@@ -74,7 +73,7 @@ defmodule EarmarkParser.LineScanner do
               ~r/\A(\s*)(#{delimiter})\s*([^`\s]*)\s*\z|\A(\s{0,3})<\/([-\w]+?)>/u
 
             _ ->
-              ~r/\A(\s*)(#{delimiter})\s*([^`\s]*)\s*\z|\A(\s{0,3})<\/([-\w]+?)>|\A\s{#{indent - 1}}[^\s]/u
+              ~r/\A(\s*)(#{delimiter})\s*([^`\s]*)\s*\z|\A(\s{0,3})<\/([-\w]+?)>|\A\s{#{indent - 1}}\S/u
           end
 
         [fence | lookahead_until_match(lines, stop, options, recursive)]
@@ -298,3 +297,4 @@ defmodule EarmarkParser.LineScanner do
     |> Enum.map(fn col -> Regex.replace(~r{\\\|}, col, "|") end)
   end
 end
+#  SPDX-License-Identifier: Apache-2.0
