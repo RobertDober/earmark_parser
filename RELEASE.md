@@ -1,5 +1,7 @@
 ## 1.4.18 2021-12-04
 
+- [Deprecate options not useful anymore after the removal of parallel scanning (#72)](https://github.com/robertdober/earmark_parser/pull/72)
+
 - [Do not turn off lookahead on indented fences and check for indent only once (#71)](https://github.com/robertdober/earmark_parser/pull/71)
 
   Kudos to [José Valim](https://github.com/josevalim)
@@ -12,6 +14,8 @@
     all lines between fenced code blocks, which
     could be very expensive. Therefore we lookahead
     fences and convert them to text.
+
+    * Do not scan lines in parallel anymore
 
     * Remove unused code blocks
 

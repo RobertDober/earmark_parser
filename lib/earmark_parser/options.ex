@@ -8,8 +8,6 @@ defmodule EarmarkParser.Options do
             gfm: true,
             gfm_tables: false,
             breaks: false,
-            pedantic: false,
-            smartypants: false,
             footnotes: false,
             footnote_offset: 1,
             wikilinks: false,
@@ -26,7 +24,12 @@ defmodule EarmarkParser.Options do
             line: 1,
             # [{:error|:warning, lnb, text},...]
             messages: [],
-            pure_links: true
+            pure_links: true,
+
+            # deprecated
+            pedantic: false,
+            smartypants: false,
+            timeout: nil
 
   @type t :: %__MODULE__{
         breaks: boolean,
@@ -46,6 +49,10 @@ defmodule EarmarkParser.Options do
   def add_deprecations(%__MODULE__{smartypants: true}=options, messages) do
     add_deprecations(%{options|smartypants: false},
       [{:deprecated, 0, "The smartypants option has no effect anymore and will be removed in EarmarkParser 1.5"}|messages])
+  end
+  def add_deprecations(%__MODULE__{timeout: timeout}=options, messages) when timeout != nil do
+    add_deprecations(%{options|timeout: nil},
+      [{:deprecated, 0, "The timeout option has no effect anymore and will be removed in EarmarkParser 1.5"}|messages])
   end
   def add_deprecations(%__MODULE__{pedantic: true}=options, messages) do
     add_deprecations(%{options|pedantic: false},
