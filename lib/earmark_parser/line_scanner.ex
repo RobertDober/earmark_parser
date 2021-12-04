@@ -58,12 +58,42 @@ defmodule EarmarkParser.LineScanner do
 
   def scan_lines(lines, options, recursive) do
     lines_with_count(lines, options.line - 1)
-    |> get_mapper(options).(fn line -> type_of(line, options, recursive) end)
+    |> with_lookahead(options, recursive)
   end
 
   defp lines_with_count(lines, offset) do
     Enum.zip(lines, offset..(offset + Enum.count(lines)))
   end
+
+  defp with_lookahead([line_lnb | lines], options, recursive) do
+    case type_of(line_lnb, options, recursive) do
+      %Line.Fence{delimiter: delimiter, indent: indent} = fence ->
+        stop =
+          # We should stop on another code block or
+          # on less indent if there is any indentation.
+          case indent do
+            0 -> ~r/\A(\s*)(#{delimiter})\s*([^`\s]*)\s*\z/u
+            _ -> ~r/\A(\s*)(#{delimiter})\s*([^`\s]*)\s*\z|\A\s{#{indent - 1}}.+\z/u
+          end
+
+        [fence | lookahead_until_match(lines, stop, options, recursive)]
+
+      other ->
+        [other | with_lookahead(lines, options, recursive)]
+    end
+  end
+
+  defp with_lookahead([], _options, _recursive), do: []
+
+  defp lookahead_until_match([{line, lnb} | lines], regex, options, recursive) do
+    if line =~ regex do
+      [type_of({line, lnb}, options, recursive) | with_lookahead(lines, options, recursive)]
+    else
+      [%Line.Text{line: line, lnb: lnb} | lookahead_until_match(lines, regex, options, recursive)]
+    end
+  end
+
+  defp lookahead_until_match([], _, _, _), do: []
 
   def type_of(line, recursive)
       when is_boolean(recursive),

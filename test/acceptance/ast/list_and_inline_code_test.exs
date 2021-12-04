@@ -63,7 +63,7 @@ defmodule Acceptance.Ast.ListAndInlineCodeTest do
       assert as_ast(markdown) == {:ok, ast, messages}
     end
 
-    test "more aligned fence is part of the inlinde code block" do
+    test "more aligned fence is part of the inline code block" do
       markdown = "  1. one\n    ~~~elixir\n    defmodule\n        ~~~"
       ast      = [tag("ol", tag("li", ["one", tag("pre", tag("code", ["defmodule"], [{"class", "elixir"}]))]))]
       messages = []
