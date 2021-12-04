@@ -1,4 +1,32 @@
-## 1.4.18 2021-11-30
+## 1.4.18 2021-12-04
+
+- [Do not turn off lookahead on indented fences and check for indent only once (#71)](https://github.com/robertdober/earmark_parser/pull/71)
+
+  Kudos to [José Valim](https://github.com/josevalim)
+
+- [Add lookahead for fenced code blocks (#70)](https://github.com/robertdober/earmark_parser/pull/70)
+
+    * Do lookaheads for fenced code blocks
+
+    Prior to this commit, we were trying to parse
+    all lines between fenced code blocks, which
+    could be very expensive. Therefore we lookahead
+    fences and convert them to text.
+
+    * Remove unused code blocks
+
+    * Handle fenced blocks wrapped in tags
+
+    * Clean up regex
+
+    * More corner cases
+
+    * Optimize text creation
+
+    * Optimize length checks
+
+  Kudos to [José Valim](https://github.com/josevalim)
+
 
 - [5 Whitespace after closing ATX Headers](https://github.com/robertdober/earmark_parser/issues/5)
 
