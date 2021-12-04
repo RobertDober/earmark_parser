@@ -79,6 +79,9 @@ defmodule EarmarkParser.LineScanner do
 
         [fence | lookahead_until_match(lines, stop, options, recursive)]
 
+      %Line.HtmlComment{complete: false} = html_comment ->
+        [html_comment | lookahead_until_match(lines, ~r/-->/u, options, recursive)]
+
       other ->
         [other | with_lookahead(lines, options, recursive)]
     end
