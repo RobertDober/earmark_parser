@@ -258,27 +258,21 @@ defmodule EarmarkParser.LineScanner do
         [_, leading, ial] = match
         %Line.Ial{attrs: String.trim(ial), verbatim: ial, indent: String.length(leading), line: line}
 
-      # Hmmmm in case of perf problems
-      # Assuming that text lines are the most frequent would it not boost performance (which seems to be good anyway)
-      # it would be great if we could come up with a regex that is a superset of all the regexen above and then
-      # we could match as follows
-      #
-      #       cond
-      #       nil = Regex.run(superset, line) -> %Text
-      #       ...
-      #       # all other matches from above
-      #       ...
-      #       # Catch the case were the supergx was too wide
-      #       true -> %Text
-      #
-      #
-      match = Regex.run(~r/\A (\s*) (.*)/x, line) ->
-        [_, leading, content] = match
-        %Line.Text{content: content, indent: String.length(leading), line: line}
-      true -> raise "Ooops no such line type"
+      true ->
+        create_text(line)
     end
   end
 
+  defp create_text(line) do
+    {content, indent} = count_indent(line, 0)
+    %Line.Text{content: content, indent: indent, line: line}
+  end
+
+  defp count_indent(<<space, rest::binary>>, indent) when space in [?\s, ?\t],
+    do: count_indent(rest, indent + 1)
+
+  defp count_indent(rest, indent),
+    do: {rest, indent}
 
   defp _attribute_escape(string), do:
     string
