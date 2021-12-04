@@ -222,7 +222,7 @@ defmodule EarmarkParser.Parser do
     {code_lines, rest} = Enum.split_while(rest, fn (line) ->
       !match?(%Line.Fence{delimiter: ^delimiter, language: _}, line)
     end)
-    rest = if length(rest) == 0, do: rest, else: tl(rest)
+    rest = if rest == [], do: rest, else: tl(rest)
     code = (for line <- code_lines, do: line.line)
     _parse(rest, [ %Block.Code{lines: code, language: language, lnb: lnb} | result ], options, recursive)
   end
@@ -259,7 +259,7 @@ defmodule EarmarkParser.Parser do
     {html_lines, rest} = Enum.split_while(lines, fn (line) ->
       !(line.line =~ ~r/-->/)
     end)
-    {html_lines, rest} = if length(rest) == 0 do
+    {html_lines, rest} = if rest == [] do
       {html_lines, rest}
     else
       {html_lines ++ [ hd(rest) ], tl(rest)}
