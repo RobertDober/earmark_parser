@@ -1,19 +1,19 @@
 defmodule EarmarkParser.Helpers.FootnoteHandler do
   @moduledoc false
 
-  alias EarmarkParser.{Block, Options}
+  alias EarmarkParser.Block
   import EarmarkParser.Message, only: [add_messages: 2]
 
   def handle_footnotes(blocks, options) do
     {footnotes, blocks} = Enum.split_with(blocks, &footnote_def?/1)
 
     {footnotes, undefined_footnotes} =
-      Options.get_mapper(options).(blocks, &find_footnote_links/1)
+      Enum.map(blocks, &find_footnote_links/1)
       |> List.flatten()
       |> get_footnote_numbers(footnotes, options)
 
     blocks = create_footnote_blocks(blocks, footnotes)
-    footnotes = Options.get_mapper(options).(footnotes, &{&1.id, &1}) |> Enum.into(Map.new())
+    footnotes = Enum.map(footnotes, &{&1.id, &1}) |> Enum.into(Map.new())
     options1 = add_messages(options, undefined_footnotes)
     {blocks, footnotes, options1}
   end

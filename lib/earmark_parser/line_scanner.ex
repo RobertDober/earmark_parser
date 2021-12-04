@@ -4,8 +4,6 @@ defmodule EarmarkParser.LineScanner do
 
   alias EarmarkParser.{Helpers, Line, Options}
 
-  import Options, only: [get_mapper: 1]
-
   # This is the re that matches the ridiculous "[id]: url title" syntax
 
   @id_title_part ~S"""
@@ -58,12 +56,48 @@ defmodule EarmarkParser.LineScanner do
 
   def scan_lines(lines, options, recursive) do
     lines_with_count(lines, options.line - 1)
-    |> get_mapper(options).(fn line -> type_of(line, options, recursive) end)
+    |> with_lookahead(options, recursive)
   end
 
   defp lines_with_count(lines, offset) do
     Enum.zip(lines, offset..(offset + Enum.count(lines)))
   end
+
+  defp with_lookahead([line_lnb | lines], options, recursive) do
+    case type_of(line_lnb, options, recursive) do
+      %Line.Fence{delimiter: delimiter, indent: indent} = fence ->
+        stop =
+          # We should stop on another code block, any close html tag,
+          # or on less indent if there is any indentation.
+          case indent do
+            0 ->
+              ~r/\A(\s*)(#{delimiter})\s*([^`\s]*)\s*\z|\A(\s{0,3})<\/([-\w]+?)>/u
+
+            _ ->
+              ~r/\A(\s*)(#{delimiter})\s*([^`\s]*)\s*\z|\A(\s{0,3})<\/([-\w]+?)>|\A\s{#{indent - 1}}.+\z/u
+          end
+
+        [fence | lookahead_until_match(lines, stop, options, recursive)]
+
+      %Line.HtmlComment{complete: false} = html_comment ->
+        [html_comment | lookahead_until_match(lines, ~r/-->/u, options, recursive)]
+
+      other ->
+        [other | with_lookahead(lines, options, recursive)]
+    end
+  end
+
+  defp with_lookahead([], _options, _recursive), do: []
+
+  defp lookahead_until_match([{line, lnb} | lines], regex, options, recursive) do
+    if line =~ regex do
+      [type_of({line, lnb}, options, recursive) | with_lookahead(lines, options, recursive)]
+    else
+      [%Line.Text{line: line, lnb: lnb} | lookahead_until_match(lines, regex, options, recursive)]
+    end
+  end
+
+  defp lookahead_until_match([], _, _, _), do: []
 
   def type_of(line, recursive)
       when is_boolean(recursive),
@@ -129,11 +163,10 @@ defmodule EarmarkParser.LineScanner do
         [_, leading, fence, language] = match
         %Line.Fence{delimiter: fence, language: _attribute_escape(language), indent: String.length(leading), line: line}
 
-      #   Although no block tags I still think they should close a preceding para as do many other
-      #   implementations.
-      (match = Regex.run(@void_tag_rgx, line)) && !recursive ->
+      # Although no block tags I still think they should close a preceding para as do many other
+      # implementations.
+      match = !recursive && Regex.run(@void_tag_rgx, line) ->
         [_, tag] = match
-
         %Line.HtmlOneLine{tag: tag, content: line, indent: 0, line: line}
 
       match = !recursive && Regex.run(~r{\A<([-\w]+?)(?:\s.*)?>.*</\1>}, line) ->
@@ -225,27 +258,21 @@ defmodule EarmarkParser.LineScanner do
         [_, leading, ial] = match
         %Line.Ial{attrs: String.trim(ial), verbatim: ial, indent: String.length(leading), line: line}
 
-      # Hmmmm in case of perf problems
-      # Assuming that text lines are the most frequent would it not boost performance (which seems to be good anyway)
-      # it would be great if we could come up with a regex that is a superset of all the regexen above and then
-      # we could match as follows
-      #
-      #       cond
-      #       nil = Regex.run(superset, line) -> %Text
-      #       ...
-      #       # all other matches from above
-      #       ...
-      #       # Catch the case were the supergx was too wide
-      #       true -> %Text
-      #
-      #
-      match = Regex.run(~r/\A (\s*) (.*)/x, line) ->
-        [_, leading, content] = match
-        %Line.Text{content: content, indent: String.length(leading), line: line}
-      true -> raise "Ooops no such line type"
+      true ->
+        create_text(line)
     end
   end
 
+  defp create_text(line) do
+    {content, indent} = count_indent(line, 0)
+    %Line.Text{content: content, indent: indent, line: line}
+  end
+
+  defp count_indent(<<space, rest::binary>>, indent) when space in [?\s, ?\t],
+    do: count_indent(rest, indent + 1)
+
+  defp count_indent(rest, indent),
+    do: {rest, indent}
 
   defp _attribute_escape(string), do:
     string

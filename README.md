@@ -34,7 +34,6 @@
     - [To block elements](#to-block-elements)
     - [To links or images](#to-links-or-images)
 - [Limitations](#limitations)
-- [Timeouts](#timeouts)
 - [Annotations](#annotations)
   - [Annotated Paragraphs](#annotated-paragraphs)
   - [Annotated HTML elements](#annotated-html-elements)
@@ -454,19 +453,6 @@ containing an IAL-like string, as in the following example
 
         <p>mypara
          <hr /></p>
-
-## Timeouts
-
-By default, that is if the `timeout` option is not set EarmarkParser uses parallel mapping as implemented in `EarmarkParser.pmap/2`,
-which uses `Task.await` with its default timeout of 5000ms.
-
-In rare cases that might not be enough.
-
-By indicating a longer `timeout` option in milliseconds EarmarkParser will use parallel mapping as implemented in `EarmarkParser.pmap/3`,
-which will pass `timeout` to `Task.await`.
-
-In both cases one can override the mapper function with either the `mapper` option (used if and only if `timeout` is nil) or the
-`mapper_with_timeout` function (used otherwise).
 
 ## Annotations
 

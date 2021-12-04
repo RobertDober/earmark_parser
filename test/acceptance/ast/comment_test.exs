@@ -27,6 +27,14 @@ defmodule Acceptance.Ast.CommentTest do
 
       assert as_ast(markdown) == {:ok, [ast], messages}
     end
+
+    test "what about the fenced closing" do
+      markdown = "<!-- Hello\n```elixir\n World -->garbish"
+      ast      = {:comment, [], [" Hello", "```elixir", " World "], %{comment: true}}
+      messages = []
+
+      assert as_ast(markdown) == {:ok, [ast], messages}
+    end
   end
 end
 # SPDX-License-Identifier: Apache-2.0
