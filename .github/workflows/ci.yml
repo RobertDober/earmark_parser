@@ -61,6 +61,9 @@ jobs:
           - pair:
             otp: 24.0.6
             elixir: 1.12.3
+          - pair:
+            otp: 24.1.7
+            elixir: 1.13.0
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-elixir@v1
