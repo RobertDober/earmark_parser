@@ -18,49 +18,49 @@ defmodule Acceptance.Ast.FootnotesTest do
               {"class", "footnote"},
               {"title", "see footnote"}
             ], ["1"], %{}},
-           " again"
-         ], %{}},
-        {
-          "div",
-          [{"class", "footnotes"}],
-          [
-            {"hr", '', '', %{}},
-            {
-              "ol",
-              '',
-              [
-                {
-                  "li",
-                  [{"id", "fn:1"}],
-                  [
-                    {
-                      "p",
-                      '',
-                      [
-                        "bar baz",
-                        {"a",
-                         [
-                           {"class", "reversefootnote"},
-                           {"href", "#fnref:1"},
-                           {"title", "return to article"}
-                         ], ["&#x21A9;"], %{}}
-                      ],
-                      %{}
-                    }
-                  ],
-                  %{}
-                }
-              ],
-              %{}
-            }
-          ],
-          %{}
-        }
-      ]
+            " again"
+          ], %{}},
+          {
+            "div",
+            [{"class", "footnotes"}],
+            [
+              {"hr", '', '', %{}},
+              {
+                "ol",
+                '',
+                [
+                  {
+                    "li",
+                    [{"id", "fn:1"}],
+                    [
+                      {
+                        "p",
+                        '',
+                        [
+                          "bar baz",
+                          {"a",
+                           [
+                             {"class", "reversefootnote"},
+                             {"href", "#fnref:1"},
+                             {"title", "return to article"}
+                           ], ["&#x21A9;"], %{}}
+                         ],
+                         %{}
+                       }
+                     ],
+                     %{}
+                   }
+                 ],
+                 %{}
+               }
+             ],
+             %{}
+           }
+         ]
 
-      messages = []
+         messages = []
 
-      assert as_ast(markdown, footnotes: true) == {:ok, ast, messages}
+         assert as_ast(markdown, footnotes: true) == {:ok, ast, messages}
     end
 
     test "plain text, but no footnotes" do
@@ -89,34 +89,35 @@ defmodule Acceptance.Ast.FootnotesTest do
               {"class", "footnote"},
               {"title", "see footnote"}
             ], ["1"], %{}}
-         ], %{}},
-        {"div", [{"class", "footnotes"}],
-         [
-           {"hr", [], [], %{}},
-           {"ol", [],
-            [
-              {"li", [{"id", "fn:1"}],
-               [
-                 {"p", [],
-                  [
-                    "which ",
-                    {"a", [{"href", "http://to.some.site"}], ["is a link"], %{}},
-                    {"a",
-                     [
-                       {"class", "reversefootnote"},
-                       {"href", "#fnref:1"},
-                       {"title", "return to article"}
-                     ], ["&#x21A9;"], %{}}
-                  ], %{}}
+          ], %{}},
+          {"div", [{"class", "footnotes"}],
+           [
+             {"hr", [], [], %{}},
+
+             {"ol", [],
+              [
+                {"li", [{"id", "fn:1"}],
+                 [
+                   {"p", [],
+                    [
+                      "which ",
+                      {"a", [{"href", "http://to.some.site"}], ["is a link"], %{}},
+                      {"a",
+                       [
+                         {"class", "reversefootnote"},
+                         {"href", "#fnref:1"},
+                         {"title", "return to article"}
+                       ], ["&#x21A9;"], %{}}
+                     ], %{}}
+                   ], %{}}
+                 ], %{}}
                ], %{}}
-            ], %{}}
-         ], %{}}
-      ]
+             ]
 
-      messages = []
+             messages = []
 
-       # as_ast(markdown, footnotes: true, pure_links: true)
-      assert as_ast(markdown, footnotes: true, pure_links: true) == {:ok, ast, messages}
+             # as_ast(markdown, footnotes: true, pure_links: true)
+             assert as_ast(markdown, footnotes: true, pure_links: true) == {:ok, ast, messages}
     end
 
     test "A block inside the footnote" do
@@ -124,7 +125,7 @@ defmodule Acceptance.Ast.FootnotesTest do
       here is my footnote[^1]
 
       [^1]: which describes some
-            code
+      code
       """
 
       ast = [
@@ -138,29 +139,28 @@ defmodule Acceptance.Ast.FootnotesTest do
               {"class", "footnote"},
               {"title", "see footnote"}
             ], ["1"], %{}}
-         ], %{}},
-        {"div", [{"class", "footnotes"}],
-         [
-           {"hr", [], [], %{}},
-           {"ol", [],
-            [
-              {"li", [{"id", "fn:1"}],
-               [
-                 {"p", [],
-                  [
-                    ["which describes some"], ["  code"], {"a", [], ["&#x21A9;"], %{}}
+          ], %{}},
+          {"div", [{"class", "footnotes"}],
+           [
+             {"hr", [], [], %{}},
+             {"ol", [],
+              [
+                {"li", [{"id", "fn:1"}],
+                 [
+                   {"p", [],
+                    [
+                      ["which describes some"], ["  code"], {"a", [], ["&#x21A9;"], %{}}
+                    ], %{}}
                   ], %{}}
-               ], %{}}
-            ], %{}}
-         ], %{}}
-      ]
+                ], %{}}
+              ], %{}}
+            ]
 
-      messages = []
+            messages = []
 
-       # as_ast(markdown, footnotes: true, pure_links: true)
-      assert as_ast(markdown, footnotes: true, pure_links: true) == {:ok, ast, messages}
+            # as_ast(markdown, footnotes: true, pure_links: true)
+            assert as_ast(markdown, footnotes: true, pure_links: true) == {:ok, ast, messages}
     end
-
   end
 
   describe "Incorrect Footnotes" do

@@ -1,10 +1,12 @@
 defmodule EarmarkParser.Parser do
-
   @moduledoc false
   alias EarmarkParser.{Block, Enum.Ext, Line, LineScanner, Options}
 
   import EarmarkParser.Helpers.{AttrParser, FootnoteHandler, LineHelpers, ReparseHelpers}
-  import EarmarkParser.Helpers.LookaheadHelpers, only: [opens_inline_code: 1, still_inline_code: 2]
+
+  import EarmarkParser.Helpers.LookaheadHelpers,
+    only: [opens_inline_code: 1, still_inline_code: 2]
+
   import EarmarkParser.Message, only: [add_message: 2, add_messages: 2]
   import EarmarkParser.Parser.ListParser, only: [parse_list: 3]
 
@@ -17,22 +19,19 @@ defmodule EarmarkParser.Parser do
   for more details.
   """
   def parse_markdown(lines, options \\ %Options{})
+
   def parse_markdown(lines, options = %Options{}) when is_list(lines) do
-    {blocks, links, options1} = parse(lines, options, false)
+    {blocks, links, footnotes, options1} = parse(lines, options, false)
 
     context =
       %EarmarkParser.Context{options: options1, links: links}
       |> EarmarkParser.Context.update_context()
 
-    if options.footnotes do
-      {blocks, footnotes, options1} = handle_footnotes(blocks, context.options)
-      context = put_in(context.footnotes, footnotes)
-      context = put_in(context.options, options1)
-      {blocks, context}
-    else
-      {blocks, context}
-    end
+    context = put_in(context.footnotes, footnotes)
+    context = put_in(context.options, options1)
+    {blocks, context}
   end
+
   def parse_markdown(lines, options) when is_binary(lines) do
     lines
     |> String.split(~r{\r\n?|\n})
@@ -40,6 +39,7 @@ defmodule EarmarkParser.Parser do
   end
 
   def parse(text_lines), do: parse(text_lines, %Options{}, false)
+
   def parse(text_lines, options = %Options{}, recursive) do
     ["" | text_lines ++ [""]]
     |> LineScanner.scan_lines(options, recursive)
@@ -53,46 +53,66 @@ defmodule EarmarkParser.Parser do
   # for external consumption.
 
   def parse_lines(lines, options, recursive) do
-    {blocks, options} = lines |> remove_trailing_blank_lines() |> lines_to_blocks(options, recursive)
+    {blocks, footnotes, options} =
+      lines |> remove_trailing_blank_lines() |> lines_to_blocks(options, recursive)
+
     # |> IO.inspect
-    links  = links_from_blocks(blocks)
-    {blocks, links, options}
+    links = links_from_blocks(blocks)
+    {blocks, links, footnotes, options}
   end
 
   defp lines_to_blocks(lines, options, recursive) do
-    with {blocks, options1} <- lines |> _parse([], options, recursive) do
-      # { blocks |> IO.inspect(label: :blocks)|> assign_attributes_to_blocks([]) |> consolidate_list_items([]) , options1 }
-      { blocks |> assign_attributes_to_blocks([]) |> consolidate_list_items([]) , options1 }
-    end
+    {blocks, footnotes, options1} = _parse(lines, [], options, recursive)
+
+    # { blocks |> IO.inspect(label: :blocks)|> assign_attributes_to_blocks([]) |> consolidate_list_items([]) , options1 }
+    {blocks |> assign_attributes_to_blocks([]) |> consolidate_list_items([]), footnotes, options1}
   end
 
-
-  defp _parse([], result, options, _recursive), do: {result, options}
+  defp _parse(input, result, options, recursive)
+  defp _parse([], result, options, _recursive), do: {result, %{}, options}
 
   ###################
   # setext headings #
   ###################
 
   # 1 step
-  defp _parse([ %Line.Blank{},
-                %Line.Text{content: heading, lnb: lnb},
-                %Line.SetextUnderlineHeading{annotation: annotation, level: level}
-             |
-                rest
-             ], result, options, recursive) do
-
-    _parse(rest, [%Block.Heading{annotation: annotation, content: heading, level: level, lnb: lnb}|result], options, recursive)
+  defp _parse(
+         [
+           %Line.Blank{},
+           %Line.Text{content: heading, lnb: lnb},
+           %Line.SetextUnderlineHeading{annotation: annotation, level: level}
+           | rest
+         ],
+         result,
+         options,
+         recursive
+       ) do
+    _parse(
+      rest,
+      [%Block.Heading{annotation: annotation, content: heading, level: level, lnb: lnb} | result],
+      options,
+      recursive
+    )
   end
 
   # 1 step
-  defp _parse([  %Line.Blank{},
-                %Line.Text{content: heading, lnb: lnb},
-                %Line.Ruler{type: "-"}
-             |
-                rest
-             ], result, options, recursive) do
-
-    _parse(rest, [%Block.Heading{content: heading, level: 2, lnb: lnb} | result], options, recursive)
+  defp _parse(
+         [
+           %Line.Blank{},
+           %Line.Text{content: heading, lnb: lnb},
+           %Line.Ruler{type: "-"}
+           | rest
+         ],
+         result,
+         options,
+         recursive
+       ) do
+    _parse(
+      rest,
+      [%Block.Heading{content: heading, level: 2, lnb: lnb} | result],
+      options,
+      recursive
+    )
   end
 
   #################
@@ -100,10 +120,20 @@ defmodule EarmarkParser.Parser do
   #################
 
   # 1 step
-  defp _parse([ %Line.Heading{content: content, ial: ial, level: level, lnb: lnb} | rest ], result, options, recursive) do
+  defp _parse(
+         [%Line.Heading{content: content, ial: ial, level: level, lnb: lnb} | rest],
+         result,
+         options,
+         recursive
+       ) do
+    {options1, result1} =
+      prepend_ial(
+        options,
+        ial,
+        lnb,
+        [%Block.Heading{content: content, level: level, lnb: lnb} | result]
+      )
 
-    {options1, result1} = prepend_ial(
-      options, ial, lnb, [%Block.Heading{content: content, level: level, lnb: lnb} | result])
     _parse(rest, result1, options1, recursive)
   end
 
@@ -112,7 +142,7 @@ defmodule EarmarkParser.Parser do
   #########
 
   # 1 step
-  defp _parse([ %Line.Ruler{type: type, lnb: lnb} | rest], result, options, recursive) do
+  defp _parse([%Line.Ruler{type: type, lnb: lnb} | rest], result, options, recursive) do
     _parse(rest, [%Block.Ruler{type: type, lnb: lnb} | result], options, recursive)
   end
 
@@ -121,11 +151,11 @@ defmodule EarmarkParser.Parser do
   ###############
 
   # split and parse
-  defp _parse( lines = [ %Line.BlockQuote{lnb: lnb} | _ ], result, options, recursive) do
+  defp _parse(lines = [%Line.BlockQuote{lnb: lnb} | _], result, options, recursive) do
     {quote_lines, rest} = Enum.split_while(lines, &blockquote_or_text?/1)
     lines = for line <- quote_lines, do: line.content
     {blocks, _, options1} = parse(lines, %{options | line: lnb}, true)
-    _parse(rest, [%Block.BlockQuote{blocks: blocks, lnb: lnb}|result], options1, recursive)
+    _parse(rest, [%Block.BlockQuote{blocks: blocks, lnb: lnb} | result], options1, recursive)
   end
 
   #########
@@ -133,61 +163,87 @@ defmodule EarmarkParser.Parser do
   #########
 
   # read and add verbatim
-  defp _parse( lines = [ %Line.TableLine{columns: cols1, lnb: lnb1, needs_header: false},
-                        %Line.TableLine{columns: cols2}
-                      | _rest
-                      ], result, options, recursive)
-  when length(cols1) == length(cols2)
-  do
+  defp _parse(
+         lines = [
+           %Line.TableLine{columns: cols1, lnb: lnb1, needs_header: false},
+           %Line.TableLine{columns: cols2}
+           | _rest
+         ],
+         result,
+         options,
+         recursive
+       )
+       when length(cols1) == length(cols2) do
     columns = length(cols1)
-    { table, rest } = read_table(lines, columns, [])
-    table1          = %{table | lnb: lnb1}
-    _parse(rest, [ table1 | result ], options, recursive)
+    {table, rest} = read_table(lines, columns, [])
+    table1 = %{table | lnb: lnb1}
+    _parse(rest, [table1 | result], options, recursive)
   end
 
-  defp _parse( lines = [ %Line.TableLine{columns: cols1, lnb: lnb1, needs_header: true},
-                        %Line.TableLine{columns: cols2, is_header: true}
-                      | _rest
-                      ], result, options, recursive)
-  when length(cols1) == length(cols2)
-  do
+  defp _parse(
+         lines = [
+           %Line.TableLine{columns: cols1, lnb: lnb1, needs_header: true},
+           %Line.TableLine{columns: cols2, is_header: true}
+           | _rest
+         ],
+         result,
+         options,
+         recursive
+       )
+       when length(cols1) == length(cols2) do
     columns = length(cols1)
-    { table, rest } = read_table(lines, columns, [])
-    table1          = %{table | lnb: lnb1}
-    _parse(rest, [ table1 | result ], options, recursive)
+    {table, rest} = read_table(lines, columns, [])
+    table1 = %{table | lnb: lnb1}
+    _parse(rest, [table1 | result], options, recursive)
   end
+
   #############
   # Paragraph #
   #############
 
   # split and add verbatim
-  defp _parse( lines = [ %Line.TableLine{lnb: lnb} | _ ], result, options, recursive) do
+  defp _parse(lines = [%Line.TableLine{lnb: lnb} | _], result, options, recursive) do
     {para_lines, rest} = Enum.split_while(lines, &text?/1)
-    line_text = (for line <- para_lines, do: line.line)
-    _parse(rest, [ %Block.Para{lines: line_text, lnb: lnb + 1} | result ], options, recursive)
+    line_text = for line <- para_lines, do: line.line
+    _parse(rest, [%Block.Para{lines: line_text, lnb: lnb + 1} | result], options, recursive)
   end
 
   # read and parse
-  defp _parse( lines = [ %Line.Text{lnb: lnb} | _ ], result, options, recursive)
-  do
+  defp _parse(lines = [%Line.Text{lnb: lnb} | _], result, options, recursive) do
     {reversed_para_lines, rest, pending, annotation} = consolidate_para(lines)
 
     options1 =
       case pending do
-        {nil, _} -> options
+        {nil, _} ->
+          options
+
         {pending, lnb1} ->
-          add_message(options, {:warning, lnb1, "Closing unclosed backquotes #{pending} at end of input"})
+          add_message(
+            options,
+            {:warning, lnb1, "Closing unclosed backquotes #{pending} at end of input"}
+          )
       end
 
-    line_text = (for line <- (reversed_para_lines |> Enum.reverse), do: line.line)
+    line_text = for line <- reversed_para_lines |> Enum.reverse(), do: line.line
+
     if recursive == :list do
-        _parse(rest, [ %Block.Text{line: line_text, lnb: lnb} | result ], options1, recursive)
+      _parse(rest, [%Block.Text{line: line_text, lnb: lnb} | result], options1, recursive)
     else
-        _parse(rest, [ %Block.Para{annotation: annotation, lines: line_text, lnb: lnb} | result ], options1, recursive)
+      _parse(
+        rest,
+        [%Block.Para{annotation: annotation, lines: line_text, lnb: lnb} | result],
+        options1,
+        recursive
+      )
     end
   end
 
-  defp _parse([%Line.SetextUnderlineHeading{line: line, lnb: lnb, level: 2} | rest], result, options, recursive) do
+  defp _parse(
+         [%Line.SetextUnderlineHeading{line: line, lnb: lnb, level: 2} | rest],
+         result,
+         options,
+         recursive
+       ) do
     _parse([%Line.Text{line: line, lnb: lnb} | rest], result, options, recursive)
   end
 
@@ -197,76 +253,130 @@ defmodule EarmarkParser.Parser do
   # We handle lists in two passes. In the first, we build list items,
   # in the second we combine adjacent items into lists. This is pass one
 
-  defp _parse( [ %Line.ListItem{}|_ ]=input, result, options, recursive) do
-
+  defp _parse([%Line.ListItem{} | _] = input, result, options, recursive) do
     {with_prepended_lists, rest, options1} = parse_list(input, result, options)
     _parse([%Line.Blank{lnb: 0} | rest], with_prepended_lists, options1, recursive)
-
   end
 
   #################
   # Indented code #
   #################
 
-  defp _parse( list = [%Line.Indent{lnb: lnb} | _], result, options, recursive) do
+  defp _parse(list = [%Line.Indent{lnb: lnb} | _], result, options, recursive) do
     {code_lines, rest} = Enum.split_while(list, &indent_or_blank?/1)
     code_lines = remove_trailing_blank_lines(code_lines)
-    code = (for line <- code_lines, do: properly_indent(line, 1))
-    _parse(rest, [ %Block.Code{lines: code, lnb: lnb} | result ], options, recursive)
+    code = for line <- code_lines, do: properly_indent(line, 1)
+    _parse(rest, [%Block.Code{lines: code, lnb: lnb} | result], options, recursive)
   end
 
   ###############
   # Fenced code #
   ###############
 
-  defp _parse([%Line.Fence{delimiter: delimiter, language: language, lnb: lnb} | rest], result, options, recursive) do
-    {code_lines, rest} = Enum.split_while(rest, fn (line) ->
-      !match?(%Line.Fence{delimiter: ^delimiter, language: _}, line)
-    end)
+  defp _parse(
+         [%Line.Fence{delimiter: delimiter, language: language, lnb: lnb} | rest],
+         result,
+         options,
+         recursive
+       ) do
+    {code_lines, rest} =
+      Enum.split_while(rest, fn line ->
+        !match?(%Line.Fence{delimiter: ^delimiter, language: _}, line)
+      end)
+
     rest = if rest == [], do: rest, else: tl(rest)
-    code = (for line <- code_lines, do: line.line)
-    _parse(rest, [ %Block.Code{lines: code, language: language, lnb: lnb} | result ], options, recursive)
+    code = for line <- code_lines, do: line.line
+
+    _parse(
+      rest,
+      [%Block.Code{lines: code, language: language, lnb: lnb} | result],
+      options,
+      recursive
+    )
   end
 
   ##############
   # HTML block #
   ##############
-  defp _parse([ opener = %Line.HtmlOpenTag{annotation: annotation, tag: tag, lnb: lnb} | rest], result, options, recursive) do
-    {html_lines, rest1, unclosed, annotation} = _html_match_to_closing(opener, rest, annotation) #|> IO.inspect(label: :found) 
-    options1 = add_messages(options,
-                            unclosed
-                            |> Enum.map(fn %{lnb: lnb1, tag: tag} -> {:warning, lnb1, "Failed to find closing <#{tag}>"} end))
+  defp _parse(
+         [opener = %Line.HtmlOpenTag{annotation: annotation, tag: tag, lnb: lnb} | rest],
+         result,
+         options,
+         recursive
+       ) do
+    # |> IO.inspect(label: :found) 
+    {html_lines, rest1, unclosed, annotation} = _html_match_to_closing(opener, rest, annotation)
+
+    options1 =
+      add_messages(
+        options,
+        unclosed
+        |> Enum.map(fn %{lnb: lnb1, tag: tag} ->
+          {:warning, lnb1, "Failed to find closing <#{tag}>"}
+        end)
+      )
+
     html = Enum.reverse(html_lines)
-    _parse(rest1, [ %Block.Html{tag: tag, html: html, lnb: lnb, annotation: annotation} | result ], options1, recursive)
+
+    _parse(
+      rest1,
+      [%Block.Html{tag: tag, html: html, lnb: lnb, annotation: annotation} | result],
+      options1,
+      recursive
+    )
   end
 
   ####################
   # HTML on one line #
   ####################
 
-  defp _parse([ %Line.HtmlOneLine{annotation: annotation, line: line, lnb: lnb} | rest], result, options, recursive) do
-    _parse(rest, [ %Block.HtmlOneline{annotation: annotation, html: [ line ], lnb: lnb} | result ], options, recursive)
+  defp _parse(
+         [%Line.HtmlOneLine{annotation: annotation, line: line, lnb: lnb} | rest],
+         result,
+         options,
+         recursive
+       ) do
+    _parse(
+      rest,
+      [%Block.HtmlOneline{annotation: annotation, html: [line], lnb: lnb} | result],
+      options,
+      recursive
+    )
   end
 
   ################
   # HTML Comment #
   ################
 
-  defp _parse([ line = %Line.HtmlComment{complete: true, lnb: lnb} | rest], result, options, recursive) do
-    _parse(rest, [ %Block.HtmlComment{lines: [ line.line ], lnb: lnb} | result ], options, recursive)
+  defp _parse(
+         [line = %Line.HtmlComment{complete: true, lnb: lnb} | rest],
+         result,
+         options,
+         recursive
+       ) do
+    _parse(rest, [%Block.HtmlComment{lines: [line.line], lnb: lnb} | result], options, recursive)
   end
 
-  defp _parse(lines = [ %Line.HtmlComment{complete: false, lnb: lnb} | _], result, options, recursive) do
-    {html_lines, rest} = Enum.split_while(lines, fn (line) ->
-      !(line.line =~ ~r/-->/)
-    end)
-    {html_lines, rest} = if rest == [] do
-      {html_lines, rest}
-    else
-      {html_lines ++ [ hd(rest) ], tl(rest)}
-    end
-    html = (for line <- html_lines, do: line.line)
-    _parse(rest, [ %Block.HtmlComment{lines: html, lnb: lnb} | result ], options, recursive)
+  defp _parse(
+         lines = [%Line.HtmlComment{complete: false, lnb: lnb} | _],
+         result,
+         options,
+         recursive
+       ) do
+    {html_lines, rest} =
+      Enum.split_while(lines, fn line ->
+        !(line.line =~ ~r/-->/)
+      end)
+
+    {html_lines, rest} =
+      if rest == [] do
+        {html_lines, rest}
+      else
+        {html_lines ++ [hd(rest)], tl(rest)}
+      end
+
+    html = for line <- html_lines, do: line.line
+    _parse(rest, [%Block.HtmlComment{lines: html, lnb: lnb} | result], options, recursive)
   end
 
   #################
@@ -274,46 +384,76 @@ defmodule EarmarkParser.Parser do
   #################
 
   # the title may be on the line following the iddef
-  defp _parse( [ defn = %Line.IdDef{title: title, lnb: lnb}, maybe_title | rest ], result, options, recursive)
-  when title == nil
-  do
-    title = case maybe_title do
-      %Line.Text{content: content}   ->  LineScanner.matches_id_title(content)
-      _                              ->  nil
-    end
+  defp _parse(
+         [defn = %Line.IdDef{title: title, lnb: lnb}, maybe_title | rest],
+         result,
+         options,
+         recursive
+       )
+       when title == nil do
+    title =
+      case maybe_title do
+        %Line.Text{content: content} -> LineScanner.matches_id_title(content)
+        _ -> nil
+      end
 
     if title do
-      _parse(rest, [ %Block.IdDef{id: defn.id, url: defn.url, title: title, lnb: lnb} | result], options, recursive)
+      _parse(
+        rest,
+        [%Block.IdDef{id: defn.id, url: defn.url, title: title, lnb: lnb} | result],
+        options,
+        recursive
+      )
     else
-      _parse([maybe_title | rest], [ %Block.IdDef{id: defn.id, url: defn.url, lnb: lnb} | result], options, recursive)
+      _parse(
+        [maybe_title | rest],
+        [%Block.IdDef{id: defn.id, url: defn.url, lnb: lnb} | result],
+        options,
+        recursive
+      )
     end
   end
 
   # or not
-  defp _parse( [ defn = %Line.IdDef{lnb: lnb} | rest ], result, options, recursive) do
-    _parse(rest, [ %Block.IdDef{id: defn.id, url: defn.url, title: defn.title, lnb: lnb} | result], options, recursive)
+  defp _parse([defn = %Line.IdDef{lnb: lnb} | rest], result, options, recursive) do
+    _parse(
+      rest,
+      [%Block.IdDef{id: defn.id, url: defn.url, title: defn.title, lnb: lnb} | result],
+      options,
+      recursive
+    )
   end
 
   #######################
   # Footnote Definition #
   #######################
 
-  # In 1.5 Footnote Definitions are now always at the end of the document (GFM) meaning that the
+  # Starting from 1.5.0 Footnote Definitions are always at the end of the document (GFM) meaning that the
   # `_parse` iteration can now end and we will trigger `_parse_fn_defs`
   # this has the advantage that we can make the assumption that the top of the `result`
   # list contains a `Block.FnList` element
-  defp _parse([%Line.FnDef{} | _]=input, result , options, recursive) do
-    {fn_list, options1} = _parse_fn_defs(input, options)
-    {Enum.reverse([fn_list|result]), options1}
+  defp _parse([%Line.FnDef{} | _] = input, result, options, recursive) do
+    _parse_fn_defs(input, result, options)
   end
 
   ####################
   # IAL (attributes) #
   ####################
 
-  defp _parse( [ %Line.Ial{attrs: attrs, lnb: lnb, verbatim: verbatim} | rest ], result, options, recursive) do
-    {options1, attributes} = parse_attrs( options, attrs, lnb )
-    _parse(rest, [ %Block.Ial{attrs: attributes, content: attrs, lnb: lnb, verbatim: verbatim} | result ], options1, recursive)
+  defp _parse(
+         [%Line.Ial{attrs: attrs, lnb: lnb, verbatim: verbatim} | rest],
+         result,
+         options,
+         recursive
+       ) do
+    {options1, attributes} = parse_attrs(options, attrs, lnb)
+
+    _parse(
+      rest,
+      [%Block.Ial{attrs: attributes, content: attrs, lnb: lnb, verbatim: verbatim} | result],
+      options1,
+      recursive
+    )
   end
 
   ###############
@@ -321,7 +461,7 @@ defmodule EarmarkParser.Parser do
   ###############
   # We've reached the point where empty lines are no longer significant
 
-  defp _parse( [ %Line.Blank{} | rest ], result, options, recursive) do
+  defp _parse([%Line.Blank{} | rest], result, options, recursive) do
     _parse(rest, result, options, recursive)
   end
 
@@ -329,36 +469,65 @@ defmodule EarmarkParser.Parser do
   # Anything else... we warn, then treat it as if it were text #
   ##############################################################
 
-  defp _parse( [ anything = %{lnb: lnb} | rest ], result, options, recursive) do
-    _parse( [ %Line.Text{content: anything.line, lnb: lnb} | rest], result,
-      add_message(options, {:warning, anything.lnb, "Unexpected line #{anything.line}"}), recursive)
+  defp _parse([anything = %{lnb: lnb} | rest], result, options, recursive) do
+    _parse(
+      [%Line.Text{content: anything.line, lnb: lnb} | rest],
+      result,
+      add_message(options, {:warning, anything.lnb, "Unexpected line #{anything.line}"}),
+      recursive
+    )
   end
 
-  def _parse_fn_defs([fn_def | rest], options) do
-    acc = {[fn_def], [], options}
+  def _parse_fn_defs([fn_def | rest], result, options) do
+    acc =
+      {[fn_def.content], [%Block.FnList{blocks: [_block_fn_def(fn_def)]} | result], %{}, options}
+
     rest
     |> Ext.reduce_with_end(acc, &_parse_fn_def_reduce/2)
   end
 
   defp _parse_fn_def_reduce(ele_or_end, acc)
-  defp _parse_fn_def_reduce({:element, %Line.FnDef{}=fn_def_line}, acc) do
-    {result1, options1} = _make_fn_def_block(acc)
-    {[fn_def_line], result1, options1}
+
+  defp _parse_fn_def_reduce({:element, %Line.FnDef{content: content}}, acc) do
+    {result1, footnotes, options1} = _complete_fn_def_block(acc, content)
+    {[content], result1, footnotes, options1}
   end
-  defp _parse_fn_def_reduce({:element, %{line: line}}, {blox, result, options}) do
-    {[line|blox], result, options}
+
+  defp _parse_fn_def_reduce({:element, %{line: line}}, acc) do
+    _prepend_to_first_in4(line, acc)
   end
+
   defp _parse_fn_def_reduce(:end, acc) do
-    {result1, options1} = _make_fn_def_block(acc)
-    # **N.B.** we can change the shape of the accumulator here for the final result
-    # without impacting the complexity of the reducer function
-    {Enum.reverse(result1), options1}
+    {[fn_list | rest], footnotes, options} = _complete_fn_def_block(acc)
+    {[%{fn_list | blocks: Enum.reverse(fn_list.blocks)} | rest], footnotes, options}
   end
 
+  defp _prepend_to_first_in4(element, {a, b, c, d}) do
+    {[element | a], b, c, d}
+  end
 
-  defp _make_fn_def_block(acc) do
-    {inner_blocks, options1}  = _parse(Enum.reverse(acc.blocks), [], acc.options, false)
-    {%Block.FnDef{id: acc.id, lnb: acc.lnb, blocks: inner_blocks}, options1}
+  defp _block_fn_def(%Line.FnDef{} = fn_def) do
+    %Block.FnDef{id: fn_def.id, lnb: fn_def.lnb}
+  end
+
+  defp _complete_fn_def_block(
+         {input, [%Block.FnList{blocks: [open_fn | closed_fns]} | rest], footnotes, options},
+         new_fn_def \\ nil
+       ) do
+    # `_footnotes1` should be empty but let us not change the shape of parse depending
+    # on options or the value of recursive?
+    {inner_blocks, _links, _footnotes1, options1} = parse(Enum.reverse(input), options, true)
+    closed_fn = %{open_fn | blocks: inner_blocks}
+    footnotes1 = Map.put(footnotes, closed_fn.id, closed_fn)
+
+    fn_blocks =
+      if new_fn_def do
+        [_block_fn_def(new_fn_def), closed_fn | closed_fns]
+      else
+        [closed_fn | closed_fns]
+      end
+
+    {[%Block.FnList{blocks: fn_blocks} | rest], footnotes1, options1}
   end
 
   #######################################################
@@ -368,11 +537,13 @@ defmodule EarmarkParser.Parser do
   defp assign_attributes_to_blocks([], result) do
     Enum.reverse(result)
   end
-  defp assign_attributes_to_blocks([ %Block.Ial{attrs: attrs}, block | rest], result) do
-    assign_attributes_to_blocks(rest, [ %{block | attrs: attrs} | result ])
+
+  defp assign_attributes_to_blocks([%Block.Ial{attrs: attrs}, block | rest], result) do
+    assign_attributes_to_blocks(rest, [%{block | attrs: attrs} | result])
   end
-  defp assign_attributes_to_blocks([ block | rest], result) do
-    assign_attributes_to_blocks(rest, [ block | result ])
+
+  defp assign_attributes_to_blocks([block | rest], result) do
+    assign_attributes_to_blocks(rest, [block | result])
   end
 
   ############################################################
@@ -381,19 +552,21 @@ defmodule EarmarkParser.Parser do
   @not_pending {nil, 0}
   # ([#{},...]) -> {[#{}],[#{}],{'nil' | binary(),number()}}
   # @spec consolidate_para( ts ) :: { ts, ts, {nil | String.t, number} }
-  defp consolidate_para( lines ), do: _consolidate_para( lines, [], @not_pending, nil )
+  defp consolidate_para(lines), do: _consolidate_para(lines, [], @not_pending, nil)
 
-  defp _consolidate_para( [], result, pending, annotation ) do
+  defp _consolidate_para([], result, pending, annotation) do
     {result, [], pending, annotation}
   end
 
-  defp _consolidate_para( [line | rest] = lines, result, pending, annotation ) do
+  defp _consolidate_para([line | rest] = lines, result, pending, annotation) do
     # IO.inspect({line, annotation}, label: :consolidate)
-    case _inline_or_text?( line, pending ) do
-      %{pending: still_pending, continue: true} -> _consolidate_para( rest, [line | result], still_pending, annotation || line.annotation )
-      _                                         -> {result, lines, @not_pending, annotation}
-    end
+    case _inline_or_text?(line, pending) do
+      %{pending: still_pending, continue: true} ->
+        _consolidate_para(rest, [line | result], still_pending, annotation || line.annotation)
 
+      _ ->
+        {result, lines, @not_pending, annotation}
+    end
   end
 
   ##################################################
@@ -401,89 +574,100 @@ defmodule EarmarkParser.Parser do
   ##################################################
 
   defp consolidate_list_items([], result) do
-    result |> Enum.map(&compute_list_spacing/1)  # no need to reverse
-  end
-  # We have a list, and the next element is an item of the same type
-  defp consolidate_list_items(
-    [list = %Block.List{type: type, blocks: items},
-     item = %Block.ListItem{type: type} | rest], result)
-  do
-    start = extract_start(item)
-    items = [ item | items ]   # original list is reversed
-    consolidate_list_items([ %{ list | blocks: items, start: start } | rest ], result)
-  end
-  # We have an item, but no open list
-  defp consolidate_list_items([ item = %Block.ListItem{type: type} | rest], result) do
-    start = extract_start(item)
-    consolidate_list_items([ %Block.List{ type: type, blocks: [ item ], start: start} | rest ], result)
-  end
-  # Nothing to see here, move on
-  defp consolidate_list_items([ head | rest ], result) do
-    consolidate_list_items(rest, [ head | result ])
+    # no need to reverse
+    result |> Enum.map(&compute_list_spacing/1)
   end
 
-  defp compute_list_spacing( list = %Block.List{blocks: items} ) do
+  # We have a list, and the next element is an item of the same type
+  defp consolidate_list_items(
+         [
+           list = %Block.List{type: type, blocks: items},
+           item = %Block.ListItem{type: type} | rest
+         ],
+         result
+       ) do
+    start = extract_start(item)
+    # original list is reversed
+    items = [item | items]
+    consolidate_list_items([%{list | blocks: items, start: start} | rest], result)
+  end
+
+  # We have an item, but no open list
+  defp consolidate_list_items([item = %Block.ListItem{type: type} | rest], result) do
+    start = extract_start(item)
+    consolidate_list_items([%Block.List{type: type, blocks: [item], start: start} | rest], result)
+  end
+
+  # Nothing to see here, move on
+  defp consolidate_list_items([head | rest], result) do
+    consolidate_list_items(rest, [head | result])
+  end
+
+  defp compute_list_spacing(list = %Block.List{blocks: items}) do
     with spaced = any_spaced_items?(items),
-         unified_items = Enum.map(items, &(%{&1 | spaced: spaced}))
-    do
+         unified_items = Enum.map(items, &%{&1 | spaced: spaced}) do
       %{list | blocks: unified_items}
     end
   end
-  defp compute_list_spacing( anything_else ), do: anything_else # nop
+
+  # nop
+  defp compute_list_spacing(anything_else), do: anything_else
 
   defp any_spaced_items?([]), do: false
-  defp any_spaced_items?([%{spaced: true}|_]), do: true
-  defp any_spaced_items?([_|tail]), do: any_spaced_items?(tail)
-
+  defp any_spaced_items?([%{spaced: true} | _]), do: true
+  defp any_spaced_items?([_ | tail]), do: any_spaced_items?(tail)
 
   ##################################################
   # Read in a table (consecutive TableLines with
   # the same number of columns)
 
   defp read_table(lines, col_count, rows)
-  defp read_table([ %Line.TableLine{columns: cols} | rest ],
-                    col_count,
-                    rows)
-  when length(cols) == col_count
-  do
-    read_table(rest, col_count, [ cols | rows ])
+
+  defp read_table(
+         [%Line.TableLine{columns: cols} | rest],
+         col_count,
+         rows
+       )
+       when length(cols) == col_count do
+    read_table(rest, col_count, [cols | rows])
   end
-  defp read_table( rest, col_count, rows) do
-    rows  = Enum.reverse(rows)
+
+  defp read_table(rest, col_count, rows) do
+    rows = Enum.reverse(rows)
     table = Block.Table.new_for_columns(col_count)
-    table = case look_for_alignments(rows) do
-      nil    -> %Block.Table{table | rows: rows }
-      aligns -> %Block.Table{table | alignments: aligns,
-                               header:     hd(rows),
-                               rows:       tl(tl(rows)) }
-    end
-    { table , [%Line.Blank{lnb: 0} |rest] }
+
+    table =
+      case look_for_alignments(rows) do
+        nil -> %Block.Table{table | rows: rows}
+        aligns -> %Block.Table{table | alignments: aligns, header: hd(rows), rows: tl(tl(rows))}
+      end
+
+    {table, [%Line.Blank{lnb: 0} | rest]}
   end
 
-
-  defp look_for_alignments([ _first, second | _rest ]) do
+  defp look_for_alignments([_first, second | _rest]) do
     if Enum.all?(second, fn row -> row =~ ~r{^:?-+:?$} end) do
       second
       |> Enum.map(fn row -> Regex.replace(~r/-+/, row, "-") end)
-      |> Enum.map(fn row -> case row do
-           ":-:" -> :center
-           ":-"  -> :left
-           "-"   -> :left
-           "-:"  -> :right
-         end
+      |> Enum.map(fn row ->
+        case row do
+          ":-:" -> :center
+          ":-" -> :left
+          "-" -> :left
+          "-:" -> :right
+        end
       end)
     else
       nil
     end
   end
 
-
   #####################################################
   # Traverse the block list and build a list of links #
   #####################################################
 
   defp links_from_blocks(blocks) do
-    visit(blocks, Map.new, &link_extractor/2)
+    visit(blocks, Map.new(), &link_extractor/2)
   end
 
   defp link_extractor(item = %Block.IdDef{id: id}, result) do
@@ -492,7 +676,6 @@ defmodule EarmarkParser.Parser do
 
   defp link_extractor(_, result), do: result
 
-
   ##################################
   # Visitor pattern for each block #
   ##################################
@@ -500,28 +683,28 @@ defmodule EarmarkParser.Parser do
   defp visit([], result, _func), do: result
 
   # Structural node BlockQuote -> descend
-  defp visit([ item = %Block.BlockQuote{blocks: blocks} | rest], result, func) do
+  defp visit([item = %Block.BlockQuote{blocks: blocks} | rest], result, func) do
     result = func.(item, result)
     result = visit(blocks, result, func)
     visit(rest, result, func)
   end
 
   # Structural node List -> descend
-  defp visit([ item = %Block.List{blocks: blocks} | rest], result, func) do
+  defp visit([item = %Block.List{blocks: blocks} | rest], result, func) do
     result = func.(item, result)
     result = visit(blocks, result, func)
     visit(rest, result, func)
   end
 
   # Structural node ListItem -> descend
-  defp visit([ item = %Block.ListItem{blocks: blocks} | rest], result, func) do
+  defp visit([item = %Block.ListItem{blocks: blocks} | rest], result, func) do
     result = func.(item, result)
     result = visit(blocks, result, func)
     visit(rest, result, func)
   end
 
   # Leaf, leaf it alone
-  defp visit([ item | rest], result, func) do
+  defp visit([item | rest], result, func) do
     result = func.(item, result)
     visit(rest, result, func)
   end
@@ -530,19 +713,44 @@ defmodule EarmarkParser.Parser do
   # Consume HTML, taking care of nesting. Assumes one tag per line. #
   ###################################################################
 
-  defp _html_match_to_closing(opener, rest, annotation), do: _find_closing_tags([opener], rest, [String.trim_leading(opener.line)], annotation)
+  defp _html_match_to_closing(opener, rest, annotation),
+    do: _find_closing_tags([opener], rest, [String.trim_leading(opener.line)], annotation)
 
   defp _find_closing_tags(needed, input, html_lines, annotation)
   # No more open tags, happy case
-  defp _find_closing_tags([], rest, html_lines, annotation), do: {html_lines, rest, [], annotation}
+  defp _find_closing_tags([], rest, html_lines, annotation),
+    do: {html_lines, rest, [], annotation}
+
   # run out of input, unhappy case
-  defp _find_closing_tags(needed, [], html_lines, annotation), do: {html_lines, [], needed, annotation}
+  defp _find_closing_tags(needed, [], html_lines, annotation),
+    do: {html_lines, [], needed, annotation}
+
   # still more lines, still needed closing
-  defp _find_closing_tags(needed = [needed_hd|needed_tl], [rest_hd|rest_tl], html_lines, annotation) do
+  defp _find_closing_tags(
+         needed = [needed_hd | needed_tl],
+         [rest_hd | rest_tl],
+         html_lines,
+         annotation
+       ) do
     cond do
-      _closes_tag?(rest_hd, needed_hd) -> _find_closing_tags(needed_tl, rest_tl, [String.trim_leading(rest_hd.line)|html_lines], _override_annotation(annotation, rest_hd))
-      _opens_tag?(rest_hd)             -> _find_closing_tags([rest_hd|needed], rest_tl, [String.trim_leading(rest_hd.line)|html_lines], annotation)
-      true                             -> _find_closing_tags(needed, rest_tl, [rest_hd.line|html_lines], annotation)
+      _closes_tag?(rest_hd, needed_hd) ->
+        _find_closing_tags(
+          needed_tl,
+          rest_tl,
+          [String.trim_leading(rest_hd.line) | html_lines],
+          _override_annotation(annotation, rest_hd)
+        )
+
+      _opens_tag?(rest_hd) ->
+        _find_closing_tags(
+          [rest_hd | needed],
+          rest_tl,
+          [String.trim_leading(rest_hd.line) | html_lines],
+          annotation
+        )
+
+      true ->
+        _find_closing_tags(needed, rest_tl, [rest_hd.line | html_lines], annotation)
     end
   end
 
@@ -553,27 +761,30 @@ defmodule EarmarkParser.Parser do
   defp _closes_tag?(%Line.HtmlCloseTag{tag: ctag}, %Line.HtmlOpenTag{tag: otag}) do
     ctag == otag
   end
+
   defp _closes_tag?(_, _), do: false
 
   defp _opens_tag?(%Line.HtmlOpenTag{}), do: true
   defp _opens_tag?(_), do: false
 
-
   defp _inline_or_text?(line, pending)
+
   defp _inline_or_text?(line = %Line.Text{}, @not_pending) do
     pending = opens_inline_code(line)
     %{pending: pending, continue: true}
   end
+
   defp _inline_or_text?(line = %Line.TableLine{}, @not_pending) do
     pending = opens_inline_code(line)
     %{pending: pending, continue: true}
   end
-  defp _inline_or_text?( _line, @not_pending), do: %{pending: @not_pending, continue: false}
-  defp _inline_or_text?( line, pending ) do
+
+  defp _inline_or_text?(_line, @not_pending), do: %{pending: @not_pending, continue: false}
+
+  defp _inline_or_text?(line, pending) do
     pending = still_inline_code(line, pending)
     %{pending: pending, continue: true}
   end
-
 
   defp _override_annotation(annotation, line), do: annotation || line.annotation
 
@@ -588,15 +799,17 @@ defmodule EarmarkParser.Parser do
 
   defp remove_trailing_blank_lines(lines) do
     lines
-    |> Enum.reverse
+    |> Enum.reverse()
     |> Enum.drop_while(&blank?/1)
-    |> Enum.reverse
+    |> Enum.reverse()
   end
+
   def prepend_ial(context, maybeatts, lnb, result)
   def prepend_ial(context, nil, _lnb, result), do: {context, result}
+
   def prepend_ial(context, ial, lnb, result) do
     {context1, attributes} = parse_attrs(context, ial, lnb)
-    {context1, [%Block.Ial{attrs: attributes, content: ial, lnb: lnb, verbatim: ial}|result]}
+    {context1, [%Block.Ial{attrs: attributes, content: ial, lnb: lnb, verbatim: ial} | result]}
   end
 end
 
