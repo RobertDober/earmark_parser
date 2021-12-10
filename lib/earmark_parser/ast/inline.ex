@@ -2,9 +2,8 @@ defmodule EarmarkParser.Ast.Inline do
 
   @moduledoc false
 
-  alias EarmarkParser.Context
-  alias EarmarkParser.Helpers.LinkParser
-  alias EarmarkParser.Helpers.PureLinkHelpers
+  alias EarmarkParser.{Context, Message}
+  alias EarmarkParser.Helpers.{LinkParser, PureLinkHelpers}
 
   import EarmarkParser.Ast.Emitter
   import EarmarkParser.Ast.Renderer.AstWalker
@@ -157,7 +156,7 @@ defmodule EarmarkParser.Ast.Inline do
       [match, id] ->
         case footnote_link(context, match, id) do
           {:ok, out} -> {behead(src, match), lnb, prepend(context, out), use_linky?}
-          _ -> nil
+          _ -> converter_for_text({src, lnb, Message.add_message(context, {:error, lnb, "footnote #{id} undefined, reference to it ignored"}), use_linky?})
         end
 
       _ ->

@@ -27,6 +27,7 @@ defmodule EarmarkParser.Context do
   def modify_value(%__MODULE__{value: value}=context, fun) do
     # IO.inspect(value, label: ">>>modify_value")
     nv = fun.(value) #|> IO.inspect(label: "<<<modify_value")
+    # TODO: Remove me
     unless is_list(nv), do: raise "Not a list!!!\n#{inspect nv}"
     %{context | value: nv}
   end
@@ -35,6 +36,7 @@ defmodule EarmarkParser.Context do
   # Convenience method to prepend to the value list
   def prepend(context, ast, messages \\ [])
   def prepend(%__MODULE__{} = ctx, prep, messages) do
+    # Maybe raise if too many errors, say 100?
     options1 = %{ctx.options | messages: Enum.uniq(ctx.options.messages ++ messages)}
     _prepend(%{ctx|options: options1}, prep)
   end
@@ -44,6 +46,7 @@ defmodule EarmarkParser.Context do
   defp _prepend(%{value: value}=ctxt, tuple) when is_tuple(tuple) do
     %{ctxt|value: [tuple|value] |> List.flatten}
   end
+  # TODO: Can I use Enum.concat here?
   defp _prepend(%{value: value}=ctxt, list) when is_list(list), do: %{ctxt|value: List.flatten(list ++ value)}
 
   @doc """

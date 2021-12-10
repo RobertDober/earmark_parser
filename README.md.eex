@@ -1,5 +1,5 @@
 
-# EarmarkParser A Pure Elixir Markdown Parser (split from Earmark)
+# EarmarkParser A Pure Elixir Markdown Parser
 
 [![CI](https://github.com/robertdober/earmark_parser/workflows/CI/badge.svg)](https://github.com/robertdober/earmark_parser/actions)
 [![Coverage Status](https://coveralls.io/repos/github/RobertDober/earmark_parser/badge.svg?branch=master)](https://coveralls.io/github/RobertDober/earmark_parser?branch=master)
