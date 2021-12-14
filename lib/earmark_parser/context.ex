@@ -1,6 +1,7 @@
 defmodule EarmarkParser.Context do
   @moduledoc false
   use EarmarkParser.Types
+  alias EarmarkParser.Options
 
   @type t :: %__MODULE__{
           options: EarmarkParser.Options.t(),
@@ -24,8 +25,6 @@ defmodule EarmarkParser.Context do
   @doc false
   def modify_value(%__MODULE__{value: value} = context, fun) do
     nv = fun.(value)
-    # TODO: Remove me
-    unless is_list(nv), do: raise("Not a list!!!\n#{inspect(nv)}")
     %{context | value: nv}
   end
 
@@ -53,11 +52,18 @@ defmodule EarmarkParser.Context do
          %__MODULE__{referenced_footnote_ids: orig} = context1,
          %__MODULE__{referenced_footnote_ids: new} = context2
        ) do
-    # TODO: Make Options.messages a MapSet
-    messages = Enum.uniq(context1.options.messages ++ context2.options.messages)
-    options_ = %{context1.options | messages: messages}
-    %{context1 | referenced_footnote_ids: MapSet.union(orig, new), options: options_}
+    context_ = _merge_messages(context1, context2)
+    %{context_| referenced_footnote_ids: MapSet.union(orig, new)}
   end
+
+  defp _merge_messages(context, context_or_messages)
+  defp _merge_messages(context, %__MODULE__{options: %Options{messages: messages}}) do
+    _merge_messages(context, messages)
+  end
+  defp _merge_messages(context, messages) do
+    %{context | options: %{context.options|messages: MapSet.union(context.options.messages, messages)}}
+  end
+
 
   defp _prepend(ctxt, []), do: ctxt
 

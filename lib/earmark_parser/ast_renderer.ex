@@ -29,7 +29,6 @@ defmodule EarmarkParser.AstRenderer do
   #############
   # Paragraph #
   #############
-  # TODO: longfn
   defp render_block(%Block.Para{lnb: lnb, lines: lines, attrs: attrs} = para, context, loose?) do
     context1 = convert(lines, lnb, context)
     value = context1.value |> Enum.reverse()
@@ -189,8 +188,6 @@ defmodule EarmarkParser.AstRenderer do
          _loose?
        ) do
     context1 = render(blocks, clear_value(context), loose?)
-    # See below why _fix_text_lines is a NOP right now
-    # prepend(context, emit("li", _fix_text_lines(context1.value, loose?), Enum.map(attrs || %{}, &attrs_to_string_keys/1)), context1.options.messages)
     prepend(
       context,
       emit("li", context1.value, Enum.map(attrs || %{}, &attrs_to_string_keys/1)),
@@ -218,29 +215,13 @@ defmodule EarmarkParser.AstRenderer do
   ##################
 
   @empty_set MapSet.new([])
-  # TODO: longfn
-  defp render_block(%Block.FnList{blocks: footnotes}, context, _loose?) do
+  defp render_block(%Block.FnList{}=fn_list, context, _loose?) do
     if MapSet.equal?(context.referenced_footnote_ids, @empty_set) do
       context
     else
-      {elements, errors, _} =
-        footnotes
-        |> Enum.reduce({[], [], context}, &_render_footnote_def/2)
-
-      ast =
-        emit(
-          "div",
-          [
-            emit("hr"),
-            emit("ol", elements|>Enum.reverse)
-          ],
-          class: "footnotes"
-        )
-
-      prepend(context, ast) |> EarmarkParser.Message.add_messages(errors)
+      render_defined_fns(fn_list, context)
     end
   end
-
   #######################################
   # Isolated IALs are rendered as paras #
   #######################################
@@ -288,10 +269,34 @@ defmodule EarmarkParser.AstRenderer do
       footnote_li_ast =
         emit("li", [emit("a", ["&#x21A9;"], a_attrs) | context1.value],
          id: "fn:#{id}")
-      {[footnote_li_ast|ast], errors ++ context1.options.messages, context}
+      {[footnote_li_ast|ast], MapSet.union(errors, context1.options.messages), context}
     else
       acc
     end
+  end
+
+  defp render_defined_fns(%Block.FnList{blocks: footnotes}, context) do
+    {elements, errors} = render_footnote_blocks(footnotes, context)
+
+    ast =
+      emit(
+        "div",
+        [
+          emit("hr"),
+          emit("ol", elements)
+        ],
+        class: "footnotes"
+      )
+
+    prepend(context, ast) |> EarmarkParser.Message.add_messages(errors)
+  end
+
+  defp render_footnote_blocks(footnotes, context) do
+    {elements, errors, _} =
+      footnotes
+      |> Enum.reduce({[], @empty_set, context}, &_render_footnote_def/2)
+
+    {elements|>Enum.reverse, errors}
   end
 end
 

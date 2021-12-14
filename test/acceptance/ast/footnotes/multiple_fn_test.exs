@@ -79,8 +79,8 @@ defmodule Test.Acceptance.Ast.Footnotes.MultipleFnTest do
       ]
 
       messages = [
-        {:error, 1, "footnote 2 undefined, reference to it ignored"},
         {:error, 1, "footnote 1 undefined, reference to it ignored"},
+        {:error, 1, "footnote 2 undefined, reference to it ignored"},
         {:warning, 4, "Unexpected line ==="},
         {:warning, 6, "Unexpected line ==="}]
 

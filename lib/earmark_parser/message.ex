@@ -15,11 +15,11 @@ defmodule EarmarkParser.Message do
   def add_message(container, message)
 
   def add_message(options = %Options{}, message) do
-    %{options | messages: [message | options.messages]}
+    %{options | messages: MapSet.put(options.messages, message)}
   end
 
   def add_message(context = %Context{}, message) do
-    %{context | options: %{context.options | messages: [message | get_messages(context)]}}
+    %{context | options: add_message(context.options, message)}
   end
 
   def get_messages(container)
