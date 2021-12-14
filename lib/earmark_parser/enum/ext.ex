@@ -27,7 +27,7 @@ defmodule EarmarkParser.Enum.Ext do
   def reduce_with_end([ele|rest], acc, reducer_fn) do
     reduce_with_end(rest, reducer_fn.({:element, ele}, acc), reducer_fn)
   end
-  
+
   @doc ~S"""
   `split_reduce_while` is like `Enum.split_while` but also reduces the first
   part of what `split_while` would return. The reducer function is called with

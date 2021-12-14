@@ -225,22 +225,21 @@ defmodule EarmarkParser.AstRenderer do
     if MapSet.equal?(context.referenced_footnote_ids, @empty_set) do
       context
     else
-      # IO.inspect(footnotes)
-      context1 =
+      {elements, errors, _} =
         footnotes
-        |> Enum.reduce(context |> clear_value(), &_render_footnote_def/2)
+        |> Enum.reduce({[], [], context}, &_render_footnote_def/2)
 
       ast =
         emit(
           "div",
           [
             emit("hr"),
-            emit("ol", context1.value)
+            emit("ol", elements|>Enum.reverse)
           ],
           class: "footnotes"
         )
 
-      prepend(context, ast, context1)
+      prepend(context, ast) |> EarmarkParser.Message.add_messages(errors)
     end
   end
 
@@ -284,14 +283,16 @@ defmodule EarmarkParser.AstRenderer do
     end
   end
 
-  defp _render_footnote_def(%Block.FnDef{blocks: blocks, id: id}, context) do
+  defp _render_footnote_def(%Block.FnDef{blocks: blocks, id: id}, {ast, errors, context}=acc) do
     if MapSet.member?(context.referenced_footnote_ids, id) do
-      context1 = render(blocks, context)
-      attrs = %{title: "return to article", class: "reversefootnote", href: "#fnref:#{id}"}
-      context2 = prepend(context1, emit("a", ["&#x21A9;"], attrs))
-      set_value(context2, [emit("li", context2.value, id: "fn:#{id}")])
+      context1 = render(blocks, clear_value(context))
+      a_attrs = %{title: "return to article", class: "reversefootnote", href: "#fnref:#{id}"}
+      footnote_li_ast =
+        emit("li", [emit("a", ["&#x21A9;"], a_attrs) | context1.value],
+         id: "fn:#{id}")
+      {[footnote_li_ast|ast], context1.options.messages, context}
     else
-      context
+      acc
     end
   end
 end

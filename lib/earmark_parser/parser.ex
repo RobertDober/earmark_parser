@@ -43,7 +43,6 @@ defmodule EarmarkParser.Parser do
   def parse(text_lines, options = %Options{}, recursive) do
     ["" | text_lines ++ [""]]
     |> LineScanner.scan_lines(options, recursive)
-    # |> IO.inspect(label: :lines)
     |> parse_lines(options, recursive)
   end
 
@@ -56,7 +55,6 @@ defmodule EarmarkParser.Parser do
     {blocks, footnotes, options} =
       lines |> remove_trailing_blank_lines() |> lines_to_blocks(options, recursive)
 
-    # |> IO.inspect
     links = links_from_blocks(blocks)
     {blocks, links, footnotes, options}
   end
@@ -64,7 +62,6 @@ defmodule EarmarkParser.Parser do
   defp lines_to_blocks(lines, options, recursive) do
     {blocks, footnotes, options1} = _parse(lines, [], options, recursive)
 
-    # { blocks |> IO.inspect(label: :blocks)|> assign_attributes_to_blocks([]) |> consolidate_list_items([]) , options1 }
     {blocks |> assign_attributes_to_blocks([]) |> consolidate_list_items([]), footnotes, options1}
   end
 
@@ -304,7 +301,6 @@ defmodule EarmarkParser.Parser do
          options,
          recursive
        ) do
-    # |> IO.inspect(label: :found) 
     {html_lines, rest1, unclosed, annotation} = _html_match_to_closing(opener, rest, annotation)
 
     options1 =
@@ -478,7 +474,7 @@ defmodule EarmarkParser.Parser do
     )
   end
 
-  def _parse_fn_defs([fn_def | rest], result, options) do
+  def _parse_fn_defs([fn_def | rest]=input, result, options) do
     acc =
       {[fn_def.content], [%Block.FnList{blocks: [_block_fn_def(fn_def)]} | result], %{}, options}
 
@@ -488,8 +484,8 @@ defmodule EarmarkParser.Parser do
 
   defp _parse_fn_def_reduce(ele_or_end, acc)
 
-  defp _parse_fn_def_reduce({:element, %Line.FnDef{content: content}}, acc) do
-    {result1, footnotes, options1} = _complete_fn_def_block(acc, content)
+  defp _parse_fn_def_reduce({:element, %Line.FnDef{content: content}=fn_def}, acc) do
+    {result1, footnotes, options1} = _complete_fn_def_block(acc, fn_def)
     {[content], result1, footnotes, options1}
   end
 
@@ -559,7 +555,6 @@ defmodule EarmarkParser.Parser do
   end
 
   defp _consolidate_para([line | rest] = lines, result, pending, annotation) do
-    # IO.inspect({line, annotation}, label: :consolidate)
     case _inline_or_text?(line, pending) do
       %{pending: still_pending, continue: true} ->
         _consolidate_para(rest, [line | result], still_pending, annotation || line.annotation)
