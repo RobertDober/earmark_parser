@@ -2,7 +2,7 @@ defmodule EarmarkParser.Parser do
   @moduledoc false
   alias EarmarkParser.{Block, Enum.Ext, Line, LineScanner, Options}
 
-  import EarmarkParser.Helpers.{AttrParser, FootnoteHandler, LineHelpers, ReparseHelpers}
+  import EarmarkParser.Helpers.{AttrParser, LineHelpers, ReparseHelpers}
 
   import EarmarkParser.Helpers.LookaheadHelpers,
     only: [opens_inline_code: 1, still_inline_code: 2]
@@ -428,7 +428,7 @@ defmodule EarmarkParser.Parser do
   # `_parse` iteration can now end and we will trigger `_parse_fn_defs`
   # this has the advantage that we can make the assumption that the top of the `result`
   # list contains a `Block.FnList` element
-  defp _parse([%Line.FnDef{} | _] = input, result, options, recursive) do
+  defp _parse([%Line.FnDef{} | _] = input, result, options, _recursive) do
     _parse_fn_defs(input, result, options)
   end
 
@@ -474,7 +474,7 @@ defmodule EarmarkParser.Parser do
     )
   end
 
-  def _parse_fn_defs([fn_def | rest]=input, result, options) do
+  def _parse_fn_defs([fn_def | rest], result, options) do
     acc =
       {[fn_def.content], [%Block.FnList{blocks: [_block_fn_def(fn_def)]} | result], %{}, options}
 

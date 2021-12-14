@@ -3,7 +3,7 @@ defmodule EarmarkParser.AstRenderer do
   alias EarmarkParser.Context
   alias EarmarkParser.Options
 
-  import Context, only: [clear_value: 1, modify_value: 2, prepend: 2, prepend: 3, set_value: 2]
+  import Context, only: [clear_value: 1, modify_value: 2, prepend: 2, prepend: 3]
 
   import EarmarkParser.Ast.Emitter
   import EarmarkParser.Ast.Inline, only: [convert: 3]
@@ -290,7 +290,7 @@ defmodule EarmarkParser.AstRenderer do
       footnote_li_ast =
         emit("li", [emit("a", ["&#x21A9;"], a_attrs) | context1.value],
          id: "fn:#{id}")
-      {[footnote_li_ast|ast], context1.options.messages, context}
+      {[footnote_li_ast|ast], errors ++ context1.options.messages, context}
     else
       acc
     end
