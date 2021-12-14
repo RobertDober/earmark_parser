@@ -74,7 +74,6 @@ defmodule EarmarkParser.Context do
     %{ctxt | value: [tuple | value] |> List.flatten()}
   end
 
-  # TODO: Can I use Enum.concat here?
   defp _prepend(%{value: value} = ctxt, list) when is_list(list),
     do: %{ctxt | value: List.flatten(list ++ value)}
 
@@ -82,8 +81,6 @@ defmodule EarmarkParser.Context do
   Convenience method to prepend to the value list
   """
   def set_value(%__MODULE__{} = ctx, value) do
-    # TODO: Remove me
-    unless is_list(value), do: raise("Not a list!!!\n#{inspect(value)}")
     %{ctx | value: value}
   end
 
