@@ -1,5 +1,5 @@
 defmodule EarmarkParser.Parser.ListInfo do
-  import EarmarkParser.Helpers.LookaheadHelpers, only: [opens_inline_code: 1, still_inline_code: 2]
+  import EarmarkParser.Helpers.LookaheadHelpers, only: [opens_inline_code: 1]
 
   @moduledoc false
 
@@ -17,14 +17,5 @@ defmodule EarmarkParser.Parser.ListInfo do
     %__MODULE__{indent: ii, pending: pending, width: width}
   end
 
-  # INLINE CANDIDATE
-  def update_pending(list_info, line)
-  def update_pending(%{pending: @not_pending}=info, line) do
-    pending = opens_inline_code(line)
-    %{info | pending: pending}
-  end
-  def update_pending(%{pending: pending}=info, line) do
-    pending1 = still_inline_code(line, pending)
-    %{info | pending: pending1}
-  end
 end
+#  SPDX-License-Identifier: Apache-2.0

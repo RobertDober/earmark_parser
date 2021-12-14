@@ -14,13 +14,6 @@ defmodule EarmarkParser.Helpers.StringHelpers do
   end
 
   @doc """
-  Remove leading spaces up to size
-  """
-  def behead_indent(str, size) do
-    String.replace(str, ~r<\A\s{0,#{size}}>, "")
-  end
-
-  @doc """
     Returns a tuple with the prefix and the beheaded string
 
         iex> behead_tuple("prefixpostfix", "prefix")

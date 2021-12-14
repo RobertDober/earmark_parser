@@ -23,8 +23,6 @@ defmodule EarmarkParser.Context do
 
   @doc false
   def modify_value(%__MODULE__{value: value} = context, fun) do
-    # IO.inspect(value, label: ">>>modify_value")
-    # |> IO.inspect(label: "<<<modify_value")
     nv = fun.(value)
     # TODO: Remove me
     unless is_list(nv), do: raise("Not a list!!!\n#{inspect(nv)}")

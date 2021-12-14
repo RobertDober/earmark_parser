@@ -244,19 +244,15 @@ defmodule EarmarkParser.Ast.Inline do
   end
 
   @inline_ial ~r<^\s*\{:\s*(.*?)\s*}>
-  defp converter_for_inline_ial(conv_data)
 
   defp converter_for_inline_ial({src, lnb, context, use_linky?}) do
     if match = Regex.run(@inline_ial, src) do
       [match, ial] = match
       {context1, ial_attrs} = parse_attrs(context, ial, lnb)
       new_tags = augment_tag_with_ial(context.value, ial_attrs)
-      # |> IO.inspect
       {behead(src, match), lnb, set_value(context1, new_tags), use_linky?}
     end
   end
-
-  defp converter_for_inline_ial(_conv_data), do: nil
 
   defp converter_for_br({src, lnb, context, use_linky?}) do
     if match = Regex.run(context.rules.br, src, return: :index) do

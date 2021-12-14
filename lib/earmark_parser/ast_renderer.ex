@@ -14,7 +14,6 @@ defmodule EarmarkParser.AstRenderer do
   @moduledoc false
 
   def render(blocks, context = %Context{options: %Options{}}, loose? \\ true) do
-    # IO.inspect blocks
     _render(blocks, context, loose?)
   end
 
@@ -189,7 +188,6 @@ defmodule EarmarkParser.AstRenderer do
          context,
          _loose?
        ) do
-    # IO.inspect blocks
     context1 = render(blocks, clear_value(context), loose?)
     # See below why _fix_text_lines is a NOP right now
     # prepend(context, emit("li", _fix_text_lines(context1.value, loose?), Enum.map(attrs || %{}, &attrs_to_string_keys/1)), context1.options.messages)

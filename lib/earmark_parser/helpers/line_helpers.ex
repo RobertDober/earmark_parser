@@ -13,9 +13,6 @@ defmodule EarmarkParser.Helpers.LineHelpers do
   def indent_or_blank?(%Line.Indent{}), do: true
   def indent_or_blank?(line),           do: blank?(line)
 
-  def not_fn_def?(%Line.FnDef{}), do: false
-  def not_fn_def?(_), do: false
-
   # Gruber's tests have
   #
   #   para text...
