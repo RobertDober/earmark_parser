@@ -1,3 +1,13 @@
+## 1.4.19 2021-12-24
+
+- [Footnotes fixed and upgraded(#26)](https://github.com/robertdober/earmark_parser/pull/76)
+
+  Footnotes are now a **superset** of GFM Footnotes. This implies some changes
+
+    - Footnote definitions (`[^footnote_id]`) must come at the end of your document (_GFM_)
+    - Footnotes that are not referenced are not rendered anymore (_GFM_)
+    - Footnote definitions can contain any markup with the exception of footnote definitions
+
 ## 1.4.18 2021-12-04
 
 - [Deprecate options not useful anymore after the removal of parallel scanning (#72)](https://github.com/robertdober/earmark_parser/pull/72)
