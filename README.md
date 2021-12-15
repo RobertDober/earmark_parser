@@ -1,5 +1,5 @@
 
-# EarmarkParser A Pure Elixir Markdown Parser (split from Earmark)
+# EarmarkParser A Pure Elixir Markdown Parser
 
 [![CI](https://github.com/robertdober/earmark_parser/workflows/CI/badge.svg)](https://github.com/robertdober/earmark_parser/actions)
 [![Coverage Status](https://coveralls.io/repos/github/RobertDober/earmark_parser/badge.svg?branch=master)](https://coveralls.io/github/RobertDober/earmark_parser?branch=master)
@@ -27,6 +27,7 @@
   - [Github Flavored Markdown](#github-flavored-markdown)
     - [Strike Through](#strike-through)
     - [Syntax Highlighting](#syntax-highlighting)
+    - [Footnotes](#footnotes)
     - [Tables](#tables)
     - [HTML Blocks](#html-blocks)
     - [HTML Comments](#html-comments)
@@ -170,7 +171,7 @@ For example:
     ...(10)>    "```elixir",
     ...(10)>    " @tag :hello",
     ...(10)>    "```"
-    ...(10)> ] |> EarmarkParser.as_ast()
+    ...(10)> ] |> as_ast()
     {:ok, [{"pre", [], [{"code", [{"class", "elixir"}], [" @tag :hello"], %{}}], %{}}], []}
 ```
 
@@ -189,10 +190,49 @@ In the following example we want more than one additional class, so we add more 
     ...(11)>    "```elixir",
     ...(11)>    " @tag :hello",
     ...(11)>    "```"
-    ...(11)> ] |> EarmarkParser.as_ast(%EarmarkParser.Options{code_class_prefix: "lang- language-"})
+    ...(11)> ] |> as_ast(%EarmarkParser.Options{code_class_prefix: "lang- language-"})
     {:ok, [{"pre", [], [{"code", [{"class", "elixir lang-elixir language-elixir"}], [" @tag :hello"], %{}}], %{}}], []}
 ```
 
+
+#### Footnotes
+
+**N.B.** Footnotes are disabled by default, use `as_ast(..., footnotes: true)` to enable them
+
+
+Footnotes are now a **superset** of GFM Footnotes. This implies some changes
+
+  - Footnote definitions (`[^footnote_id]`) must come at the end of your document (_GFM_)
+  - Footnotes that are not referenced are not rendered anymore (_GFM_)
+  - Footnote definitions can contain any markup with the exception of footnote definitions
+
+```elixir
+    iex(12)> markdown = [
+    ...(12)> "My reference[^to_footnote]",
+    ...(12)> "",
+    ...(12)> "[^1]: I am not rendered",
+    ...(12)> "[^to_footnote]: Important information"]
+    ...(12)> {:ok, ast, []} = as_ast(markdown, footnotes: true)
+    ...(12)> ast
+    [
+      {"p", [], ["My reference",
+        {"a",
+         [{"href", "#fn:to_footnote"}, {"id", "fnref:to_footnote"}, {"class", "footnote"}, {"title", "see footnote"}],
+         ["to_footnote"], %{}}
+      ], %{}},
+      {"div", 
+       [{"class", "footnotes"}],
+       [{"hr", [], [], %{}}, 
+        {"ol", [], 
+         [{"li", [{"id", "fn:to_footnote"}], 
+           [{"a", [{"class", "reversefootnote"}, {"href", "#fnref:to_footnote"}, {"title", "return to article"}], ["&#x21A9;"], %{}},
+            {"p", [], ["Important information"], %{}}], %{}}
+        ], %{}}], %{}}
+    ]
+```
+
+  For more complex examples of footnotes, please refer to
+  [these tests](https://github.com/RobertDober/earmark_parser/tree/master/test/acceptance/ast/footnotes/multiple_fn_test.exs)
 
 #### Tables
 
@@ -247,8 +287,8 @@ as one HTML AST node, marked with %{verbatim: true}
 E.g.
 
 ```elixir
-    iex(12)> lines = [ "<div><span>", "some</span><text>", "</div>more text" ]
-    ...(12)> EarmarkParser.as_ast(lines)
+    iex(13)> lines = [ "<div><span>", "some</span><text>", "</div>more text" ]
+    ...(13)> EarmarkParser.as_ast(lines)
     {:ok, [{"div", [], ["<span>", "some</span><text>"], %{verbatim: true}}, "more text"], []}
 ```
 
@@ -256,7 +296,7 @@ And a line starting with an opening tag and ending with the corresponding closin
 fashion
 
 ```elixir
-    iex(13)> EarmarkParser.as_ast(["<span class=\"superspan\">spaniel</span>"])
+    iex(14)> EarmarkParser.as_ast(["<span class=\"superspan\">spaniel</span>"])
     {:ok, [{"span", [{"class", "superspan"}], ["spaniel"], %{verbatim: true}}], []}
 ```
 
@@ -265,8 +305,8 @@ What is HTML?
 We differ from strict GFM by allowing **all** tags not only HTML5 tags this holds for one liners....
 
 ```elixir
-    iex(14)> {:ok, ast, []} = EarmarkParser.as_ast(["<stupid />", "<not>better</not>"])
-    ...(14)> ast
+    iex(15)> {:ok, ast, []} = EarmarkParser.as_ast(["<stupid />", "<not>better</not>"])
+    ...(15)> ast
     [
       {"stupid", [], [], %{verbatim: true}},
       {"not", [], ["better"], %{verbatim: true}}]
@@ -275,8 +315,8 @@ We differ from strict GFM by allowing **all** tags not only HTML5 tags this hold
 and for multi line blocks
 
 ```elixir
-    iex(15)> {:ok, ast, []} = EarmarkParser.as_ast([ "<hello>", "world", "</hello>"])
-    ...(15)> ast
+    iex(16)> {:ok, ast, []} = EarmarkParser.as_ast([ "<hello>", "world", "</hello>"])
+    ...(16)> ast
     [{"hello", [], ["world"], %{verbatim: true}}]
 ```
 
@@ -288,7 +328,7 @@ all text after the next '-->' is ignored
 E.g.
 
 ```elixir
-    iex(16)> EarmarkParser.as_ast(" <!-- Comment\ncomment line\ncomment --> text -->\nafter")
+    iex(17)> EarmarkParser.as_ast(" <!-- Comment\ncomment line\ncomment --> text -->\nafter")
     {:ok, [{:comment, [], [" Comment", "comment line", "comment "], %{comment: true}}, {"p", [], ["after"], %{}}], []}
 ```
 
@@ -302,16 +342,16 @@ HTML attributes can be added to any block-level element. We use
 the Kramdown syntax: add the line `{:` _attrs_ `}` following the block.
 
 ```elixir
-    iex(17)> markdown = ["# Headline", "{:.from-next-line}"]
-    ...(17)> as_ast(markdown)
+    iex(18)> markdown = ["# Headline", "{:.from-next-line}"]
+    ...(18)> as_ast(markdown)
     {:ok, [{"h1", [{"class", "from-next-line"}], ["Headline"], %{}}], []}
 ```
 
 Headers can also have the IAL string at the end of the line
 
 ```elixir
-    iex(18)> markdown = ["# Headline{:.from-same-line}"]
-    ...(18)> as_ast(markdown)
+    iex(19)> markdown = ["# Headline{:.from-same-line}"]
+    ...(19)> as_ast(markdown)
     {:ok, [{"h1", [{"class", "from-same-line"}], ["Headline"], %{}}], []}
 ```
 
@@ -320,24 +360,24 @@ see [this PR](https://github.com/elixir-lang/ex_doc/pull/1400) if you are intere
 details
 
 ```elixir
-    iex(19)> markdown = ["> # Headline{:.warning}"]
-    ...(19)> as_ast(markdown)
+    iex(20)> markdown = ["> # Headline{:.warning}"]
+    ...(20)> as_ast(markdown)
     {:ok, [{"blockquote", [], [{"h1", [{"class", "warning"}], ["Headline"], %{}}], %{}}], []}
 ```
 
 This also works for headers inside lists
 
 ```elixir
-    iex(20)> markdown = ["- # Headline{:.warning}"]
-    ...(20)> as_ast(markdown)
+    iex(21)> markdown = ["- # Headline{:.warning}"]
+    ...(21)> as_ast(markdown)
     {:ok, [{"ul", [], [{"li", [], [{"h1", [{"class", "warning"}], ["Headline"], %{}}], %{}}], %{}}], []}
 ```
 
 It still works for inline code, as it did before
 
 ```elixir
-    iex(21)> markdown = "`Enum.map`{:lang=elixir}"
-    ...(21)> as_ast(markdown)
+    iex(22)> markdown = "`Enum.map`{:lang=elixir}"
+    ...(22)> as_ast(markdown)
     {:ok, [{"p", [], [{"code", [{"class", "inline"}, {"lang", "elixir"}], ["Enum.map"], %{}}], %{}}], []}
 ```
 
@@ -363,23 +403,23 @@ It is possible to add IAL attributes to generated links or images in the followi
 format.
 
 ```elixir
-    iex(22)> markdown = "[link](url) {: .classy}"
-    ...(22)> EarmarkParser.as_ast(markdown)
+    iex(23)> markdown = "[link](url) {: .classy}"
+    ...(23)> EarmarkParser.as_ast(markdown)
     { :ok, [{"p", [], [{"a", [{"class", "classy"}, {"href", "url"}], ["link"], %{}}], %{}}], []}
 ```
 
 For both cases, malformed attributes are ignored and warnings are issued.
 
 ```elixir
-    iex(23)> [ "Some text", "{:hello}" ] |> Enum.join("\n") |> EarmarkParser.as_ast()
+    iex(24)> [ "Some text", "{:hello}" ] |> Enum.join("\n") |> EarmarkParser.as_ast()
     {:error, [{"p", [], ["Some text"], %{}}], [{:warning, 2,"Illegal attributes [\"hello\"] ignored in IAL"}]}
 ```
 
 It is possible to escape the IAL in both forms if necessary
 
 ```elixir
-    iex(24)> markdown = "[link](url)\\{: .classy}"
-    ...(24)> EarmarkParser.as_ast(markdown)
+    iex(25)> markdown = "[link](url)\\{: .classy}"
+    ...(25)> EarmarkParser.as_ast(markdown)
     {:ok, [{"p", [], [{"a", [{"href", "url"}], ["link"], %{}}, "{: .classy}"], %{}}], []}
 ```
 
@@ -387,8 +427,8 @@ This of course is not necessary in code blocks or text lines
 containing an IAL-like string, as in the following example
 
 ```elixir
-    iex(25)> markdown = "hello {:world}"
-    ...(25)> EarmarkParser.as_ast(markdown)
+    iex(26)> markdown = "hello {:world}"
+    ...(26)> EarmarkParser.as_ast(markdown)
     {:ok, [{"p", [], ["hello {:world}"], %{}}], []}
 ```
 
@@ -475,14 +515,14 @@ Let us show some examples now:
 ### Annotated Paragraphs
 
 ```elixir
-    iex(26)> as_ast("hello %> annotated", annotations: "%>")
+    iex(27)> as_ast("hello %> annotated", annotations: "%>")
     {:ok, [{"p", [], ["hello "], %{annotation: "%> annotated"}}], []}
 ```
 
 If we annotate more than one line in a para the first annotation takes precedence
 
 ```elixir
-    iex(27)> as_ast("hello %> annotated\nworld %> discarded", annotations: "%>")
+    iex(28)> as_ast("hello %> annotated\nworld %> discarded", annotations: "%>")
     {:ok, [{"p", [], ["hello \nworld "], %{annotation: "%> annotated"}}], []}
 ```
 
@@ -491,18 +531,18 @@ If we annotate more than one line in a para the first annotation takes precedenc
 In one line
 
 ```elixir
-    iex(28)> as_ast("<span>One Line</span> // a span", annotations: "//")
+    iex(29)> as_ast("<span>One Line</span> // a span", annotations: "//")
     {:ok, [{"span", [], ["One Line"], %{annotation: "// a span", verbatim: true}}], []}
 ```
 
 or block elements
 
 ```elixir
-    iex(29)> [
-    ...(29)> "<div> : annotation",
-    ...(29)> "  <span>text</span>",
-    ...(29)> "</div> : discarded"
-    ...(29)> ] |> as_ast(annotations: " : ")
+    iex(30)> [
+    ...(30)> "<div> : annotation",
+    ...(30)> "  <span>text</span>",
+    ...(30)> "</div> : discarded"
+    ...(30)> ] |> as_ast(annotations: " : ")
     {:ok, [{"div", [], ["  <span>text</span>"], %{annotation: " : annotation", verbatim: true}}], []}
 ```
 
@@ -512,13 +552,13 @@ Although many markdown elements do not support annotations yet, they can be used
 the generated AST with comments
 
 ```elixir
-    iex(30)> [
-    ...(30)> "# Headline --> first line",
-    ...(30)> "- item1 --> a list item",
-    ...(30)> "- item2 --> another list item",
-    ...(30)> "",
-    ...(30)> "<http://somewhere/to/go> --> do not go there"
-    ...(30)> ] |> as_ast(annotations: "-->")
+    iex(31)> [
+    ...(31)> "# Headline --> first line",
+    ...(31)> "- item1 --> a list item",
+    ...(31)> "- item2 --> another list item",
+    ...(31)> "",
+    ...(31)> "<http://somewhere/to/go> --> do not go there"
+    ...(31)> ] |> as_ast(annotations: "-->")
     {:ok, [
       {"h1", [], ["Headline"], %{}},
       {"ul", [], [{"li", [], ["item1 "], %{}}, {"li", [], ["item2 "], %{}}], %{}},
@@ -530,17 +570,17 @@ the generated AST with comments
 
 ### EarmarkParser.as_ast/2
 
-    iex(31)> markdown = "My `code` is **best**"
-    ...(31)> {:ok, ast, []} = EarmarkParser.as_ast(markdown)
-    ...(31)> ast
+    iex(32)> markdown = "My `code` is **best**"
+    ...(32)> {:ok, ast, []} = EarmarkParser.as_ast(markdown)
+    ...(32)> ast
     [{"p", [], ["My ", {"code", [{"class", "inline"}], ["code"], %{}}, " is ", {"strong", [], ["best"], %{}}], %{}}]
 
 
 
 ```elixir
-    iex(32)> markdown = "```elixir\nIO.puts 42\n```"
-    ...(32)> {:ok, ast, []} = EarmarkParser.as_ast(markdown, code_class_prefix: "lang-")
-    ...(32)> ast
+    iex(33)> markdown = "```elixir\nIO.puts 42\n```"
+    ...(33)> {:ok, ast, []} = EarmarkParser.as_ast(markdown, code_class_prefix: "lang-")
+    ...(33)> ast
     [{"pre", [], [{"code", [{"class", "elixir lang-elixir"}], ["IO.puts 42"], %{}}], %{}}]
 ```
 
