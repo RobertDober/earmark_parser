@@ -23,7 +23,7 @@ defmodule EarmarkParser.Options do
             file: "<no file>",
             line: 1,
             # [{:error|:warning, lnb, text},...]
-            messages: [],
+            messages: MapSet.new([]),
             pure_links: true,
 
             # deprecated
@@ -37,6 +37,7 @@ defmodule EarmarkParser.Options do
         footnotes: boolean,
         footnote_offset: number,
         gfm: boolean,
+        messages: MapSet.t,
         pedantic: boolean,
         pure_links: boolean,
         smartypants: boolean,

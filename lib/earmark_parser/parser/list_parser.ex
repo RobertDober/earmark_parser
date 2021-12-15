@@ -162,7 +162,7 @@ defmodule EarmarkParser.Parser.ListParser do
 
   # INLINE CANDIDATE
   defp _finish_list_item([%Block.ListItem{}=item|items], _at_start?, ctxt) do
-    {blocks, _, options1} = ctxt.lines
+    {blocks, _, _, options1} = ctxt.lines
                             |> Enum.reverse
                             |> EarmarkParser.Parser.parse(ctxt.options, :list)
     loose1? = _already_loose?(items) || ctxt.loose?

@@ -75,7 +75,7 @@ defmodule EarmarkParserHelpersTests.AttrParserTest do
     assert attrs == result
     unless Enum.empty?(errors) do
       expected = [{:warning, 0, "Illegal attributes #{inspect errors} ignored in IAL"}]
-      assert context.options.messages == expected
+      assert context.options.messages == MapSet.new(expected)
     end
   end
 end

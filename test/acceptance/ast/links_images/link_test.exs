@@ -1,7 +1,7 @@
 defmodule Acceptance.Ast.LinkImages.LinkTest do
   use ExUnit.Case, async: true
   import Support.Helpers, only: [as_ast: 1, as_ast: 2, parse_html: 1]
-  import EarmarkAstDsl
+  import EarmarkAstDsl, only: [p: 1, tag: 3]
 
   describe "Link reference definitions" do
     test "link with title" do
