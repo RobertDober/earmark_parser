@@ -1,8 +1,5 @@
 defmodule EarmarkParser.Parser.ListParser do
-  alias EarmarkParser.Block
-  alias EarmarkParser.Line
-  alias EarmarkParser.Options
-  alias EarmarkParser.Parser.ListInfo
+  alias EarmarkParser.{Block, Line, Options, Parser.ListInfo}
 
   import EarmarkParser.Helpers.StringHelpers, only: [behead: 2]
   import EarmarkParser.Helpers.LookaheadHelpers, only: [ still_inline_code: 2]
@@ -24,7 +21,7 @@ defmodule EarmarkParser.Parser.ListParser do
   end
 
   def parse_list(lines, result, options \\ %Options{}) do
-    {items, rest, options1} = parse_list_items(lines, options)
+    {items, rest, options1} = parse_list_items(lines, options) |> IO.inspect() 
     list                    = _make_list(items, _empty_list(items) )
     {[list|result], rest, options1}
   end

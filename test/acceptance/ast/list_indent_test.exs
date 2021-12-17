@@ -2,34 +2,38 @@ defmodule Acceptance.Ast.ListIndentTest do
   use ExUnit.Case, async: true
 
   import Support.Helpers, only: [as_ast: 1, parse_html: 1]
+  import Support.AstHelpers, only: [ast_from_md: 1]
+  import EarmarkAstDsl
 
   describe "different levels of indent" do
 
     test "ordered two levels, indented by two" do
       markdown = "1. One\n  2. two"
-      html     = "<ol>\n<li>One</li><li>two</li></ol>"
-      ast      = parse_html(html)
-      messages = []
+      ast = [ol(["One", "two"])]
 
-      assert as_ast(markdown) == {:ok, ast, messages}
+      assert ast_from_md(markdown) == ast
     end
 
     test "mixed two levels (by 2)" do
-      markdown = "1. One\n  - two\n  - three"
-      html     = "<ol>\n<li>One</li></ol><ul>\n<li>two</li>\n<li>three</li>\n</ul>"
-      ast      = parse_html(html)
-      messages = []
+      markdown = """
+      1. One
+        - two
+        - three
+      """
+      ast = [ol("One"), ul(["two", "three"])]
 
-      assert as_ast(markdown) == {:ok, ast, messages}
+      assert ast_from_md(markdown) == ast
     end
 
     test "mixed two levels (by 4)" do
-      markdown = "1. One\n    - two\n    - three"
-      html     = "<ol>\n<li>One<ul>\n<li>two</li>\n<li>three</li>\n</ul>\n</li>\n</ol>\n"
-      ast      = parse_html(html)
-      messages = []
+      markdown = """
+      1. One
+          - two
+          - three
+      """
+      ast = [ol(li(["One", ul(["two", "three"])]))]
 
-      assert as_ast(markdown) == {:ok, ast, messages}
+      assert ast_from_md(markdown) == ast
     end
 
     test "2 level correct pop up" do
