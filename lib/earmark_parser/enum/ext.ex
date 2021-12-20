@@ -5,7 +5,7 @@ defmodule EarmarkParser.Enum.Ext do
 
   @doc ~S"""
   `reduce_with_end` is like `Enum.reduce` for lists, but the reducer function is called for
-  each element of the list with the tuple `{:element, element}` and the accumalator and once
+  each element of the list with the tuple `{:element, element}` and the accumulator and once
   more at the end with `:end` and the accumulator
 
       iex(1)> reducer =
@@ -18,7 +18,7 @@ defmodule EarmarkParser.Enum.Ext do
       [3, 5, 7]
 
   **N.B.** that in the treatment of `:end` we can change the shape of the accumulator w/o any
-  penality concerning the complexity of the reducer function
+  penalty concerning the complexity of the reducer function
   """
   def reduce_with_end(collection, initial_acc, reducer_fn)
   def reduce_with_end([], acc, reducer_fn) do
