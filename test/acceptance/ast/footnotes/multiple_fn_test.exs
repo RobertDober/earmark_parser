@@ -115,7 +115,7 @@ defmodule Test.Acceptance.Ast.Footnotes.MultipleFnTest do
       assert fn_ast(markdown) == ast
     end
 
-    test "one used twice -- still ambigous" do
+    test "one used twice -- still ambiguous" do
       markdown = """
       - A line with[^1]
 

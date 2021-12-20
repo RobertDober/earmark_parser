@@ -411,7 +411,7 @@ defmodule EarmarkParser do
   they have to be enabled with the `annotations` option.
 
   If the `annotations` option is set to a string (only one string is supported right now, but a list might
-  be implemented later on, hence the name), the last occurance of that string in a line and all text following
+  be implemented later on, hence the name), the last occurrence of that string in a line and all text following
   it will be added to the line as an annotation.
 
   Depending on how that line will eventually be parsed, this annotation will be added to the meta map (the 4th element
