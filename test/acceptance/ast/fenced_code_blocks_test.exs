@@ -81,6 +81,18 @@
       assert as_ast(markdown) == {:ok, ast, messages}
     end
 
+    test "fenced with tag" do
+      markdown = "```\n\"<nav>\n  <ul></ul>\n</nav>\"\n```\n\n## Header\n\nbar"
+      ast = [
+        {"pre", [], [{"code", [], ["\"<nav>\n  <ul></ul>\n</nav>\""], %{}}], %{}},
+        {"h2", [], ["Header"], %{}},
+        {"p", [], ["bar"], %{}}
+      ]
+
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
   end
 end
 
