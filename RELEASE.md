@@ -1,5 +1,8 @@
 ## 1.4.19 2021-12-24
 
+- [Typos](https://github.com/robertdober/earmark_parser/pull/78)
+  Kudos to [kianmeng](https://github.com/kianmeng)
+
 - [Footnotes fixed and upgraded(#26)](https://github.com/robertdober/earmark_parser/pull/76)
 
   Footnotes are now a **superset** of GFM Footnotes. This implies some changes
