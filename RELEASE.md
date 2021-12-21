@@ -1,6 +1,15 @@
-## 1.4.19 2021-12-24
+## 1.5.0 2021-12-24
+
+- [Fix stop condition on closing HTML in scanners lookup algo](https://github.com/robertdober/earmark_parser/pull/79)
+
+  Kudos to [José Valim](https://github.com/josevalim)
+
+- [Fix stop condition on closing HTML in scanners lookup algo](https://github.com/robertdober/earmark_parser/pull/79)
+
+  Kudos to [José Valim](https://github.com/josevalim)
 
 - [Typos](https://github.com/robertdober/earmark_parser/pull/78)
+
   Kudos to [kianmeng](https://github.com/kianmeng)
 
 - [Footnotes fixed and upgraded(#26)](https://github.com/robertdober/earmark_parser/pull/76)
