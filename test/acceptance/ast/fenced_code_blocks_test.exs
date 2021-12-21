@@ -69,11 +69,11 @@
     end
 
     test "in list" do
-      markdown = "- a\n- ```\n  b\n\n\n ```\n- c\n"
+      markdown = "- a\n- ```\n  b\n\n\n ```\n c\n- d\n"
       ast = [{ "ul", [],
         [{"li", [], ["a"], %{}},
-         {"li", [], [{"pre", [], [{"code", [], ["  b\n\n"], %{}}], %{}}], %{}},
-         {"li", [], ["c"], %{}}
+         {"li", [], [{"pre", [], [{"code", [], ["  b\n\n"], %{}}], %{}}, "c"], %{}},
+         {"li", [], ["d"], %{}}
        ], %{}}]
 
       messages = []
@@ -81,6 +81,29 @@
       assert as_ast(markdown) == {:ok, ast, messages}
     end
 
+    test "fenced with tag" do
+      markdown = "```\n\"<nav>\n  <ul></ul>\n</nav>\"\n```\n\n## Header\n\nbar"
+      ast = [
+        {"pre", [], [{"code", [], ["\"<nav>\n  <ul></ul>\n</nav>\""], %{}}], %{}},
+        {"h2", [], ["Header"], %{}},
+        {"p", [], ["bar"], %{}}
+      ]
+
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
+
+    @indented """
+    ```
+        ```
+    ```
+    """
+    test "fenced with indented" do
+      expected = [pre_code("    ```")]
+
+      assert as_ast(@indented) == {:ok, expected, []}
+    end
   end
 end
 
