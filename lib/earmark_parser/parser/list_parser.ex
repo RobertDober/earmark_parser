@@ -1,4 +1,4 @@
-defmodule EarmarkParser.Parser.ListParser do
+    defmodule EarmarkParser.Parser.ListParser do
   alias EarmarkParser.{Block, Line, Options, Parser.ListInfo}
 
   import EarmarkParser.Helpers.StringHelpers, only: [behead: 2]
@@ -33,37 +33,37 @@ defmodule EarmarkParser.Parser.ListParser do
     # TODO: Update footnotes and links
     {body_blocks, _, _, options3} = EarmarkParser.Parser.parse_lines(body_lines, options2, :list)
 
-    continues_list? = _continues_list?(list2, rest2)
+    continues_list? = _continues_list?(li, rest2)
     loose? = has_body? && (!Enum.empty?(body_lines) || continues_list?)
-    list_item = Block.ListItem.new(%{list|loose?: loose?}, [header_block | body_blocks])
+    list_item = Block.ListItem.new(list, [header_block | body_blocks])
 
 
-    list3 = %{list2 | blocks: [list_item | list.blocks], loose?: loose?}
+    list3 = %{list2 | blocks: [list_item | list.blocks], loose?: list2.loose? || loose?}
 
     if continues_list? do
       parse_list(rest2, result, options3, list3)
     else
-      {[list3 | result], rest2, options3}
+      {[_reverse_list_items(list3) | result], rest2, options3}
     end
   end
 
   # _continues_list?
   defp _continues_list?(list, lines)
-  defp _continues_list?(%Block.List{}, []), do: false
+  defp _continues_list?(%Line.ListItem{}, []), do: false
 
-  defp _continues_list?(%Block.List{} = list, [%Line.ListItem{} = li | _]),
-    do: _continues_list_li?(list, li)
+  defp _continues_list?(%Line.ListItem{} = li_before, [%Line.ListItem{} = li | _]),
+    do: _continues_list_li?(li_before, li)
 
-  defp _continues_list?(%Block.List{}, _), do: false
+  defp _continues_list?(%Line.ListItem{}, _), do: false
 
   defp _continues_list_li?(list, li)
 
-  defp _continues_list_li?(%{indent: list_indent}, %{indent: item_indent})
-       when list_indent > item_indent,
+  defp _continues_list_li?(%{indent: before_indent}, %{indent: item_indent})
+       when before_indent > item_indent,
        do: false
 
-  defp _continues_list_li?(%{bullet: list_bullet}, %{bullet: item_bullet})
-       when list_bullet != item_bullet,
+  defp _continues_list_li?(%{bullet: before_bullet}, %{bullet: item_bullet})
+       when before_bullet != item_bullet,
        do: false
 
   defp _continues_list_li?(_, _), do: true
@@ -180,6 +180,16 @@ defmodule EarmarkParser.Parser.ListParser do
     {rest, list, new_result, options}
   end
 
+  defp _reverse_list_items(%Block.List{blocks: list_items}=list) do
+    %{list|blocks: _reverse_list_items_and_losen(list_items, [], list.loose?)}
+  end
+
+  # _reverse_list_items_and_losen
+  defp _reverse_list_items_and_losen(list_items, result, list_loose?)
+  defp _reverse_list_items_and_losen([], result, _list_loose?), do: result
+  defp _reverse_list_items_and_losen([li|rest], result, list_loose?) do
+    _reverse_list_items_and_losen(rest, [%{li|loose?: li.loose? || list_loose?}|result], list_loose?)
+  end
   # INLINE CANDIDATE
   @start_number_rgx ~r{\A0*(\d+)\.}
   defp _extract_start(%{bullet: bullet}) do

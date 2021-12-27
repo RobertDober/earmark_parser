@@ -1,4 +1,4 @@
-defmodule EarmarkParser.AstRenderer do
+    defmodule EarmarkParser.AstRenderer do
   alias EarmarkParser.Block
   alias EarmarkParser.Context
   alias EarmarkParser.Options

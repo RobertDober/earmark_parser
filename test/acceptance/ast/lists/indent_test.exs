@@ -49,6 +49,28 @@
       assert ast_from_md(markdown) == expected
     end
 
+    test "loose example" do
+      markdown = """
+      - One
+
+      - Two
+      """
+      expected = [
+        ul([li(p("One")), li(p("Two"))])
+      ]
+      assert ast_from_md(markdown) == expected
+    end
+
+    test "tight example" do
+      markdown = """
+      - One
+      - Two
+      """
+      expected = [
+        ul([li("One"), li("Two")])
+      ]
+      assert ast_from_md(markdown) == expected
+    end
     test "debugging" do
       markdown = """
       * Head
