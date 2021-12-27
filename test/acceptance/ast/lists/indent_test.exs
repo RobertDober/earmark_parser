@@ -1,33 +1,34 @@
-            defmodule Test.Acceptance.Ast.Lists.IndentTest do
+                defmodule Test.Acceptance.Ast.Lists.IndentTest do
   use Support.AcceptanceTestCase
   import Support.AstHelpers, only: [ast_from_md: 1]
   import EarmarkAstDsl
 
   describe "Code Blocks near List Items (#9) https://github.com/RobertDober/earmark_parser/issues/9" do
     test "use case" do
+
       markdown = """
-      * List item
+      * Header
 
-        Text
+        Text1
 
-          * List item
+          * Inner
 
-        Text
+        Text2
 
-            https://mydomain.org/user_or_team/repo_name/blob/master/%{path}#L%{line}
+        https://mydomain.org/user_or_team/repo_name/blob/master/%{path}#L%{line}
       """
       expected = [
         ul(
           li([
-            p("List item"),
-            p("Text"),
+            p("Header"),
+            p("Text1"),
             ul(
               li([
-                "List item\nText\n",
-              a("https://mydomain.org/user_or_team/repo_name/blob/master/%{path}#L%{line}",
-              href: "https://mydomain.org/user_or_team/repo_name/blob/master/%25%7Bpath%7D#L%25%7Bline%7D")
-            ]))]))
-      ]
+                "Inner"])),
+            p("Text2"),
+            p(a("https://mydomain.org/user_or_team/repo_name/blob/master/%{path}#L%{line}",
+              href: "https://mydomain.org/user_or_team/repo_name/blob/master/%25%7Bpath%7D#L%25%7Bline%7D"))
+            ]))]
       # IO.inspect as_ast(markdown)
       assert ast_from_md(markdown) == expected
     end
@@ -55,7 +56,7 @@
         Content
       """
       expected = [
-        ul(li([p("Head"), p("Outer")]))
+        ul(li([p("Head"), p("Content")]))
       ]
       assert ast_from_md(markdown) == expected
     end
