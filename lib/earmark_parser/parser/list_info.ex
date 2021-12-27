@@ -8,7 +8,7 @@ defmodule EarmarkParser.Parser.ListInfo do
   defstruct(
     indent: 0,
     pending: @not_pending,
-    spaced: false,
+    spaced?: false,
     width: 0)
 
   # INLINE CANDIDATE

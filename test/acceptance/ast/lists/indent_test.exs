@@ -1,4 +1,4 @@
-defmodule Test.Acceptance.Ast.Lists.IndentTest do
+            defmodule Test.Acceptance.Ast.Lists.IndentTest do
   use Support.AcceptanceTestCase
   import Support.AstHelpers, only: [ast_from_md: 1]
   import EarmarkAstDsl
@@ -44,6 +44,18 @@ defmodule Test.Acceptance.Ast.Lists.IndentTest do
       """
       expected = [
         ul(li([p("Outer"), p("Outer Content"), ul("Inner"), p("Still Outer")]))
+      ]
+      assert ast_from_md(markdown) == expected
+    end
+
+    test "debugging" do
+      markdown = """
+      * Head
+
+        Content
+      """
+      expected = [
+        ul(li([p("Head"), p("Outer")]))
       ]
       assert ast_from_md(markdown) == expected
     end
