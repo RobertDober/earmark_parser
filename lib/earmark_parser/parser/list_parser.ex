@@ -1,4 +1,4 @@
-    defmodule EarmarkParser.Parser.ListParser do
+        defmodule EarmarkParser.Parser.ListParser do
   alias EarmarkParser.{Block, Line, Options, Parser.ListInfo}
 
   import EarmarkParser.Helpers.StringHelpers, only: [behead: 2]
