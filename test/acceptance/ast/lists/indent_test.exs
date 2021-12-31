@@ -1,4 +1,4 @@
-                defmodule Test.Acceptance.Ast.Lists.IndentTest do
+defmodule Test.Acceptance.Ast.Lists.IndentTest do
   use Support.AcceptanceTestCase
   import Support.AstHelpers, only: [ast_from_md: 1]
   import EarmarkAstDsl

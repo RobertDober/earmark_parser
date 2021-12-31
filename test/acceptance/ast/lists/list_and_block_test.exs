@@ -1,4 +1,4 @@
-defmodule Acceptance.Ast.ListAndBlockTest do
+defmodule Acceptance.Ast.Lists.ListAndBlockTest do
   use ExUnit.Case
   import Support.Helpers, only: [as_ast: 1, parse_html: 1]
   import EarmarkAstDsl

@@ -4,6 +4,7 @@ defmodule EarmarkParser.Parser.Helper do
   """
 
   def parse_up_to(parse_state, parser_fn, terminator_fn) do
+    # IO.inspect(parse_state)
     case terminator_fn.(parse_state) do
       {:continue, state_} -> parse_up_to(parser_fn.(state_), parser_fn, terminator_fn)
       {:halt, state_} -> state_
