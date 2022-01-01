@@ -1,4 +1,8 @@
-## 1.5.0 2021-12-31
+## 1.5.0 2022-01-02
+
+- [Fixing many issues with lists and heavy refactoring](https://github.com/robertdober/earmark_parser/pull/81)
+
+  These changes are not all backwards compatible [c.f.](https://github.com/RobertDober/earmark_parser#lists)
 
 - [Fix stop condition on closing HTML in scanners lookup algo](https://github.com/robertdober/earmark_parser/pull/79)
 
