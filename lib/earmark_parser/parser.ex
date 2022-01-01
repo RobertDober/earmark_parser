@@ -282,13 +282,13 @@
         !match?(%Line.Fence{delimiter: ^delimiter, language: _}, line)
       end)
 
-    rest = if rest == [], do: rest, else: tl(rest)
+    {rest1, options1} = _check_closing_fence(rest, lnb, delimiter, options)
     code = for line <- code_lines, do: line.line
 
     _parse(
-      rest,
+      rest1,
       [%Block.Code{lines: code, language: language, lnb: lnb} | result],
-      options,
+      options1,
       recursive
     )
   end
@@ -490,6 +490,14 @@
 
   defp assign_attributes_to_blocks([block | rest], result) do
     assign_attributes_to_blocks(rest, [block | result])
+  end
+
+  defp _check_closing_fence(rest, lnb, delimiter, options)
+  defp _check_closing_fence([], lnb, delimiter, options) do
+    {[], add_message(options, {:error, lnb, "Fenced Code Block opened with #{delimiter} not closed at end of input"})}
+  end
+  defp _check_closing_fence([_|rest], _lnb, _delimiter, options) do
+    {rest, options}
   end
 
   ############################################################
