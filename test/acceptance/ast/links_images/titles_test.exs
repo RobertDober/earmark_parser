@@ -1,7 +1,6 @@
 defmodule Acceptance.Ast.LinksImages.TitlesTest do
-  use ExUnit.Case, async: true
+  use Support.AcceptanceTestCase
   import Support.Helpers, only: [as_ast: 1, parse_html: 1]
-  import EarmarkAstDsl
 
   describe "Links with titles" do
     test "two titled links" do
@@ -191,3 +190,4 @@ defmodule Acceptance.Ast.LinksImages.TitlesTest do
     end
   end
 end
+#  SPDX-License-Identifier: Apache-2.0

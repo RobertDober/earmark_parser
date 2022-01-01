@@ -4,6 +4,10 @@ defmodule Support.AstHelpers do
     with {:ok, ast, []} <- EarmarkParser.as_ast(md), do: ast
   end
 
+  def ast_with_errors(md) do
+    with {:error, ast, messages} <- EarmarkParser.as_ast(md), do: {ast, messages}
+  end
+
   def p(content, atts \\ [])
   def p(content, atts) when is_binary(content) or is_tuple(content),
     do: {"p", atts, [content]}

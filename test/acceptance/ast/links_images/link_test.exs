@@ -175,7 +175,7 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       messages = []
       assert as_ast(markdown) == {:ok, ast, messages}
     end
-    
+
     test "escapes in link's name (was regtest #51)" do
       markdown = "[&expr/1](http://elixir-lang.org/docs/master/elixir/Kernel.SpecialForms.htm#&expr/1)"
       html     = ~s{<p><a href="http://elixir-lang.org/docs/master/elixir/Kernel.SpecialForms.htm#&expr/1">&amp;expr/1</a></p>}
@@ -269,7 +269,7 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       assert as_ast(markdown) == {:ok, ast, messages}
     end
 
-    test "quotes in text (was regtest #72)" do 
+    test "quotes in text (was regtest #72)" do
       markdown = ~s{["EarmarkParser"](https://github.com/pragdave/earmark/)}
       html     = ~s{<p><a href="https://github.com/pragdave/earmark/">"EarmarkParser"</a></p>\n}
       ast      = parse_html(html)
@@ -280,7 +280,7 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
   end
 
   describe "Escapes in text (was regtest #198)" do
-    test "escaped backticks" do 
+    test "escaped backticks" do
       markdown = "[hello \\`code\\`](http://some.where)"
       ast      = [p(tag("a", "hello `code`", href: "http://some.where"))]
       messages = []

@@ -1,4 +1,4 @@
-defmodule EarmarkParserHelpersTests.AttrParserTest do
+    defmodule EarmarkParserHelpersTests.AttrParserTest do
   use ExUnit.Case, async: true
   import EarmarkParser.Helpers.AttrParser
 

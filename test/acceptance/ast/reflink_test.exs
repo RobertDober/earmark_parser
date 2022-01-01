@@ -1,7 +1,6 @@
 defmodule Acceptance.Ast.ReflinkTest do
-  use ExUnit.Case, async: true
+  use Support.AcceptanceTestCase
   import Support.Helpers, only: [as_ast: 1, parse_html: 1]
-  import EarmarkAstDsl
 
   describe "undefined reflinks" do
     test "simple case" do
@@ -35,7 +34,7 @@ defmodule Acceptance.Ast.ReflinkTest do
 
     test "empty reference" do
       markdown = "[text] []\n[]: some_url"
-      ast = p( "[text] []\n[]: some_url")
+      ast = p("[text] []\n[]: some_url")
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -50,6 +49,28 @@ defmodule Acceptance.Ast.ReflinkTest do
       assert as_ast(markdown) == {:ok, ast, messages}
     end
 
+    test "simple case in list" do
+      markdown = """
+      - [text] [reference]
+
+      [reference]: some_url
+      """
+      ast      = [ul(li(a("text", href: "some_url", title: "")))]
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
+
+    test "simple case in list header" do
+      markdown = """
+      - [text] [reference]
+      [reference]: some_url
+      """
+      ast      = [ul(li(a("text", href: "some_url", title: "")))]
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
     test "not so simple case" do
       markdown = "[[]]]text] [reference]\n[reference]: some_url"
       html     = "<p><a href=\"some_url\" title=\"\">[]]]text</a></p>\n"
@@ -78,3 +99,4 @@ defmodule Acceptance.Ast.ReflinkTest do
     end
   end
 end
+#  SPDX-License-Identifier: Apache-2.0

@@ -29,55 +29,27 @@ defmodule EarmarkParser.Enum.Ext do
   end
 
   @doc ~S"""
-  `split_reduce_while` is like `Enum.split_while` but also reduces the first
-  part of what `split_while` would return. The reducer function is called with
-  the same protocol as in `reduce_with_end`, meaning with `{:element, ele}` and
-  the accumulator.
 
-  The reducer function however needs to obey the same return protocol as in
-  `Enum.reduce_while` meaning to return tuples of the form `{:cont, accumulator}`
-  or `{:halt, accumulator}`
+    Like map_reduce but reversing the list
 
-  If and only if the `include_end?` switch is set to true the reducer function is
-  also called with `{:end, rest}` and the accumulator after it has returned {:halt, accumulator}
+      iex(2)> replace_nil_and_count = fn ele, acc ->
+      ...(2)>   if ele, do: {ele, acc}, else: {"", acc + 1}
+      ...(2)> end
+      ...(2)> ["y", nil, "u", nil, nil, "a", nil] |> reverse_map_reduce(0, replace_nil_and_count)
+      { ["", "a", "", "", "u", "", "y"], 4 }
 
-      iex(2)> reducer =
-      ...(2)>   fn {:element, :sub}, acc -> {:halt, acc}
-      ...(2)>      {:element, :add}, acc -> {:cont, acc}
-      ...(2)>      {:element, val}, acc -> {:cont, acc + val} end
-      ...(2)> [1, :add, 2, :sub, 3]
-      ...(2)> |> split_reduce_while(0, reducer)
-      {[:sub, 3], 3}
-
-  And now with `include_end?`
-
-      iex(2)> reducer =
-      ...(2)>   fn {:element, :sub}, acc -> {:halt, acc}
-      ...(2)>      {:element, :add}, acc -> {:cont, acc}
-      ...(2)>      {:element, val},  acc -> {:cont, acc + val}
-      ...(2)>      {:end, [_|vals]}, acc -> {vals, acc} end
-      ...(2)> [1, :add, 2, :sub, 3]
-      ...(2)> |> split_reduce_while(0, reducer, true)
-      {[3], 3}
   """
-  def split_reduce_while(collection, initial_acc, reducer_fn, include_end? \\ false)
-  def split_reduce_while([], acc, reducer_fn, include_end?) do
-    if include_end? do
-      { [], reducer_fn.(:end, acc) }
-    else
-      { [], acc }
-    end
+  def reverse_map_reduce(list, initial, fun) do
+    _reverse_map_reduce(list, initial, [], fun)
   end
-  def split_reduce_while([h|t] =  l, acc, reducer_fn, include_end?) do
-    case reducer_fn.({:element, h}, acc) do
-      {:cont, acc1} -> split_reduce_while(t, acc1, reducer_fn, include_end?)
-      {:halt, acc2} ->
-        if include_end? do
-          reducer_fn.({:end, l}, acc)
-        else
-          {l, acc2}
-        end
-    end
+
+  # Helpers {{{
+  defp _reverse_map_reduce(list, acc, result, fun)
+  defp _reverse_map_reduce([], acc, result, _fun), do: {result, acc}
+  defp _reverse_map_reduce([fst|rst], acc, result, fun) do
+    {new_ele, new_acc} = fun.(fst, acc)
+    _reverse_map_reduce(rst, new_acc, [new_ele|result], fun)
   end
+  # }}}
 end
 #  SPDX-License-Identifier: Apache-2.0

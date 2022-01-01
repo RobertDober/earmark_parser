@@ -1,4 +1,4 @@
-    defmodule EarmarkParser.MixProject do
+        defmodule EarmarkParser.MixProject do
   use Mix.Project
 
   @version "1.4.19"
@@ -7,7 +7,7 @@
   @deps [
     # {:credo, "~> 0.10", only: [:dev, :test]},
     # {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
-    {:earmark_ast_dsl, "~> 0.3.1", only: [:test]},
+    {:earmark_ast_dsl, "~> 0.3.5", only: [:test]},
     {:excoveralls, "~> 0.14.4", only: [:test]},
     {:extractly, "~> 0.5.3", only: [:dev]},
     {:floki, "~> 0.32", only: [:dev, :test]}

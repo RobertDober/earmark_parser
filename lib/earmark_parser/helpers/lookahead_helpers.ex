@@ -36,6 +36,16 @@ defmodule EarmarkParser.Helpers.LookaheadHelpers do
     end
   end
 
+  @doc """
+  calls either `still_inline_code` or `opens_inline_code` depening on `old_state`
+  """
+  def update_inline_code(old_state, line) do
+    case old_state do
+      {nil, 0} -> opens_inline_code(line)
+      _        -> still_inline_code(line, old_state)
+    end
+  end
+
   # A tokenized line {:verabtim, text} | {:backtix, ['``+]} is analyzed for
   # if it is closed (-> nil), not closed (-> {:old, btx}) or reopened (-> {:new, btx})
   # concerning backtix
