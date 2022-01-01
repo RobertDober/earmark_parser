@@ -1,5 +1,7 @@
 ## 1.5.0 2022-01-02
 
+- [Fixing missing error messages for unclosed fenced code blocks (#23)](https://github.com/robertdober/earmark_parser/issues/23)
+
 - [Fixing many issues with lists and heavy refactoring](https://github.com/robertdober/earmark_parser/pull/81)
 
   These changes are not all backwards compatible [c.f.](https://github.com/RobertDober/earmark_parser#lists)
