@@ -1,5 +1,5 @@
 defmodule EarmarkParser.Parser.ListParser do
-  alias EarmarkParser.{Block, Line, Options, Parser.ListInfo}
+  alias EarmarkParser.{Block, Enum.Ext, Line, LineScanner, Options}
 
   import EarmarkParser.Helpers.StringHelpers, only: [behead: 2]
   import EarmarkParser.Helpers.LookaheadHelpers
@@ -22,9 +22,9 @@ defmodule EarmarkParser.Parser.ListParser do
     # IO.inspect(list.indent)
     # IO.inspect(rest)
     {rest1, has_body?, header_content, options1} =
-      parse_up_to({rest, list, [li.content], options}, &_parse_header/1, &end_of_header?/1)
+      parse_up_to({rest, Block.List.update_pending_state(list, li), [li.content], options}, &_parse_header/1, &end_of_header?/1)
 
-    # IO.inspect(header_content)
+    # IO.inspect({header_content, options1.messages})
     {header_block, _, _, options1_} = EarmarkParser.Parser.parse(header_content, options1, :list)
 
     {rest2, list2, body_lines, options2} =
@@ -68,11 +68,14 @@ defmodule EarmarkParser.Parser.ListParser do
        when before_indent > item_indent,
        do: false
 
-  defp _continues_list_li?(%{bullet: before_bullet}, %{bullet: item_bullet})
-       when before_bullet != item_bullet,
-       do: false
-
-  defp _continues_list_li?(_, _), do: true
+  @numbered_bullet_rgx ~r{\A0*(\d+)[\.)]}
+  defp _continues_list_li?(%{bullet: before_bullet}, %{bullet: item_bullet}) do
+    if Regex.match?(@numbered_bullet_rgx, before_bullet) do
+      Regex.match?(@numbered_bullet_rgx, item_bullet)
+    else
+      before_bullet == item_bullet
+    end
+  end
   # }}}}
   # }}}
 
@@ -124,7 +127,7 @@ defmodule EarmarkParser.Parser.ListParser do
   end
   # }}}}
   defp _finish_body({rest, list, result, options}) do # {{{{
-    {:halt, {rest, list, Enum.reverse(result), options}}
+    {:halt, {rest, list, Enum.reverse(result)|>Enum.drop_while(&Line.blank?/1), options}}
   end
   # }}}}
   defp _parse_body({[line | rest], list, result, options}) do # {{{{
@@ -139,6 +142,12 @@ defmodule EarmarkParser.Parser.ListParser do
   # }}}
 
   # Parsing header {{{
+  # TODO: Remove me
+  defp end_of_header?({_, _, _, _}=state) do
+    # IO.inspect(state)
+    _end_of_header?(state)
+  end
+
   # _end_of_header? {{{{
   defp _end_of_header?(state)
 
@@ -149,7 +158,7 @@ defmodule EarmarkParser.Parser.ListParser do
         _finish_header(
           [],
           false,
-          list,
+          list.indent,
           result,
           add_message(
             options,
@@ -158,17 +167,10 @@ defmodule EarmarkParser.Parser.ListParser do
         )
 
       _ ->
-        # TODO: Need to update state with potential new pending meaning we need to
-        # call still_inline_code
         {:continue, state}
     end
   end
 
-  # TODO: Remove me
-  defp end_of_header?(state) do
-    # IO.inspect(state)
-    _end_of_header?(state)
-  end
 
   defp _end_of_header?({[], list, result, options}) do
     _finish_header([], false, list.indent, result, options)
@@ -194,28 +196,41 @@ defmodule EarmarkParser.Parser.ListParser do
     _finish_header(rest, false, list.indent, result, options)
   end
 
-  defp _end_of_header?({input, list, result, options} = state) do
-    # TODO: Need to update state with potential new pending meaning we need to
-    # call opens_inline_code
+  defp _end_of_header?(state) do
     {:continue, state}
   end
   # }}}}
 
   defp _finish_header(rest, has_body?, indent, result, options) do
-    result_ = _indent_and_reverse(result, [], indent)
+    {result_, _} = Ext.reverse_map_reduce(result, nil, &_maybe_indent(&1, &2, indent))
     {:halt, {rest, has_body?, result_, options}}
   end
 
-  # TODO: Replace with reverse_map
-  defp _indent_and_reverse(input, result, indent)
-  defp _indent_and_reverse([], result, _indent), do: result
-  defp _indent_and_reverse([fst|rst], result, indent), do: _indent_and_reverse(rst, [_behead_spaces(fst, indent)|result], indent)
+  # # TODO: Replace with reverse_map or reverse_map_reduce
+  # defp _indent_and_reverse(input, result, indent)
+  # defp _indent_and_reverse([], result, _indent), do: result
+  # defp _indent_and_reverse([fst|rst], result, indent), do: _indent_and_reverse(rst, [_behead_spaces(fst, indent)|result], indent)
+
+  defp _maybe_indent(line, fence_delimiter, indent) do
+    if fence_delimiter do
+      # check if we have matching delimiter  -> {beheaded, nil}
+      if LineScanner.fence_delimiter(line) == fence_delimiter do
+        {_behead_spaces(line, indent), nil}
+      else
+        {line, fence_delimiter}
+      end
+    else
+      case LineScanner.fence_delimiter(line) do
+        nil -> {_behead_spaces(line, indent), nil}
+        fence_delimiter -> {_behead_spaces(line, indent), fence_delimiter}
+      end
+    end
+  end
 
   # _parse_header {{{{
   defp _parse_header({[line | rest], list, result, options}) do
-    # TODO: Check for pending
-    new_result = [line.line | result]
-    {rest, list, new_result, options}
+    new_result = [line.line  | result]
+    {rest, Block.List.update_pending_state(list, line), new_result, options}
   end
   # }}}}
   # }}}
@@ -236,6 +251,9 @@ defmodule EarmarkParser.Parser.ListParser do
     _reverse_list_items_and_losen(rest, [%{li|loose?: li.loose? || list_loose?}|result], list_loose?)
   end
 
+  defp _update_pending_in_state({[line|_]=input, list, result, options}) do
+    {input, Block.List.update_pending_state(list, line), result, options}
+  end
   # @start_number_rgx ~r{\A0*(\d+)\.}
   # defp _extract_start(%{bullet: bullet}) do
   #   case Regex.run(@start_number_rgx, bullet) do

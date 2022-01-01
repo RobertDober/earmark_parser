@@ -1,7 +1,6 @@
 defmodule Test.Acceptance.Ast.Lists.ComplexHeadTest do
   use Support.AcceptanceTestCase
-  import Support.AstHelpers, only: [ast_from_md: 1]
-  import EarmarkAstDsl
+  import Support.AstHelpers, only: [ast_from_md: 1, ast_with_errors: 1]
 
   describe "Headers become one junk of text" do
     test "at end of input" do
@@ -72,7 +71,7 @@ defmodule Test.Acceptance.Ast.Lists.ComplexHeadTest do
     end
   end
 
-  describe "cmark-gfm compliance" do
+  describe "cmark-gfm compliance - and what we do with it" do
     test "parse blocks in headers if they are indented _correctly_" do
       markdown = """
       - a
@@ -189,6 +188,16 @@ defmodule Test.Acceptance.Ast.Lists.ComplexHeadTest do
       """
       expected = [ ul(li(["a", pre_code("b")])) ]
       assert ast_from_md(markdown) == expected
+    end
+  end
+
+  describe "pending inline code" do
+    test "simplest possible case" do
+      markdown = """
+      - a `
+      """
+      expected = {[ul("a `")],[{:warning, 1, "Closing unclosed backquotes ` at end of input"}]}
+      assert ast_with_errors(markdown) == expected
     end
   end
 end

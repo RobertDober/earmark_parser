@@ -2,8 +2,18 @@ defmodule EarmarkParser.LineScanner do
 
   @moduledoc false
 
+  use EarmarkParser.Types
+
   alias EarmarkParser.{Helpers, Line, Options}
 
+
+  @spec fence_delimiter(String.t) :: maybe(String.t)
+  def fence_delimiter(line) do
+    case type_of({line, 0}, true) do
+      %Line.Fence{delimiter: delimiter} -> delimiter
+      _             -> nil
+    end
+  end
   # This is the re that matches the ridiculous "[id]: url title" syntax
 
   @id_title_part ~S"""

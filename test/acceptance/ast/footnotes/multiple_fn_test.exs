@@ -1,9 +1,8 @@
 defmodule Test.Acceptance.Ast.Footnotes.MultipleFnTest do
-  use ExUnit.Case
+  use Support.AcceptanceTestCase
 
   import Support.Helpers, only: [as_ast: 2]
   import Support.FootnoteHelpers
-  import EarmarkAstDsl
 
   describe "two footnotes" do
     test "simple" do

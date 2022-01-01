@@ -116,6 +116,10 @@ defmodule EarmarkParser.Line do
           | %Text{}
 
   @type ts :: list(t)
+
+  def blank?(line)
+  def blank?(%__MODULE__.Blank{}), do: true
+  def blank?(_), do: false
 end
 
 # SPDX-License-Identifier: Apache-2.0

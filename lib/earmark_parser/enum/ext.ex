@@ -29,6 +29,21 @@ defmodule EarmarkParser.Enum.Ext do
   end
 
   @doc ~S"""
+
+    Like map_reduce but reversing the list
+
+      iex(2)> replace_nil_and_count = fn ele, acc ->
+      ...(2)>   if ele, do: {ele, acc}, else: {"", acc + 1}
+      ...(2)> end
+      ...(2)> ["y", nil, "u", nil, nil, "a", nil] |> reverse_map_reduce(0, replace_nil_and_count)
+      { ["", "a", "", "", "u", "", "y"], 4 }
+
+  """
+  def reverse_map_reduce(list, initial, fun) do
+    _reverse_map_reduce(list, initial, [], fun)
+  end
+
+  @doc ~S"""
   `split_reduce_while` is like `Enum.split_while` but also reduces the first
   part of what `split_while` would return. The reducer function is called with
   the same protocol as in `reduce_with_end`, meaning with `{:element, ele}` and
@@ -41,23 +56,23 @@ defmodule EarmarkParser.Enum.Ext do
   If and only if the `include_end?` switch is set to true the reducer function is
   also called with `{:end, rest}` and the accumulator after it has returned {:halt, accumulator}
 
-      iex(2)> reducer =
-      ...(2)>   fn {:element, :sub}, acc -> {:halt, acc}
-      ...(2)>      {:element, :add}, acc -> {:cont, acc}
-      ...(2)>      {:element, val}, acc -> {:cont, acc + val} end
-      ...(2)> [1, :add, 2, :sub, 3]
-      ...(2)> |> split_reduce_while(0, reducer)
+      iex(3)> reducer =
+      ...(3)>   fn {:element, :sub}, acc -> {:halt, acc}
+      ...(3)>      {:element, :add}, acc -> {:cont, acc}
+      ...(3)>      {:element, val}, acc -> {:cont, acc + val} end
+      ...(3)> [1, :add, 2, :sub, 3]
+      ...(3)> |> split_reduce_while(0, reducer)
       {[:sub, 3], 3}
 
   And now with `include_end?`
 
-      iex(2)> reducer =
-      ...(2)>   fn {:element, :sub}, acc -> {:halt, acc}
-      ...(2)>      {:element, :add}, acc -> {:cont, acc}
-      ...(2)>      {:element, val},  acc -> {:cont, acc + val}
-      ...(2)>      {:end, [_|vals]}, acc -> {vals, acc} end
-      ...(2)> [1, :add, 2, :sub, 3]
-      ...(2)> |> split_reduce_while(0, reducer, true)
+      iex(4)> reducer =
+      ...(4)>   fn {:element, :sub}, acc -> {:halt, acc}
+      ...(4)>      {:element, :add}, acc -> {:cont, acc}
+      ...(4)>      {:element, val},  acc -> {:cont, acc + val}
+      ...(4)>      {:end, [_|vals]}, acc -> {vals, acc} end
+      ...(4)> [1, :add, 2, :sub, 3]
+      ...(4)> |> split_reduce_while(0, reducer, true)
       {[3], 3}
   """
   def split_reduce_while(collection, initial_acc, reducer_fn, include_end? \\ false)
@@ -79,5 +94,14 @@ defmodule EarmarkParser.Enum.Ext do
         end
     end
   end
+
+  # Helpers {{{
+  defp _reverse_map_reduce(list, acc, result, fun)
+  defp _reverse_map_reduce([], acc, result, _fun), do: {result, acc}
+  defp _reverse_map_reduce([fst|rst], acc, result, fun) do
+    {new_ele, new_acc} = fun.(fst, acc)
+    _reverse_map_reduce(rst, new_acc, [new_ele|result], fun)
+  end
+  # }}}
 end
 #  SPDX-License-Identifier: Apache-2.0

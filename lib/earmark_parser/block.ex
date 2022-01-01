@@ -1,6 +1,7 @@
-    defmodule EarmarkParser.Block do
+defmodule EarmarkParser.Block do
   @moduledoc false
 
+  # TODO: Move each module into a file?
   defmodule Heading do
     @moduledoc false
     defstruct lnb: 0, annotation: nil, attrs: nil, content: nil, level: nil
@@ -63,6 +64,8 @@
 
   defmodule List do
     @moduledoc false
+    import EarmarkParser.Helpers.LookaheadHelpers, only: [update_inline_code: 2]
+
     defstruct annotation: nil,
               attrs: nil,
               blocks: [],
@@ -83,6 +86,11 @@
         lnb: li.lnb,
         type: li.type
       }
+    end
+
+    def update_pending_state(%__MODULE__{pending: old_pending_state}=list, line) do
+      new_pending_state = update_inline_code(old_pending_state, line)
+      %{list | pending: new_pending_state}
     end
   end
 

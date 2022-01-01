@@ -1,6 +1,7 @@
 defmodule Acceptance.Ast.ListTest do
   use ExUnit.Case, async: true
   import Support.Helpers, only: [as_ast: 1, parse_html: 1]
+  import EarmarkAstDsl
 
   describe "List items" do
     test "Unnumbered" do
@@ -51,8 +52,9 @@ defmodule Acceptance.Ast.ListTest do
 
     test "Numbered" do
       markdown = "1.  A paragraph\n    with two lines.\n\n        indented code\n\n    > A block quote.\n"
-      html     = "<ol>\n<li><p> A paragraph\nwith two lines.</p>\n<pre><code>indented code</code></pre>\n<blockquote><p>A block quote.</p>\n</blockquote>\n</li>\n</ol>\n"
-      ast      = parse_html(html)
+      ast      = [
+        ol(li([p("A paragraph\nwith two lines."), pre_code("indented code"), blockquote("A block quote.")]))
+      ]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -60,8 +62,7 @@ defmodule Acceptance.Ast.ListTest do
 
     test "More numbers" do
       markdown = "1.  space one\n\n1. space two"
-      html     = "<ol>\n<li><p> space one</p>\n</li>\n<li><p>space two</p>\n</li>\n</ol>\n"
-      ast      = parse_html(html)
+      ast      = [ol([p("space one"), p("space two")])]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}

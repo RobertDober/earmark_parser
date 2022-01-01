@@ -280,17 +280,17 @@
         ...(18)> "Second",
         ...(18)> "  ```" ]
         ...(18)> as_ast(markdown)
-        {:ok, [], []}
+        {:ok, [{"ul", [], [{"li", [], ["aa", {"pre", [], [{"code", [], ["Second"], %{}}], %{}}], %{}}], %{}}], []}
 
   Also we do support the immediate style of block content inside lists
 
         iex(19)> as_ast("* > Nota Bene!")
-        {:ok, [], []}
+        {:ok, [{"ul", [], [{"li", [], [{"blockquote", [], [{"p", [], ["Nota Bene!"], %{}}], %{}}], %{}}], %{}}], []}
 
   or
 
         iex(20)> as_ast("1. # Breaking...")
-        {:ok, [], []}
+        {:ok, [{"ol", [], [{"li", [], [{"h1", [], ["Breaking..."], %{}}], %{}}], %{}}], []}
 
 
   ### Adding Attributes with the IAL extension
