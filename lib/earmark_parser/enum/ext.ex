@@ -43,58 +43,6 @@ defmodule EarmarkParser.Enum.Ext do
     _reverse_map_reduce(list, initial, [], fun)
   end
 
-  @doc ~S"""
-  `split_reduce_while` is like `Enum.split_while` but also reduces the first
-  part of what `split_while` would return. The reducer function is called with
-  the same protocol as in `reduce_with_end`, meaning with `{:element, ele}` and
-  the accumulator.
-
-  The reducer function however needs to obey the same return protocol as in
-  `Enum.reduce_while` meaning to return tuples of the form `{:cont, accumulator}`
-  or `{:halt, accumulator}`
-
-  If and only if the `include_end?` switch is set to true the reducer function is
-  also called with `{:end, rest}` and the accumulator after it has returned {:halt, accumulator}
-
-      iex(3)> reducer =
-      ...(3)>   fn {:element, :sub}, acc -> {:halt, acc}
-      ...(3)>      {:element, :add}, acc -> {:cont, acc}
-      ...(3)>      {:element, val}, acc -> {:cont, acc + val} end
-      ...(3)> [1, :add, 2, :sub, 3]
-      ...(3)> |> split_reduce_while(0, reducer)
-      {[:sub, 3], 3}
-
-  And now with `include_end?`
-
-      iex(4)> reducer =
-      ...(4)>   fn {:element, :sub}, acc -> {:halt, acc}
-      ...(4)>      {:element, :add}, acc -> {:cont, acc}
-      ...(4)>      {:element, val},  acc -> {:cont, acc + val}
-      ...(4)>      {:end, [_|vals]}, acc -> {vals, acc} end
-      ...(4)> [1, :add, 2, :sub, 3]
-      ...(4)> |> split_reduce_while(0, reducer, true)
-      {[3], 3}
-  """
-  def split_reduce_while(collection, initial_acc, reducer_fn, include_end? \\ false)
-  def split_reduce_while([], acc, reducer_fn, include_end?) do
-    if include_end? do
-      { [], reducer_fn.(:end, acc) }
-    else
-      { [], acc }
-    end
-  end
-  def split_reduce_while([h|t] =  l, acc, reducer_fn, include_end?) do
-    case reducer_fn.({:element, h}, acc) do
-      {:cont, acc1} -> split_reduce_while(t, acc1, reducer_fn, include_end?)
-      {:halt, acc2} ->
-        if include_end? do
-          reducer_fn.({:end, l}, acc)
-        else
-          {l, acc2}
-        end
-    end
-  end
-
   # Helpers {{{
   defp _reverse_map_reduce(list, acc, result, fun)
   defp _reverse_map_reduce([], acc, result, _fun), do: {result, acc}
