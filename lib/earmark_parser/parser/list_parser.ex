@@ -13,6 +13,7 @@ defmodule EarmarkParser.Parser.ListParser do
         options \\ %Options{},
         continue_list \\ nil
       ) do
+        IO.inspect({li.line, (continue_list||%{line: nil}).line})
     {rest1, header_block, has_body?, list, options1} =
       _parse_list_header(rest, li, continue_list, options)
 
@@ -35,6 +36,20 @@ defmodule EarmarkParser.Parser.ListParser do
 
   # Helper Parsers {{{
   # {{{{
+  defp _parse_list_body(rest, body_lines, header_block, has_body?, li, list, options) do
+    {body_blocks, _, _, options1} = EarmarkParser.Parser.parse_lines(body_lines, options, :list)
+
+    IO.inspect({li.line, hd(rest++[nil])}, label: :continues?)
+    continues_list? = _continues_list?(li, rest)
+    loose? = has_body? && (!Enum.empty?(body_lines) || continues_list?)
+    list_item = Block.ListItem.new(list, header_block ++ body_blocks)
+
+    list1 = %{list | blocks: [list_item | list.blocks], loose?: list.loose? || loose?}
+    {continues_list?, list1, options1}
+  end
+  # }}}}
+
+  # {{{{
   defp _parse_list_header(rest, li, continue_list, options) do
     list = continue_list || Block.List.new(li)
 
@@ -47,20 +62,6 @@ defmodule EarmarkParser.Parser.ListParser do
 
     {header_block, _, _, _options} = EarmarkParser.Parser.parse(header_content, options1, :list)
     {rest1, header_block, has_body?, list, options1}
-  end
-
-  # }}}}
-
-  # {{{{
-  defp _parse_list_body(rest, body_lines, header_block, has_body?, li, list, options) do
-    {body_blocks, _, _, options1} = EarmarkParser.Parser.parse_lines(body_lines, options, :list)
-
-    continues_list? = _continues_list?(li, rest)
-    loose? = has_body? && (!Enum.empty?(body_lines) || continues_list?)
-    list_item = Block.ListItem.new(list, header_block ++ body_blocks)
-
-    list1 = %{list | blocks: [list_item | list.blocks], loose?: list.loose? || loose?}
-    {continues_list?, list1, options1}
   end
 
   # }}}}
