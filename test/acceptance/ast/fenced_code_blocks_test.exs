@@ -1,4 +1,4 @@
-    defmodule Acceptance.Ast.FencedCodeBlocksTest do
+defmodule Acceptance.Ast.FencedCodeBlocksTest do
   use ExUnit.Case, async: true
   import Support.Helpers, only: [as_ast: 1, as_ast: 2]
   import EarmarkAstDsl

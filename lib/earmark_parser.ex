@@ -1,4 +1,4 @@
-        defmodule EarmarkParser do
+defmodule EarmarkParser do
   @type ast_meta :: map()
   @type ast_tag :: binary()
   @type ast_attribute_name :: binary()

@@ -1,4 +1,4 @@
-    defmodule EarmarkParser.Parser do
+defmodule EarmarkParser.Parser do
   @moduledoc false
   alias EarmarkParser.{Block, Line, LineScanner, Options}
 

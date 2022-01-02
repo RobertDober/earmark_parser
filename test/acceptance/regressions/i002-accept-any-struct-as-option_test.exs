@@ -2,7 +2,7 @@ defmodule Acceptance.Regressions.I002AcceptAnyStructAsOptionTest do
   use ExUnit.Case
 
   import EarmarkParser, only: [as_ast: 2]
-  defmodule MyStruct do
+defmodule MyStruct do
     defstruct pure_links: false
   end
 
