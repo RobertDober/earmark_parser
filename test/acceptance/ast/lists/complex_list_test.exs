@@ -22,6 +22,7 @@ defmodule Test.Acceptance.Ast.Lists.ComplexListTest do
 
       assert ast_from_md(markdown) == expected
     end
+
     test "three levels and block elements" do
       markdown = """
       * Hello
@@ -37,8 +38,14 @@ defmodule Test.Acceptance.Ast.Lists.ComplexListTest do
               ```
       * World
       """
+      level3 = ul([li("i"), li(["ii", pre_code("  42\n43")])])
+      level2 = ul([li(p("1.1")), li([tag("h1", "1.2"), level3])])
       expected = [
-     ]
+        ul([
+          li([p("Hello"), level2]),
+          li(p("World"))
+        ])
+      ]
       assert ast_from_md(markdown) == expected
     end
   end

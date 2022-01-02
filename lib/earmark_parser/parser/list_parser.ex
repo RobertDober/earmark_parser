@@ -13,7 +13,6 @@ defmodule EarmarkParser.Parser.ListParser do
         options \\ %Options{},
         continue_list \\ nil
       ) do
-        IO.inspect({li.line, (continue_list||%{line: nil}).line})
     {rest1, header_block, has_body?, list, options1} =
       _parse_list_header(rest, li, continue_list, options)
 
@@ -39,10 +38,10 @@ defmodule EarmarkParser.Parser.ListParser do
   defp _parse_list_body(rest, body_lines, header_block, has_body?, li, list, options) do
     {body_blocks, _, _, options1} = EarmarkParser.Parser.parse_lines(body_lines, options, :list)
 
-    IO.inspect({li.line, hd(rest++[nil])}, label: :continues?)
     continues_list? = _continues_list?(li, rest)
     loose? = has_body? && (!Enum.empty?(body_lines) || continues_list?)
     list_item = Block.ListItem.new(list, header_block ++ body_blocks)
+    IO.inspect(list)
 
     list1 = %{list | blocks: [list_item | list.blocks], loose?: list.loose? || loose?}
     {continues_list?, list1, options1}
@@ -57,7 +56,7 @@ defmodule EarmarkParser.Parser.ListParser do
       parse_up_to(
         {rest, Block.List.update_pending_state(list, li), [li.content], options},
         &_parse_header/1,
-        &_end_of_header?/1
+        &end_of_header?/1
       )
 
     {header_block, _, _, _options} = EarmarkParser.Parser.parse(header_content, options1, :list)
@@ -161,6 +160,11 @@ defmodule EarmarkParser.Parser.ListParser do
   # }}}}
   # }}}
 
+  defp end_of_header?(state) do
+    # IO.inspect(state)
+    _end_of_header?(state)
+  end
+
   # _end_of_header? {{{{
   defp _end_of_header?(state)
 
@@ -190,6 +194,11 @@ defmodule EarmarkParser.Parser.ListParser do
 
   defp _end_of_header?({[%Line.Blank{} | rest], list, result, options}) do
     _finish_header(rest, true, list.indent, result, options)
+  end
+
+  defp _end_of_header?({[%Line.ListItem{indent: current_indent}|_]=input, %{indent: list_indent}, result, options})
+    when current_indent >= list_indent and current_indent < list_indent + 4 do
+      _finish_header(input, true, list_indent, result, options)
   end
 
   defp _end_of_header?({[%{indent: current_indent} | _], %{indent: list_indent}, _, _} = state)
