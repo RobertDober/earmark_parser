@@ -1,4 +1,5 @@
 defmodule Acceptance.Ast.Lists.ListAndInlineCodeTest do
+
   use Support.AcceptanceTestCase
   import Support.Helpers, only: [as_ast: 1, parse_html: 1]
 
@@ -16,7 +17,11 @@ defmodule Acceptance.Ast.Lists.ListAndInlineCodeTest do
     end
 
     test "link with title" do
-      markdown = ~s(* And\n* `Hello\n* World)
+      markdown = """
+      * And
+      * `Hello
+      * World
+      """
       ast      = tag("ul", [tag("li", "And"), tag("li","`Hello\n* World")])
       messages = [{:warning, 2, "Closing unclosed backquotes ` at end of input"}]
 
@@ -52,7 +57,8 @@ defmodule Acceptance.Ast.Lists.ListAndInlineCodeTest do
         `Hello
          * World
       """
-      ast      = [p("Prefix1"), tag("ul", tag("li", ["And\nPrefix2\n`Hello\n * World"]))]
+      rest = [ul(li([p("And\nPrefix2\n`Hello"), ul("World")]))]
+      ast      = [p("Prefix1")|rest]
       messages = [{:warning, 4, "Closing unclosed backquotes ` at end of input"}]
 
       assert as_ast(markdown) == {:error, ast, messages}

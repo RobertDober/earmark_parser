@@ -46,7 +46,7 @@ defmodule Acceptance.Ast.Lists.MoreIndentTest do
 
     test "2 level correct pop up" do
       markdown = """
-      -1
+      - 1
         - 1.1
           - 1.1.1
         - 1.2
