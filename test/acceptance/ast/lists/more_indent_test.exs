@@ -1,9 +1,7 @@
-defmodule Acceptance.Ast.ListIndentTest do
-  use ExUnit.Case, async: true
+defmodule Acceptance.Ast.Lists.MoreIndentTest do
+  use Support.AcceptanceTestCase
 
-  import Support.Helpers, only: [as_ast: 1, parse_html: 1]
   import Support.AstHelpers, only: [ast_from_md: 1]
-  import EarmarkAstDsl
 
   describe "different levels of indent" do
 
@@ -36,8 +34,23 @@ defmodule Acceptance.Ast.ListIndentTest do
       assert ast_from_md(markdown) == ast
     end
 
+    test "tightness" do
+      markdown = """
+      - 1
+        - 2
+      """
+      ast = [ul(li(["1", ul("2")]))]
+
+      assert ast_from_md(markdown) == ast
+    end
+
     test "2 level correct pop up" do
-      markdown = "- 1\n  - 1.1\n    - 1.1.1\n  - 1.2"
+      markdown = """
+      -1
+        - 1.1
+          - 1.1.1
+        - 1.2
+      """
       html     = "<ul> <li>1<ul> <li>1.1<ul> <li>1.1.1</li> </ul> </li> <li>1.2</li> </ul> </li> </ul>"
       ast      = parse_html(html)
       messages = []
