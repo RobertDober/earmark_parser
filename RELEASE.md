@@ -1,4 +1,4 @@
-## 1.4.19 2021-12-24
+## 1.4.19 2022-01-07
 
 - [Typos](https://github.com/robertdober/earmark_parser/pull/78)
   Kudos to [kianmeng](https://github.com/kianmeng)
