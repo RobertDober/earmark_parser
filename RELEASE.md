@@ -6,12 +6,12 @@
 
   These changes are not all backwards compatible [c.f.](https://github.com/RobertDober/earmark_parser#lists)
 
+
+## 1.4.19 2022-01-07
+
 - [Fix stop condition on closing HTML in scanners lookup algo](https://github.com/robertdober/earmark_parser/pull/79)
 
   Kudos to [José Valim](https://github.com/josevalim)
-
-
-## 1.4.19 2022-01-07
 
 - [Typos](https://github.com/robertdober/earmark_parser/pull/78)
   Kudos to [kianmeng](https://github.com/kianmeng)
