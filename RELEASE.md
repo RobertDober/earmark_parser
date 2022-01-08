@@ -1,4 +1,4 @@
-## 1.5.0 2022-01-02
+## 1.5.0 2022-0?-??
 
 - [Fixing missing error messages for unclosed fenced code blocks (#23)](https://github.com/robertdober/earmark_parser/issues/23)
 
@@ -10,8 +10,10 @@
 
   Kudos to [José Valim](https://github.com/josevalim)
 
-- [Typos](https://github.com/robertdober/earmark_parser/pull/78)
 
+## 1.4.19 2022-01-07
+
+- [Typos](https://github.com/robertdober/earmark_parser/pull/78)
   Kudos to [kianmeng](https://github.com/kianmeng)
 
 - [Footnotes fixed and upgraded(#26)](https://github.com/robertdober/earmark_parser/pull/76)
