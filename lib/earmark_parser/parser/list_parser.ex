@@ -68,7 +68,12 @@ defmodule EarmarkParser.Parser.ListParser do
     {body_blocks, _, _, options1} = EarmarkParser.Parser.parse_lines(result, options, :list)
 
     continues_list? = _continues_list?(li, rest)
+
     loose? = has_body? && (!Enum.empty?(result) || continues_list?)
+    if loose? do
+    require IEx; IEx.pry
+    end
+
 
     list_item = Block.ListItem.new(list, header_block ++ body_blocks)
     list1 = %{list | blocks: [list_item | list.blocks], loose?: list.loose? || loose?}

@@ -27,7 +27,7 @@ defmodule Acceptance.Ast.Lists.ListAndInlineCodeTest do
       assert as_ast(markdown) == {:error, [ast], messages}
     end
 
-    test "pending in second header" do
+    test "pending in second header disrupts structure" do
       markdown = """
       * And
       * `Hello
@@ -39,9 +39,13 @@ defmodule Acceptance.Ast.Lists.ListAndInlineCodeTest do
       assert as_ast(markdown) == {:error, [ast], messages}
     end
 
-    test "error in spaced part" do
-      markdown = ~s(* And\n  `Hello\n   * World)
-      ast      = tag("ul", tag("li", "And\n`Hello\n * World"))
+    test "error in spaced part also disrupts structure" do
+      markdown = """
+      * And
+        `Hello
+         * World
+      """
+      ast      = ul(li([p("And\n`Hello"), ul("World")]))
       messages = [{:warning, 2, "Closing unclosed backquotes ` at end of input"}]
 
       assert as_ast(markdown) == {:error, [ast], messages}

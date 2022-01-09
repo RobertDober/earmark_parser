@@ -59,7 +59,12 @@ defmodule Acceptance.Ast.Lists.MoreIndentTest do
     end
 
     test "mixed level correct pop up" do
-      markdown = "- 1\n  - 1.1\n      - 1.1.1\n  - 1.2"
+      markdown = """
+      - 1
+        - 1.1
+             - 1.1.1
+        - 1.2
+      """
       html     = "<ul> <li>1<ul> <li>1.1<ul> <li>1.1.1</li> </ul> </li> <li>1.2</li> </ul> </li> </ul>"
       ast      = parse_html(html)
       messages = []
