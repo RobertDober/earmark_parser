@@ -10,13 +10,24 @@ defmodule Acceptance.Ast.Lists.ListAndInlineCodeTest do
       `Hello
       * World
       """
-      ast      = tag("ul", [tag("li", "And\n`Hello\n* World")])
+      ast      = ul(["And\n`Hello", "World"])
       messages = [{:warning, 2, "Closing unclosed backquotes ` at end of input"}]
 
       assert as_ast(markdown) == {:error, [ast], messages}
     end
 
-    test "link with title" do
+    test "pending in first header" do
+      markdown = """
+      * `Hello
+      * World
+      """
+      ast      = ul(["`Hello", "World"])
+      messages = [{:warning, 1, "Closing unclosed backquotes ` at end of input"}]
+
+      assert as_ast(markdown) == {:error, [ast], messages}
+    end
+
+    test "pending in second header" do
       markdown = """
       * And
       * `Hello
@@ -93,3 +104,4 @@ defmodule Acceptance.Ast.Lists.ListAndInlineCodeTest do
 
   end
 end
+#  SPDX-License-Identifier: Apache-2.0

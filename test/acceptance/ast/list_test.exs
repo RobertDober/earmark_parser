@@ -51,9 +51,15 @@ defmodule Acceptance.Ast.ListTest do
     end
 
     test "Numbered" do
-      markdown = "1.  A paragraph\n    with two lines.\n\n        indented code\n\n    > A block quote.\n"
+      markdown = """
+      1.  A paragraph
+          with two lines.
+
+              indented code
+               > A block quote
+      """
       ast      = [
-        ol(li([p("A paragraph\nwith two lines."), pre_code("indented code"), blockquote("A block quote.")]))
+        ol(li([p("A paragraph\nwith two lines."), pre_code("indented code\n > A block quote")]))
       ]
       messages = []
 
