@@ -13,7 +13,7 @@ defmodule EarmarkParser.Parser.ListParser do
   def parse_list(
         [%Line.ListItem{} = li | rest],
         result,
-        options \\ %Options{}
+        options
       ) do
 
     %{list: list, options: options1, rest_to_parse: rest1} =
@@ -33,6 +33,7 @@ defmodule EarmarkParser.Parser.ListParser do
     new_state = %{state|
       header_content: [li.content],
       pending: update_inline_code(state.pending, li),
+      options: %{state.options | line: li.lnb},
       rest_to_parse: rest}
 
     # IO.inspect({li, new_state.options.messages})
@@ -82,15 +83,15 @@ defmodule EarmarkParser.Parser.ListParser do
     new_pending = update_inline_code(pending, li)
 
     state1 =
-      tag(parse_up_to(
+      parse_up_to(
         %{state | pending: new_pending},
         &_parse_header/1,
         &end_of_header?/1
-      ), :parse_list_header_1)
+      )
 
-    new_options = %{state1.options | line: state1.list.lnb}
     {header_block, _, _, options} =
-      EarmarkParser.Parser.parse(state1.header_content, new_options, :list)
+      EarmarkParser.Parser.parse(state1.header_content, state1.options, :list)
+    # IO.inspect(options.messages, label: :after)
 
     %{state1 | header_block: header_block, options: options}
   end
