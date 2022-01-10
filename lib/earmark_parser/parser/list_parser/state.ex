@@ -10,16 +10,17 @@ defmodule EarmarkParser.Parser.ListParser.State do
             has_body?: false,
             header_block: nil,
             header_content: [],
-            label: nil,
             list: nil,
             list_item: nil,
-            loose?: false,
             pending: {nil, 0},
             options: %Options{},
             rest_to_parse: [],
-            result: []
+            result: [],
+            spaced?: false
 
-  def tag(%__MODULE__{}=obj, with_tag), do: %{obj|label: with_tag}
+  def reset_for_next_item(%__MODULE__{} = state) do
+    %{state | continues_list?: false, has_body?: false, header_block: nil, result: [], spaced?: false}
+  end
+
 end
-
 #  SPDX-License-Identifier: Apache-2.0
