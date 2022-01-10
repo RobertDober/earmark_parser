@@ -6,7 +6,6 @@ defmodule EarmarkParser.Parser.ListParser do
   import EarmarkParser.Parser.Helper
   import EarmarkParser.Message, only: [add_message: 2]
   import EarmarkParser.Helpers.LookaheadHelpers, only: [update_inline_code: 2]
-  import State, only: [tag: 2]
 
   @moduledoc false
 
@@ -15,26 +14,27 @@ defmodule EarmarkParser.Parser.ListParser do
         result,
         options
       ) do
-
     %{list: list, options: options1, rest_to_parse: rest1} =
-      _parse_list( %State{
+      _parse_list(%State{
         list: Block.List.new(li),
         list_item: li,
-        rest_to_parse: [li|rest],
+        rest_to_parse: [li | rest],
         options: options
       })
-    {[list|result], rest1, options1}
-  end
 
+    {[list | result], rest1, options1}
+  end
 
   # Helper Parsers {{{
   # {{{{
-  defp _parse_list(%State{rest_to_parse: [li|rest]}=state) do
-    new_state = %{state|
-      header_content: [li.content],
-      pending: update_inline_code(state.pending, li),
-      options: %{state.options | line: li.lnb},
-      rest_to_parse: rest}
+  defp _parse_list(%State{rest_to_parse: [li | rest]} = state) do
+    new_state = %{
+      state
+      | header_content: [li.content],
+        pending: update_inline_code(state.pending, li),
+        options: %{state.options | line: li.lnb},
+        rest_to_parse: rest
+    }
 
     # IO.inspect({li, new_state.options.messages})
     state1 = _parse_list_header(new_state)
@@ -45,45 +45,52 @@ defmodule EarmarkParser.Parser.ListParser do
       else
         state1
       end
+    IO.inspect(state2)
 
     state3 = _parse_list_body(state2)
 
     if state3.continues_list? do
-      _parse_list(%{state3|continues_list?: false})
+      state3
+      |> State.reset_for_next_item()
+      |> _parse_list()
     else
-      tag(%{state3 | list: _reverse_list_items(state3.list)}, :return)
+      %{state3 | list: _reverse_list_items(state3.list)}
     end
-  end # }}}}
+  end
+
+  # }}}}
 
   # {{{{
-  defp _parse_list_body(%State{
-    has_body?: has_body?,
-    header_block: header_block,
-    list: list,
-    list_item: li,
-    options: options,
-    rest_to_parse: rest,
-    result: result}=state) do
-
+  defp _parse_list_body(
+         %State{
+           has_body?: has_body?,
+           header_block: header_block,
+           list: list,
+           list_item: li,
+           options: options,
+           rest_to_parse: rest,
+           result: result
+         } = state
+       ) do
     {body_blocks, _, _, options1} = EarmarkParser.Parser.parse_lines(result, options, :list)
 
     continues_list? = _continues_list?(li, rest)
 
-    loose? = has_body? && (!Enum.empty?(result) || continues_list?)
-    if loose? do
-    require IEx; IEx.pry
-    end
-
+    loose? = list.loose? || (state.spaced? && (!Enum.empty?(result) || continues_list?))
+    # if loose? do
+    # require IEx; IEx.pry
+    # end
 
     list_item = Block.ListItem.new(list, header_block ++ body_blocks)
     list1 = %{list | blocks: [list_item | list.blocks], loose?: list.loose? || loose?}
-    tag(%{state| continues_list?: continues_list?, list: list1, options: options1}, :return_from_list_body)
+    %{state | continues_list?: continues_list?, list: list1, options: options1}
   end
 
   # }}}}
 
   # {{{{
   defp _parse_list_header(state)
+
   defp _parse_list_header(%State{list_item: li, pending: pending} = state) do
     new_pending = update_inline_code(pending, li)
 
@@ -96,6 +103,7 @@ defmodule EarmarkParser.Parser.ListParser do
 
     {header_block, _, _, options} =
       EarmarkParser.Parser.parse(state1.header_content, state1.options, :list)
+
     # IO.inspect(options.messages, label: :after)
 
     %{state1 | header_block: header_block, options: options}
@@ -136,45 +144,66 @@ defmodule EarmarkParser.Parser.ListParser do
 
   # Parsing body {{{
   def end_of_body?(state) do
-    # IO.inspect(state.pending)
+    # IO.inspect(state, label: :body)
     _end_of_body?(state)
   end
+
   # {{{{
   defp _end_of_body?(state)
 
-  defp _end_of_body?(%State{
-    pending: {pending, lnb},
-    options: options,
-    rest_to_parse: input} = state)
+  defp _end_of_body?(
+         %State{
+           pending: {pending, lnb},
+           options: options,
+           rest_to_parse: input
+         } = state
+       )
        when pending != nil do
     case input do
       [] ->
         IO.inspect("error #{lnb}", label: :end_of_body?)
-        _finish_body(
-          %{state |
-           options: add_message(options, {:warning, lnb, "Closing unclosed backquotes # at end of input"}),
-           rest_to_parse: []})
+
+        _finish_body(%{
+          state
+          | options:
+              add_message(
+                options,
+                {:warning, lnb, "Closing unclosed backquotes # at end of input"}
+              ),
+            rest_to_parse: []
+        })
+
       _ ->
         {:continue, state}
     end
   end
 
-  defp _end_of_body?(%State{rest_to_parse: []}=state) do
+  defp _end_of_body?(%State{rest_to_parse: []} = state) do
     _finish_body(state)
   end
 
-  defp _end_of_body?(%State{
-    rest_to_parse: {[%Line.Blank{} | _]}}=state) do
+  defp _end_of_body?(
+         %State{
+           rest_to_parse: {[%Line.Blank{} | _]}
+         } = state
+       ) do
     {:continue, state}
   end
 
-  defp _end_of_body?(%State{
-    rest_to_parse: [%Line.Heading{} | _]}=state) do
+  defp _end_of_body?(
+         %State{
+           rest_to_parse: [%Line.Heading{} | _]
+         } = state
+       ) do
     _finish_body(state)
   end
 
-  defp _end_of_body?(%State{
-    rest_to_parse: [%{indent: current_indent} | _], list: %Block.List{indent: list_indent}}=state)
+  defp _end_of_body?(
+         %State{
+           rest_to_parse: [%{indent: current_indent} | _],
+           list: %Block.List{indent: list_indent}
+         } = state
+       )
        when current_indent < list_indent do
     _finish_body(state)
   end
@@ -185,96 +214,115 @@ defmodule EarmarkParser.Parser.ListParser do
 
   # }}}}
   # {{{{
-  defp _finish_body(%State{result: result}=state) do
-    new_state = tag(%{state|result: Enum.reverse(result) |> Enum.drop_while(&Line.blank?/1)}, :finish_body)
+  defp _finish_body(%State{result: result} = state) do
+    new_state = %{state | result: Enum.reverse(result) |> Enum.drop_while(&Line.blank?/1)}
     {:halt, new_state}
   end
 
   # }}}}
   # {{{{
-  defp _parse_body(%State{
-    list: list,
-    rest_to_parse: [line|rest],
-    result: result}=state) do
+  defp _parse_body(
+         %State{
+           list: list,
+           rest_to_parse: [line | rest],
+           result: result
+         } = state
+       ) do
     text = behead(line.line, list.indent)
     line1 = EarmarkParser.LineScanner.type_of({text, line.lnb}, false)
-    tag(%{state | rest_to_parse: rest, result: [line1 | result]}, :return_from_parse_body)
+    %{state | rest_to_parse: rest, result: [line1 | result]}
   end
 
   # }}}}
   # }}}
 
   defp end_of_header?(state) do
-    # IO.inspect({state.pending, state.options.messages})
+    # IO.inspect(state, label: :header)
     _end_of_header?(state)
   end
 
   # _end_of_header? {{{{
   defp _end_of_header?(state)
 
-  defp _end_of_header?(%State{
-    options: options,
-    pending: {pending, lnb},
-    rest_to_parse: input,
-  } = state)
+  defp _end_of_header?(
+         %State{
+           options: options,
+           pending: {pending, lnb},
+           rest_to_parse: input
+         } = state
+       )
        when pending != nil do
     case input do
       [] ->
-        _finish_header(
-          %{state|
-            has_body?: false,
-            options: add_message( options, {:warning, lnb, "Closing unclosed backquotes #{pending} at end of input"}),
-            rest_to_parse: []}
-          )
+        _finish_header(%{
+          state
+          | has_body?: false,
+            options:
+              add_message(
+                options,
+                {:warning, lnb, "Closing unclosed backquotes #{pending} at end of input"}
+              ),
+            rest_to_parse: []
+        })
 
       _ ->
         {:continue, state}
     end
   end
 
-  defp _end_of_header?(%State{rest_to_parse: []}=state) do
-    _finish_header(%{state|has_body?: false})
+  defp _end_of_header?(%State{rest_to_parse: []} = state) do
+    _finish_header(state)
   end
 
-  defp _end_of_header?(%State{rest_to_parse: [%Line.Blank{} | rest]}=state) do
-    _finish_header(%{state|has_body?: true, rest_to_parse: rest})
+  defp _end_of_header?(%State{rest_to_parse: [%Line.Blank{} | rest]} = state) do
+    _finish_header(%{state | has_body?: true, rest_to_parse: rest, spaced?: true})
   end
 
-  defp _end_of_header?(%State{
-    list: %{indent: list_indent},
-    rest_to_parse: [%Line.ListItem{indent: current_indent} | _]} = state)
+  defp _end_of_header?(
+         %State{
+           list: %{indent: list_indent},
+           rest_to_parse: [%Line.ListItem{indent: current_indent} | _]
+         } = state
+       )
        when current_indent >= list_indent and current_indent < list_indent + 4 do
     _finish_header(%{state | has_body?: true})
   end
 
-  defp _end_of_header?(%State{
-    list: %{indent: list_indent},
-    rest_to_parse: [%Line.ListItem{indent: current_indent} | _]} = state)
+  defp _end_of_header?(
+         %State{
+           list: %{indent: list_indent},
+           rest_to_parse: [%Line.ListItem{indent: current_indent} | _]
+         } = state
+       )
        when current_indent < list_indent and current_indent < list_indent + 4 do
     _finish_header(state)
   end
 
-
-  defp _end_of_header?(%State{
-    list: %{indent: list_indent},
-    rest_to_parse: [%{indent: current_indent} | _]} = state)
+  defp _end_of_header?(
+         %State{
+           list: %{indent: list_indent},
+           rest_to_parse: [%{indent: current_indent} | _]
+         } = state
+       )
        when current_indent >= list_indent do
     {:continue, state}
   end
 
-  defp _end_of_header?(%State{rest_to_parse: [%Line.BlockQuote{} | _]}=state) do
+  defp _end_of_header?(%State{rest_to_parse: [%Line.BlockQuote{} | _]} = state) do
     _finish_header(state)
   end
 
-  defp _end_of_header?(%State{rest_to_parse: [%Line.Heading{} | _]}=state) do
+  defp _end_of_header?(%State{rest_to_parse: [%Line.Heading{} | _]} = state) do
     _finish_header(state)
   end
 
-  defp _end_of_header?(%State{rest_to_parse: [%Line.Ruler{} | _]}=state) do
+  defp _end_of_header?(%State{rest_to_parse: [%Line.Ruler{} | _]} = state) do
+    require IEx
+    IEx.pry()
     _finish_header(state)
   end
 
-  defp _end_of_header?(%State{rest_to_parse: [%Line.ListItem{} | _]}=state) do
+  defp _end_of_header?(%State{rest_to_parse: [%Line.ListItem{} | _]} = state) do
     _finish_header(state)
   end
 
@@ -284,17 +332,28 @@ defmodule EarmarkParser.Parser.ListParser do
 
   # }}}}
 
-  defp _finish_header(%State{list: %{indent: indent}, header_content: header_content}=state) do
-    {new_header_content, _} = Ext.reverse_map_reduce(header_content, nil, &_maybe_indent(&1, &2, indent))
-    new_state = tag(%{state|header_content: new_header_content}, :finish_header)
+  defp _finish_header(%State{list: %{indent: indent}, header_content: header_content} = state) do
+    {new_header_content, _} =
+      Ext.reverse_map_reduce(header_content, nil, &_maybe_indent(&1, &2, indent))
+
+    new_state = %{state | header_content: new_header_content}
     {:halt, new_state}
   end
 
   # _parse_header {{{{
-  defp _parse_header(%State{list: list, rest_to_parse: [line | rest], header_content: header_content}=state) do
+  defp _parse_header(
+         %State{list: list, rest_to_parse: [line | rest], header_content: header_content} = state
+       ) do
     new_header_content = [line.line | header_content]
-    new_state = %{state | list:  Block.List.update_pending_state(list, line), rest_to_parse: rest, header_content: new_header_content}
-    tag(new_state, :return_from_parse_header)
+
+    new_state = %{
+      state
+      | list: Block.List.update_pending_state(list, line),
+        rest_to_parse: rest,
+        header_content: new_header_content
+    }
+
+    new_state
   end
 
   # }}}}
@@ -336,6 +395,7 @@ defmodule EarmarkParser.Parser.ListParser do
       list_loose?
     )
   end
+
 end
 
 #  SPDX-License-Identifier: Apache-2.0
