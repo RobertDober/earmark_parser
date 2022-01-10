@@ -51,8 +51,9 @@ defmodule Acceptance.Ast.Lists.MoreIndentTest do
           - 1.1.1
         - 1.2
       """
-      html     = "<ul> <li>1<ul> <li>1.1<ul> <li>1.1.1</li> </ul> </li> <li>1.2</li> </ul> </li> </ul>"
-      ast      = parse_html(html)
+      ast      = [
+        ul(li(["1", ul([li(["1.1", ul("1.1.1")]), li("1.2")])]))
+      ]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
