@@ -14,6 +14,7 @@ defmodule EarmarkParser.Parser.ListParser do
         result,
         options
       ) do
+        IO.inspect([li|rest])
     %{list: list, options: options1, rest_to_parse: rest1} =
       _parse_list(%State{
         list: Block.List.new(li),
@@ -41,11 +42,10 @@ defmodule EarmarkParser.Parser.ListParser do
 
     state2 =
       if state1.has_body? do
-        parse_up_to(state1, &_parse_body/1, &end_of_body?/1)
+        State.dbg(parse_up_to(state1, &_parse_body/1, &end_of_body?/1))
       else
         state1
       end
-    IO.inspect(state2)
 
     state3 = _parse_list_body(state2)
 
@@ -216,6 +216,7 @@ defmodule EarmarkParser.Parser.ListParser do
   # {{{{
   defp _finish_body(%State{result: result} = state) do
     new_state = %{state | result: Enum.reverse(result) |> Enum.drop_while(&Line.blank?/1)}
+    IO.inspect(new_state, label: :finish_body)
     {:halt, new_state}
   end
 
