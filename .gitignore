@@ -22,3 +22,4 @@ lib/tools
 earmark_parser-*.tar
 
 .vscode/
+test/debug/
