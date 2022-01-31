@@ -21,3 +21,4 @@ lib/tools
 *.ez
 earmark_parser-*.tar
 
+test/debug/
