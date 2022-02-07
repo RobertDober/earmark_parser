@@ -63,7 +63,6 @@ defmodule EarmarkParser.Parser.ListParser do
   # {{{{
   defp _parse_list_body(
          %State{
-           has_body?: has_body?,
            header_block: header_block,
            list: list,
            list_item: li,
