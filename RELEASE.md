@@ -1,3 +1,8 @@
+
+## 1.5.0 2022-02-08
+
+- [Depreacting message to be passed in as an array in options, and fixing it](https://github.com/robertdober/earmark_parser/issues/86)
+
 ## 1.4.22 2022-03-14
 
 Fixes all List Regressions introduced in 1.4.19

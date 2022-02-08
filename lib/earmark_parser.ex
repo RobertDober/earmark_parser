@@ -524,6 +524,7 @@ defmodule EarmarkParser do
 
   def as_ast(lines, %Options{} = options) do
     context = _as_ast(lines, options)
+
     messages = sort_messages(context)
     messages1 = Options.add_deprecations(options, messages)
 
