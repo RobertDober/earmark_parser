@@ -1,4 +1,7 @@
-## 1.5.0 2022-0?-??
+
+## 1.5.0 2022-02-08
+
+- [Depreacting message to be passed in as an array in options, and fixing it](https://github.com/robertdober/earmark_parser/issues/86)
 
 - [Fixing missing error messages for unclosed fenced code blocks (#23)](https://github.com/robertdober/earmark_parser/issues/23)
 

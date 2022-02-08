@@ -74,13 +74,21 @@ defmodule EarmarkParser.Options do
       %Regex{} -> options
       nil      -> options
       _ -> %{options | annotations: Regex.compile!("\\A(.*)(#{Regex.escape(options.annotations)}.*)")}
-    end
+    end |> _deprecate_old_messages()
   end
   def normalize(options), do: struct(__MODULE__, options) |> normalize()
 
   @doc false
   def plugin_for_prefix(options, plugin_name) do
     Map.get(options.plugins, plugin_name, false)
+  end
+
+  defp _deprecate_old_messages(opitons)
+  defp _deprecate_old_messages(%__MODULE__{messages: %MapSet{}}=options), do: options
+  defp _deprecate_old_messages(%__MODULE__{messages: messages}=options) do
+    %{ options |
+      messages:
+      MapSet.new([{:deprecated, 0, "messages is an internal option that is ignored and will be removed from the API in v1.5.1"}])}
   end
 end
 
