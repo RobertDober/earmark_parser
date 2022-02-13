@@ -19,13 +19,6 @@ defmodule EarmarkParser.Helpers.TestPureLinkHelpers do
       assert result == expected
     end
 
-    test "trailing parens are not part of it, at least not all" do
-      #                          0....+....1....+....2.
-      result = convert_pure_link("(https://a.link.com))")
-      expected = {["(", tag("a",  "https://a.link.com", href:  "https://a.link.com"), ")"], 20}
-      assert result == expected
-    end
-
 
     test "however opening parens are" do
       #                           0....+....1....+...
@@ -48,21 +41,33 @@ defmodule EarmarkParser.Helpers.TestPureLinkHelpers do
       assert result == expected
     end
 
-    test "closing parens can match opening parens at the end" do
-      #                          0....+....1....+....2....+....3....+....4.
-      result = convert_pure_link("(http://www.google.com/search?q=business)")
-      expected = {["(", tag("a", "http://www.google.com/search?q=business", href: "http://www.google.com/search?q=business"), ")"], 41}
-      assert result == expected
-    end
-
-    test "opening parens w/o closing parens do not match" do
-      result = convert_pure_link("(http://www.google.com/search?q=business")
-      assert result == {"(", 1} 
-    end
-
     test "invalid charecters should not be part of the link" do
       result = convert_pure_link("https://a.link.com<br/>")
       expected = {tag("a",  "https://a.link.com", href:  "https://a.link.com"), 18}
+      assert result == expected
+    end
+
+    test "trailing parens should be unaffected by unbalanced parens inside" do
+      result = convert_pure_link("https://a.link.com/q=foo)+(ok))")
+      expected = {tag("a",  "https://a.link.com/q=foo)+(ok)", href:  "https://a.link.com/q=foo)+(ok)"), 30}
+      assert result == expected
+    end
+
+    test "recognize www. prefix" do
+      result = convert_pure_link("www.github.com")
+      expected = {tag("a",  "www.github.com", href:  "http://www.github.com"), 14}
+      assert result == expected
+    end
+
+    test "must start with http:// or https:// or www." do
+      result = convert_pure_link("ftp://foo.com")
+      expected = nil
+      assert result == expected
+    end
+
+    test "trailing dot must not be part of the link" do
+      result = convert_pure_link("www.github.com.")
+      expected = {tag("a",  "www.github.com", href:  "http://www.github.com"), 14}
       assert result == expected
     end
   end
