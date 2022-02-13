@@ -9,6 +9,9 @@
 
   These changes are not all backwards compatible [c.f.](https://github.com/RobertDober/earmark_parser#lists)
 
+- [Correct pure link regex to reject invalid characters](https://github.com/RobertDober/earmark_parser/pull/91)
+
+  Kudos to [Akash Hiremath](https://github.com/akash-akya)
 
 ## 1.4.19 2022-01-07
 
