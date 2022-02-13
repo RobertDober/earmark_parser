@@ -14,7 +14,7 @@ defmodule EarmarkParser.Parser.ListParser do
         result,
         options
       ) do
-        IO.inspect([li|rest])
+        # IO.inspect([li|rest])
     %{list: list, options: options1, rest_to_parse: rest1} =
       _parse_list(%State{
         list: Block.List.new(li),
@@ -23,11 +23,24 @@ defmodule EarmarkParser.Parser.ListParser do
         options: options
       })
 
-    {[list | result], rest1, options1}
+    # {[list | result], rest1, options1}
   end
+
+  defp _inner_list?(state)
+  defp _inner_list?(%State{has_body?: false}), do: false
+  defp _inner_list?(%State{rest_to_parse: [%Line.ListItem{}|_]}), do: true
+  defp _inner_list?(_state), do: false
 
   # Helper Parsers {{{
   # {{{{
+  defp _parse_inner_list(state) do
+    state_ =
+      state
+      |> State.reset_for_next_item
+      |> _parse_list
+    %{state|list: %{state.list|blocks: [state_.list|state.list.blocks]}}
+  end
+
   defp _parse_list(%State{rest_to_parse: [li | rest]} = state) do
     new_state = %{
       state
@@ -36,26 +49,24 @@ defmodule EarmarkParser.Parser.ListParser do
         options: %{state.options | line: li.lnb},
         rest_to_parse: rest
     }
+    state1 = _parse_list_header(new_state) #|> State.dbg(:state1, 2)
 
-    # IO.inspect({li, new_state.options.messages})
-    state1 = _parse_list_header(new_state)
+    # state2 =
+    #   cond do
+    #     _inner_list?(state1) -> state1 |> _parse_inner_list() |> State.dbg(:after_inner)
+    #     state1.has_body? -> parse_up_to(state1, &_parse_body/1, &end_of_body?/1) # |> State.dbg(:state2, 2)
+    #     true -> state1
+    #   end
 
-    state2 =
-      if state1.has_body? do
-        State.dbg(parse_up_to(state1, &_parse_body/1, &end_of_body?/1))
-      else
-        state1
-      end
+    # state3 = _parse_list_body(state2)
 
-    state3 = _parse_list_body(state2)
-
-    if state3.continues_list? do
-      state3
-      |> State.reset_for_next_item()
-      |> _parse_list()
-    else
-      %{state3 | list: _reverse_list_items(state3.list)}
-    end
+    # if state3.continues_list? do
+    #   state3
+    #   |> State.reset_for_next_item()
+    #   |> _parse_list()
+    # else
+    #   %{state3 | list: _reverse_list_items(state3.list)}
+    # end
   end
 
   # }}}}
@@ -63,7 +74,6 @@ defmodule EarmarkParser.Parser.ListParser do
   # {{{{
   defp _parse_list_body(
          %State{
-           has_body?: has_body?,
            header_block: header_block,
            list: list,
            list_item: li,
@@ -144,7 +154,7 @@ defmodule EarmarkParser.Parser.ListParser do
 
   # Parsing body {{{
   def end_of_body?(state) do
-    # IO.inspect(state, label: :body)
+    # State.dbg(state, :end_of_body?)
     _end_of_body?(state)
   end
 
@@ -215,8 +225,8 @@ defmodule EarmarkParser.Parser.ListParser do
   # }}}}
   # {{{{
   defp _finish_body(%State{result: result} = state) do
-    new_state = %{state | result: Enum.reverse(result) |> Enum.drop_while(&Line.blank?/1)}
-    IO.inspect(new_state, label: :finish_body)
+    new_state = %{state | result: Enum.reverse(result) |> Enum.drop_while(&Line.blank?/1)} 
+    # |> IO.inspect(label: :finish_body)
     {:halt, new_state}
   end
 
@@ -238,7 +248,7 @@ defmodule EarmarkParser.Parser.ListParser do
   # }}}
 
   defp end_of_header?(state) do
-    # IO.inspect(state, label: :header)
+    # State.dbg(state, :end?, 1)
     _end_of_header?(state)
   end
 
@@ -285,7 +295,7 @@ defmodule EarmarkParser.Parser.ListParser do
            rest_to_parse: [%Line.ListItem{indent: current_indent} | _]
          } = state
        )
-       when current_indent >= list_indent and current_indent < list_indent + 4 do
+       when current_indent >= list_indent and current_indent < list_indent + 2 do
     _finish_header(%{state | has_body?: true})
   end
 
@@ -295,7 +305,7 @@ defmodule EarmarkParser.Parser.ListParser do
            rest_to_parse: [%Line.ListItem{indent: current_indent} | _]
          } = state
        )
-       when current_indent < list_indent and current_indent < list_indent + 4 do
+       when current_indent < list_indent do
     _finish_header(state)
   end
 

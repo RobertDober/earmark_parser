@@ -7,6 +7,7 @@ defmodule Test.Debug.Support do
       |> String.split(~r{\r\n?|\n})
       |> LineScanner.scan_lines(options_, false)
       |> ListParser.parse_list([], options_)
+      |> IO.inspect
   end
 
 end

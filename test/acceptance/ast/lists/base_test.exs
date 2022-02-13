@@ -6,8 +6,7 @@ defmodule Acceptance.Ast.Lists.BaseTest do
   describe "List items" do
     test "Unnumbered" do
       markdown = "* one\n* two"
-      html     = "<ul><li>one</li><li>two</li></ul>"
-      ast      = parse_html(html)
+      ast      = [ ul([li("one"), li("two")]) ]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -15,8 +14,7 @@ defmodule Acceptance.Ast.Lists.BaseTest do
 
     test "Unnumbered Indented" do
       markdown = "  * one\n  * two"
-      html     = "<ul><li>one</li><li>two</li></ul>"
-      ast      = parse_html(html)
+      ast      = [ ul([li("one"), li("two")]) ]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
