@@ -25,6 +25,9 @@ GFM support for lists remain limited (spaced and tight lists are not 100% compli
 
 - Removed support for Elixir 1.10 (following `ex_doc`'s lead)
 
+- [Correct pure link regex to reject invalid characters](https://github.com/RobertDober/earmark_parser/pull/91)
+
+  Kudos to [Akash Hiremath](https://github.com/akash-akya)
 
 ## 1.4.19 2022-01-07
 
