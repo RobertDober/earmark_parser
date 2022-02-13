@@ -4,7 +4,7 @@ defmodule EarmarkParser.Helpers.PureLinkHelpers do
   import EarmarkParser.Helpers.StringHelpers, only: [betail: 2]
   import EarmarkParser.Helpers.AstHelpers, only: [render_link: 1]
 
-  @pure_link_rgx ~r{\A(\s*)(\()?(https?://[[:alnum:]"'*@:+-_{\}()/.%\#&]*)}u
+  @pure_link_rgx ~r{\A(\s*)(\()?(https?://[-[:alnum:]"'*@:+_{\}()/.%\#&?=\[\]~!,;]*)}u
 
   def convert_pure_link(src) do
     case Regex.run(@pure_link_rgx, src) do
