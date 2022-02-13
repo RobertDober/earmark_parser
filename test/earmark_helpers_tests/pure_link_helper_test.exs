@@ -59,6 +59,11 @@ defmodule EarmarkParser.Helpers.TestPureLinkHelpers do
       result = convert_pure_link("(http://www.google.com/search?q=business")
       assert result == {"(", 1} 
     end
-  end
 
+    test "invalid charecters should not be part of the link" do
+      result = convert_pure_link("https://a.link.com<br/>")
+      expected = {tag("a",  "https://a.link.com", href:  "https://a.link.com"), 18}
+      assert result == expected
+    end
+  end
 end
