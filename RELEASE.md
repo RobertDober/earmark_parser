@@ -1,5 +1,5 @@
 
-## 1.5.0 2022-02-08
+## 1.5.0 2022-??-??
 
 - [Depreacting message to be passed in as an array in options, and fixing it](https://github.com/robertdober/earmark_parser/issues/86)
 
@@ -26,6 +26,10 @@ GFM support for lists remain limited (spaced and tight lists are not 100% compli
 - Removed support for Elixir 1.10 (following `ex_doc`'s lead)
 
 - [Correct pure link regex to reject invalid characters](https://github.com/RobertDober/earmark_parser/pull/91)
+
+  Kudos to [Akash Hiremath](https://github.com/akash-akya)
+
+- [Intensive work to make pure links GFM Spec compliant](https://github.com/RobertDober/earmark_parser/pull/92)
 
   Kudos to [Akash Hiremath](https://github.com/akash-akya)
 
