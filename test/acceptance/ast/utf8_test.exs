@@ -1,6 +1,6 @@
 defmodule Acceptance.Ast.Utf8Test do
   use ExUnit.Case, async: true
-  import Support.Helpers, only: [as_ast: 2, parse_html: 1]
+  import Support.Helpers, only: [as_ast: 1, parse_html: 1]
 
   describe "valid rendering" do
     test "pure link" do
@@ -9,7 +9,7 @@ defmodule Acceptance.Ast.Utf8Test do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown, pure_links: true) == {:ok, ast, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
   end
 end
