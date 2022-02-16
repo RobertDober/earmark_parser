@@ -19,17 +19,6 @@ defmodule EarmarkParser.Helpers.TestPureLinkHelpers do
       assert result == expected
     end
 
-<<<<<<< HEAD
-    test "trailing parens are not part of it, at least not all" do
-      #                          0....+....1....+....2.
-      result = convert_pure_link("(https://a.link.com))")
-      expected = {["(", a( "https://a.link.com", href:  "https://a.link.com"), ")"], 20}
-      assert result == expected
-    end
-
-=======
->>>>>>> 8cc7046 (Parse pure-link similar to GFM extension (#92))
-
     test "however opening parens are" do
       #                           0....+....1....+...
       result = convert_pure_link("https://a.link.com(")
@@ -49,19 +38,6 @@ defmodule EarmarkParser.Helpers.TestPureLinkHelpers do
       result = convert_pure_link("http://www.google.com/search?q=business)")
       expected = {a("http://www.google.com/search?q=business", href: "http://www.google.com/search?q=business"), 39}
       assert result == expected
-    end
-
-    test "closing parens can match opening parens at the end" do
-      #                          0....+....1....+....2....+....3....+....4.
-      result = convert_pure_link("(http://www.google.com/search?q=business)")
-      expected = {["(", a("http://www.google.com/search?q=business", href: "http://www.google.com/search?q=business"), ")"], 41}
-      assert result == expected
-    end
-
-    test "opening parens w/o closing parens do not match" do
-      #                          0....+....1....+....2....+....3....+....4.
-      result = convert_pure_link("(http://www.google.com/search?q=business")
-      assert result == {"(", 1} 
     end
 
     test "parens are legal in query string" do
@@ -91,14 +67,6 @@ defmodule EarmarkParser.Helpers.TestPureLinkHelpers do
       assert result == expected
     end
 
-    test "parens are legal in query string" do
-      #      0....+....1....+....2
-      link = "http://test.com?x=("
-      result = convert_pure_link(link)
-      expected = {a(link, href: link), 19}
-      assert result == expected
-    end
-
     test "must start with http:// or https:// or www." do
       result = convert_pure_link("ftp://foo.com")
       expected = nil
@@ -112,3 +80,4 @@ defmodule EarmarkParser.Helpers.TestPureLinkHelpers do
     end
   end
 end
+#  SPDX-License-Identifier: Apache-2.0

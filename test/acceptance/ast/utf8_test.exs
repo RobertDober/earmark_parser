@@ -8,7 +8,7 @@ defmodule Acceptance.Ast.Utf8Test do
       markdown = " foo (http://test.com)… bar"
       ast = p([" foo (", a(["http://test.com)…"], href: "http://test.com)%E2%80%A6"), " bar"])
       messages = []
-      assert as_ast(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown) == {:ok, [ast], messages}
     end
   end
 end
