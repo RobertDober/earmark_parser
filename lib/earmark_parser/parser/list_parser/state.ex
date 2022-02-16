@@ -22,7 +22,7 @@ defmodule EarmarkParser.Parser.ListParser.State do
     %{state | continues_list?: false, has_body?: false, header_block: nil, result: [], spaced?: false}
   end
 
-  def dbg(%__MODULE__{}=state, verb \\ 0) do
+  def dbg(%__MODULE__{}=state, label, verb \\ 0) do
     result = %{body_lines: state.body_lines, continues_list: state.continues_list?, has_body?: state.has_body?, header_block: state.header_block,
      header_content: state.header_content}
    result_ = if verb > 0 do
@@ -30,9 +30,18 @@ defmodule EarmarkParser.Parser.ListParser.State do
    else
      result
    end
+   result__ = if verb > 1 do
+     Map.merge(result_, %{result: result})
+   else
+     result_
+   end
 
-    IO.inspect result_
+    IO.inspect result__, label: label
     state
+  end
+
+  def dbg_rest(%__MODULE__{} = state, label) do
+    IO.inspect(state.rest_to_parse, label: label)
   end
 
 end

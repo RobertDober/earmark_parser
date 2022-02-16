@@ -4,21 +4,16 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-        {
-            "type": "mix_task",
-            "name": "mix (Default task)",
-            "request": "launch",
-            "projectDir": "${workspaceRoot}"
-        },
+
         {
             "type": "mix_task",
             "name": "mix test",
             "request": "launch",
             "task": "test",
             "taskArgs": [
-                "--trace -- test/acceptance/ast/footnotes/multiple_fn_test.exs:6"
+                "--trace -- test/unit/ear/parse/parse_para_test.exs:5"
             ],
-            "startApps": true,
+            "startApps": false,
             "projectDir": "${workspaceRoot}",
             "requireFiles": [
                 "test/**/test_helper.exs",

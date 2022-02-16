@@ -25,6 +25,8 @@ defmodule EarmarkParser.Message do
   def get_messages(container)
   def get_messages(%Context{options: %{messages: messages}}), do: messages
 
+  def make_messages(messages \\ []), do: MapSet.new(messages)
+
   @doc """
   For final output
   """

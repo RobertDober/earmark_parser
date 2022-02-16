@@ -548,8 +548,9 @@ defmodule EarmarkParser do
   end
 
   defp _as_ast(lines, options) do
-    {blocks, context} = EarmarkParser.Parser.parse_markdown(lines, Options.normalize(options))
-    EarmarkParser.AstRenderer.render(blocks, context)
+    # {blocks, context} = EarmarkParser.Parser.parse_markdown(lines, Options.normalize(options))
+    # EarmarkParser.AstRenderer.render(blocks, context)
+    Ear.Parser.parse(lines, options)
   end
 
   @doc """
