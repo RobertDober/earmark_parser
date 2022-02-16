@@ -91,6 +91,14 @@ defmodule EarmarkParser.Helpers.TestPureLinkHelpers do
       assert result == expected
     end
 
+    test "parens are legal in query string" do
+      #      0....+....1....+....2
+      link = "http://test.com?x=("
+      result = convert_pure_link(link)
+      expected = {a(link, href: link), 19}
+      assert result == expected
+    end
+
     test "must start with http:// or https:// or www." do
       result = convert_pure_link("ftp://foo.com")
       expected = nil
