@@ -82,7 +82,7 @@ defmodule Acceptance.Ast.LinksImages.PureLinksTest do
 
     test "imbrication" do
       markdown = "(http://my.org/robert(is_best)"
-      ast      = p(["(", tag("a", ["http://my.org/robert(is_best"],[{"href", "http://my.org/robert(is_best"}]), ")"])
+      ast      = p(["(", tag("a", ["http://my.org/robert(is_best)"],[{"href", "http://my.org/robert(is_best)"}])])
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -111,6 +111,31 @@ defmodule Acceptance.Ast.LinksImages.PureLinksTest do
 
       assert as_ast(markdown) == {:ok, [ast], messages}
     end
+
+    test "trailing parens are not part of it, at least not all" do
+      markdown = "(https://a.link.com))"
+      ast      = p(["(", tag("a",  "https://a.link.com", href:  "https://a.link.com"), "))"])
+      messages = []
+
+      assert as_ast(markdown) == {:ok, [ast], messages}
+    end
+
+    test "closing parens can match opening parens at the end" do
+      markdown = "(http://www.google.com/search?q=business)"
+      ast      = p(["(", tag("a", "http://www.google.com/search?q=business", href: "http://www.google.com/search?q=business"), ")"])
+      messages = []
+
+      assert as_ast(markdown) == {:ok, [ast], messages}
+    end
+
+    test "opening parens w/o closing parens do not match" do
+      markdown = "(http://www.google.com/search?q=business"
+      ast      = p(["(", tag("a", "http://www.google.com/search?q=business", href: "http://www.google.com/search?q=business")])
+      messages = []
+
+      assert as_ast(markdown) == {:ok, [ast], messages}
+    end
+
   end
 
   describe "more acceptable characters (was: regression #350)" do
@@ -147,6 +172,26 @@ defmodule Acceptance.Ast.LinksImages.PureLinksTest do
     test "two query params" do
       markdown = "https://example.com?foo=1&bar=2"
       ast      = p(tag("a", markdown, [{"href", markdown}]))
+      messages = []
+
+      assert as_ast(markdown) == {:ok, [ast], messages}
+    end
+  end
+
+  describe "matching parenthesis" do
+    test "match trailing closing parenthesis with the opening parenthesis in the link" do
+      markdown = "(http://github.com/(foo)"
+      ast      = p(["(", tag("a", ["http://github.com/(foo)"], [{"href", "http://github.com/(foo)"}])])
+      messages = []
+
+      assert as_ast(markdown) == {:ok, [ast], messages}
+    end
+  end
+
+  describe "unicode charecters" do
+    test "support non alpha-numeric unicode charecters" do
+      markdown = "http://github.com?foo=😀"
+      ast      = p([tag("a", ["http://github.com?foo=😀"], [{"href", "http://github.com?foo=#{URI.encode("😀")}"}])])
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}

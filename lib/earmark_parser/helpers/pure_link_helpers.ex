@@ -1,53 +1,80 @@
 defmodule EarmarkParser.Helpers.PureLinkHelpers do
   @moduledoc false
 
-  import EarmarkParser.Helpers.StringHelpers, only: [betail: 2]
-  import EarmarkParser.Helpers.AstHelpers, only: [render_link: 1]
+  import EarmarkParser.Helpers.AstHelpers, only: [render_link: 2]
 
-  @pure_link_rgx ~r{\A(\s*)(\()?(https?://[-[:alnum:]"'*@:+_{\}()/.%\#&?=\[\]~!,;]*)}u
+  @pure_link_rgx ~r{
+    \A
+    (\s*)
+    (
+      (?:https?://|www\.)
+      [^\s<>]*
+      [^\s<>?!.,:*_~]
+    )
+  }ux
 
   def convert_pure_link(src) do
     case Regex.run(@pure_link_rgx, src) do
-      [_match, spaces, "", link_text] -> reparse_link(spaces, link_text)
-      [_match, spaces, _, link_text]  -> remove_trailing_closing_parens(spaces, link_text)
-      _ -> nil
-      end
-  end
+      [_match, spaces, link_text] ->
+        if String.ends_with?(link_text, ")") do
+          remove_trailing_closing_parens(spaces, link_text)
+        else
+          make_result(spaces, link_text)
+        end
 
-  defp determine_ending_parens_by_count(leading_spaces, prefix, surplus_on_closing_parens) do
-    graphemes = String.graphemes(prefix)
-    open_parens_count = Enum.count(graphemes, &(&1 == "("))
-    close_parens_count = Enum.count(graphemes, &(&1 == ")"))
-    delta = open_parens_count - close_parens_count
-    take = min(delta, surplus_on_closing_parens)
-    needed =
-    :lists.duplicate(max(0, take), ")")
-    |> Enum.join
-    link = render_link(prefix <> needed)
-    ast =
-      case leading_spaces do
-        "" -> link
-        _ -> [leading_spaces, link]
-      end
-    {ast, String.length(prefix) + String.length(leading_spaces) + max(0,take)}
+      _ ->
+        nil
+    end
   end
 
   @split_at_ending_parens ~r{(.*?)(\)*)\z}
   defp remove_trailing_closing_parens(leading_spaces, link_text) do
-    [_, _prefix, suffix] = Regex.run(@split_at_ending_parens, link_text)
-    case suffix do
-      "" -> {"(", String.length(leading_spaces) + 1}
-      _  -> case convert_pure_link(betail(link_text, 1)) do
-        {link, length} -> {["(", link, ")"], length + 2}
-        _ -> nil
+    [_, link_text, trailing_parens] = Regex.run(@split_at_ending_parens, link_text)
+    trailing_paren_count = String.length(trailing_parens)
+
+    # try to balance parens from the rhs
+    unbalanced_count = balance_parens(String.reverse(link_text), trailing_paren_count)
+    balanced_parens = String.slice(trailing_parens, 0, trailing_paren_count - unbalanced_count)
+
+    make_result(leading_spaces, link_text <> balanced_parens)
+  end
+
+  defp make_result(leading_spaces, link_text) do
+    link =
+      if String.starts_with?(link_text, "www.") do
+        render_link("http://" <> link_text, link_text)
+      else
+        render_link(link_text, link_text)
       end
+
+    if leading_spaces == "" do
+      {link, String.length(link_text)}
+    else
+      {[leading_spaces, link], String.length(leading_spaces) + String.length(link_text)}
     end
   end
 
-  defp reparse_link(leading_spaces, link_text) do
-    [_, prefix, suffix] = Regex.run(@split_at_ending_parens, link_text)
-    nof_closing_parens = String.length(suffix)
-    determine_ending_parens_by_count(leading_spaces, prefix, nof_closing_parens)
+  # balance parens and return unbalanced *trailing* paren count
+  defp balance_parens(reverse_text, trailing_count, non_trailing_count \\ 0)
+
+  defp balance_parens(<<>>, trailing_paren_count, _non_trailing_count), do: trailing_paren_count
+
+  defp balance_parens(_reverse_text, 0, _non_trailing_count), do: 0
+
+  defp balance_parens(")" <> rest, trailing_paren_count, non_trailing_count) do
+    balance_parens(rest, trailing_paren_count, non_trailing_count + 1)
   end
 
+  defp balance_parens("(" <> rest, trailing_paren_count, non_trailing_count) do
+    # non-trailing paren must be balanced before trailing paren
+    if non_trailing_count > 0 do
+      balance_parens(rest, trailing_paren_count, non_trailing_count - 1)
+    else
+      balance_parens(rest, trailing_paren_count - 1, non_trailing_count)
+    end
+  end
+
+  defp balance_parens(<<_::utf8,rest::binary>>, trailing_paren_count, non_trailing_count) do
+    balance_parens(rest, trailing_paren_count, non_trailing_count)
+  end
 end
