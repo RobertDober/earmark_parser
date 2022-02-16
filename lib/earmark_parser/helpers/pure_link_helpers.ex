@@ -4,18 +4,14 @@ defmodule EarmarkParser.Helpers.PureLinkHelpers do
   import EarmarkParser.Helpers.AstHelpers, only: [render_link: 2]
 
   @pure_link_rgx ~r{
-    \A                       # begining of the string
-    (\s*)                    # zero or more spaces
-    (                        # capture complete link
-      (?:https?://|www\.)    # must match prefix
-      [^\s<>]*               # any characters except space, <, >
-      [^\s<>?!.,:*_~]        # any character except space, <, >, and other few symbols
+    \A
+    (\s*)
+    (
+      (?:https?://|www\.)
+      [^\s<>]*
+      [^\s<>?!.,:*_~]
     )
   }ux
-
-   def test(src) do
-     Regex.run(@pure_link_rgx, src)
-   end
 
   def convert_pure_link(src) do
     case Regex.run(@pure_link_rgx, src) do
