@@ -19,6 +19,7 @@ defmodule EarmarkParser.Helpers.TestPureLinkHelpers do
       assert result == expected
     end
 
+<<<<<<< HEAD
     test "trailing parens are not part of it, at least not all" do
       #                          0....+....1....+....2.
       result = convert_pure_link("(https://a.link.com))")
@@ -26,6 +27,8 @@ defmodule EarmarkParser.Helpers.TestPureLinkHelpers do
       assert result == expected
     end
 
+=======
+>>>>>>> 8cc7046 (Parse pure-link similar to GFM extension (#92))
 
     test "however opening parens are" do
       #                           0....+....1....+...
@@ -73,6 +76,30 @@ defmodule EarmarkParser.Helpers.TestPureLinkHelpers do
       #                          0....+....1....+....2....+
       result = convert_pure_link("https://a.link.com<br/>")
       expected = {a( "https://a.link.com", href:  "https://a.link.com"), 18}
+      assert result == expected
+    end
+
+    test "trailing parens should be unaffected by unbalanced parens inside" do
+      result = convert_pure_link("https://a.link.com/q=foo)+(ok))")
+      expected = {tag("a",  "https://a.link.com/q=foo)+(ok)", href:  "https://a.link.com/q=foo)+(ok)"), 30}
+      assert result == expected
+    end
+
+    test "recognize www. prefix" do
+      result = convert_pure_link("www.github.com")
+      expected = {tag("a",  "www.github.com", href:  "http://www.github.com"), 14}
+      assert result == expected
+    end
+
+    test "must start with http:// or https:// or www." do
+      result = convert_pure_link("ftp://foo.com")
+      expected = nil
+      assert result == expected
+    end
+
+    test "trailing dot must not be part of the link" do
+      result = convert_pure_link("www.github.com.")
+      expected = {tag("a",  "www.github.com", href:  "http://www.github.com"), 14}
       assert result == expected
     end
   end
