@@ -1,5 +1,5 @@
 
-## 1.5.0 2022-02-08
+## 1.5.0 2022-??-??
 
 - [Depreacting message to be passed in as an array in options, and fixing it](https://github.com/robertdober/earmark_parser/issues/86)
 
@@ -10,6 +10,10 @@
   These changes are not all backwards compatible [c.f.](https://github.com/RobertDober/earmark_parser#lists)
 
 - [Correct pure link regex to reject invalid characters](https://github.com/RobertDober/earmark_parser/pull/91)
+
+  Kudos to [Akash Hiremath](https://github.com/akash-akya)
+
+- [Intensive work to make pure links GFM Spec compliant](https://github.com/RobertDober/earmark_parser/pull/92)
 
   Kudos to [Akash Hiremath](https://github.com/akash-akya)
 
