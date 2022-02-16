@@ -85,7 +85,7 @@ defmodule EarmarkParser.Options do
 
   defp _deprecate_old_messages(opitons)
   defp _deprecate_old_messages(%__MODULE__{messages: %MapSet{}}=options), do: options
-  defp _deprecate_old_messages(%__MODULE__{messages: messages}=options) do
+  defp _deprecate_old_messages(%__MODULE__{}=options) do
     %{ options |
       messages:
       MapSet.new([{:deprecated, 0, "messages is an internal option that is ignored and will be removed from the API in v1.5.1"}])}
