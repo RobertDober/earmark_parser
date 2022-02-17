@@ -18,7 +18,7 @@ defmodule Support.EarTestCase do
 
       def block(tag, content, opts) do
         lnb = Keyword.get(opts, :lnb, 1)
-        atts = Keyword.delete(opts, :lnb)
+        atts = Keyword.delete(opts, :lnb) |> Enum.into(%{})
         %Block{tag: tag, atts: atts, content: content, open?: false, lnb: lnb}
       end
 

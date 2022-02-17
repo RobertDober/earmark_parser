@@ -1,4 +1,5 @@
 defmodule Ear.Parser do
+
   @moduledoc ~S"""
   Implements version 1.5.* of the Parser
   """
@@ -19,12 +20,16 @@ defmodule Ear.Parser do
   end
 
   @doc false
-  def _parse(state) do
+  defp _parse(state) do
     case state.token() do
       %Line.Blank{} -> state |> State.close_block |> parse()
       %Line.Text{} -> state|>  State.add_text |> parse()
+      %Line.InlineCode{pending: pending} -> state |> _parse_inline_code()
       token -> state |> State.add_error("unexpected token #{inspect token}") |> State.next |> parse()
     end
+  end
+
+  defp _parse_inline_code(state) do
   end
 
 end

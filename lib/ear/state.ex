@@ -97,7 +97,8 @@ defmodule Ear.State do
     |> Enum.reduce(%{}, fn n, a -> n_ = n |> String.to_atom; Map.put(a, n_, Map.get(state, n_)) end)
   end
 
-  defp _push_token(%{lnb: lnb}=state, token, input), do: %{state|input: input, lnb: lnb + 1, token: token}
+  defp _push_token(%@self{}=state, {token, rest}, input), do: %{state | token: token, input: [rest|input]}
+  defp _push_token(%@self{lnb: lnb}=state, token, input), do: %{state|input: input, lnb: lnb + 1, token: token}
 
   defp _status(messages) do
     if Enum.any?(messages, &_error?/1) do

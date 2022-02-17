@@ -58,6 +58,8 @@ defmodule Ear.LineScanner do
 
   # (_,atom() | tuple() | #{},_) -> ['Elixir.B']
 
+  def type_of(line), do: type_of(line, %Options{}, false)
+
   def type_of(line, recursive)
       when is_boolean(recursive),
       do: type_of(line, %Options{}, recursive)
@@ -65,6 +67,7 @@ defmodule Ear.LineScanner do
   def type_of(line, options = %Options{annotations: annotations}, recursive) do
     {line_, annotation} = line |> Helpers.expand_tabs() |> Helpers.remove_line_ending(annotations)
     %{_type_of(line_, options, recursive) | annotation: annotation}
+    |> _check_for_inline()
   end
 
   @doc false
@@ -76,6 +79,19 @@ defmodule Ear.LineScanner do
       _ -> nil
     end
   end
+
+  @inline_code_rgx ~r{ ((?<!\\)`+) }xu
+
+  defp _check_for_inline(line)
+  defp _check_for_inline(%Line.Indent{}=line), do: line
+  defp _check_for_inline(line) do
+    case Regex.split(@inline_code_rgx, line.content, include_captures: true, parts: 2) do
+      [_] -> line
+      ["", backtix, rest] -> {%Line.InlineCode{backtix: backtix}, rest}
+      [prefix, backtix, rest] -> {%{line|content: prefix}, backtix <> rest}
+    end
+  end
+
 
   defp _type_of(line, options = %Options{}, recursive) do
     {ial, stripped_line} = Helpers.extract_ial(line)

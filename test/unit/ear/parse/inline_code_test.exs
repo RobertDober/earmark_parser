@@ -4,7 +4,7 @@ defmodule Test.Unit.Ear.Parse.InlineCodeTest do
   describe "in one line" do
     test "nothing around" do
       result = parse("`alpha`")
-      expected = ok("p", [block("pre", "alpha", class: "inline")])
+      expected = ok("p", [block("code", "alpha", class: "inline")])
       assert result == expected
     end
   end
