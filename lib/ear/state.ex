@@ -15,7 +15,16 @@ defmodule Ear.State do
 
   @self __MODULE__
 
-  def close_ast(%@self{ast: ast}=state) do
+  def add_error(%@self{messages: messages, lnb: lnb}=state, message) do
+    %{state|messages: MapSet.put(messages, {:error, lnb, message})}
+  end
+
+  def add_text(%@self{token: token, ast: ast}=state) do
+    ast_ = Ast.add_text(ast, state)
+    %{state|ast: ast_}
+  end
+
+  def close_block(%@self{ast: ast}=state) do
     %{state | ast: Ast.close_ast(ast)}
   end
 
@@ -23,20 +32,10 @@ defmodule Ear.State do
   def new(input, %Options{}=options) do
     %@self{
       input: input,
-      options: options} |> make_token
+      options: options}
   end
   def new(input, options) do
     new(input, options |> Options.normalize)
-  end
-
-
-  def add_error(%@self{messages: messages, lnb: lnb}=state, message) do
-    %{state|messages: MapSet.put(messages, {:error, lnb, message})}
-  end
-
-  def add_text(%@self{token: token, ast: ast}=state) do
-    ast_ = Ast.add_text(ast, token.content)
-    %{state|ast: ast_} |> next()
   end
 
   def make_errors(messages \\ []) do
@@ -53,32 +52,33 @@ defmodule Ear.State do
   end
 
   def next(state)
-  def next(%{input: []}=state), do: {:eos, state}
   def next(%{needed_indent: 0}=state) do
-    {:ok, make_token(state)|>_debug()}
+    make_token(state)|>debug(:next)
+  end
+  def next(%{input: []}=state) do
+    state |> make_token()
   end
   def next(%{input: [h|t], needed_indent: needed_indent}=state) do
     case LineScanner.type_of(h, state.options, false) do
-      %Line.Blank{} = token -> {:ok, _push_token(state, token, t)}
+      %Line.Blank{} = token -> _push_token(state, token, t)
       token -> if token.indent >= needed_indent do
         token_ = h |> String.slice(needed_indent..-1) |> LineScanner.type_of(false)
-        {:ok, _push_token(state, token_, t)}
+        _push_token(state, token_, t)
       else
-        {:outdent, state}
+        %{state|token: nil}
       end
-
     end
   end
 
   def result(state)
   def result(%__MODULE__{ast: ast, messages: messages}) do
-    {_status(messages), Ast.normalize(ast), Enum.sort(messages)}
+    {_status(messages), Enum.reverse(ast), Enum.sort(messages)}
   end
 
-  defp _debug(%@self{}=state) do
+  def debug(%@self{}=state, label \\ :debug) do
     fields = System.get_env("DBG")
     if fields do
-      IO.inspect(_fields(state, fields))
+      IO.inspect(_fields(state, fields), label: label)
       state
     else
       state

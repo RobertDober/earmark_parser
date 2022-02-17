@@ -4,20 +4,47 @@ defmodule Test.Unit.Ear.Parse.ParseParaTest do
   describe "parse text" do
     test "empty input" do
       result = parse("")
-      assert result == ok_result([])
+      assert result == ok([])
     end
 
     test "a single line" do
       result = parse("hello")
-      assert result == ok_result(p("hello"))
+      expected = ok("p", "hello")
+      assert result == expected
     end
+
+    test "blank at end" do
+      markdown = """
+      hello
+      """
+      result = parse(markdown)
+      expected = ok("p", "hello")
+      assert result == expected
+    end
+
+    test "two blanks at end" do
+      markdown = """
+      hello
+
+      """
+      result = parse(markdown)
+      expected = ok("p", "hello")
+      assert result == expected
+    end
+
     test "two lines" do
       result = parse("hello\nworld")
-      assert result == ok_result(p(~W[hello world]))
+      expected = ok("p", tuples(~W[hello world]))
+      assert result == expected
     end
+
     test "two paragraphs" do
       result = parse("hello\n\nworld")
-      assert result == [tags("p",~W[hello world])]
+      expected = ok([
+        block("p", "hello", lnb: 1),
+        block("p", "world", lnb: 3)
+      ])
+      assert result == expected
     end
   end
 

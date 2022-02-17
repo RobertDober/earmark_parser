@@ -7,21 +7,23 @@ defmodule Ear.Parser do
   def parse(lines, options) do
     state = lines
     |> State.new(options)
-
-    parse({:ok, state})
+    |> parse()
     |> State.result
   end
 
-  def parse(state_tuple)
-  def parse({:ok, state}), do: _parse(state)
-  def parse({_, state}), do: state |> State.close_ast
+  def parse(state) do
+    case State.next(state) do
+      %{token: nil}=state1 -> state1 |> State.close_block
+      state2 -> _parse(state2)
+    end
+  end
 
   @doc false
   def _parse(state) do
-    case state.token do
-      %Line.Blank{} -> state |> State.close_para |> parse()
-      %Line.Text{} -> state |> State.add_text |> parse()
-      token -> {:error, state |> State.add_error("unexpected token #{inspect token}")}
+    case state.token() do
+      %Line.Blank{} -> state |> State.close_block |> parse()
+      %Line.Text{} -> state|>  State.add_text |> parse()
+      token -> state |> State.add_error("unexpected token #{inspect token}") |> State.next |> parse()
     end
   end
 
