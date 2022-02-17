@@ -18,7 +18,8 @@ defmodule Support.EarTestCase do
 
       def block(tag, content, opts) do
         lnb = Keyword.get(opts, :lnb, 1)
-        %Block{tag: tag, content: content, open?: false, lnb: lnb}
+        atts = Keyword.delete(opts, :lnb)
+        %Block{tag: tag, atts: atts, content: content, open?: false, lnb: lnb}
       end
 
       def ok(blocks) do

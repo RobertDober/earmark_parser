@@ -3,13 +3,14 @@ defmodule Ear.State do
   The global parse state (replaces Context for most purposes)
   """
 
-  alias Ear.{Ast, Line, LineScanner, Options}
+  alias Ear.{Ast, Line, LineScanner, Pending, Options}
 
   defstruct ast: [], # Will become a list of Ast tuples
     input: [],
     lnb: 0,
     messages: MapSet.new,
     needed_indent: 0,
+    pending: Pending.new,
     options: %Options{},
     token: nil # Ear.Line.*
 

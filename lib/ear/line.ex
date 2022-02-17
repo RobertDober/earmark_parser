@@ -54,6 +54,11 @@ defmodule IdDef  do
     defstruct(annotation: nil, line: "", indent: -1, id: nil, url: nil, title: nil)
   end
 
+defmodule InlineCode do
+  @moduledoc false
+  defstruct(annotation: nil, line: "", lnb: 0, pending: nil)
+end
+
 defmodule FnDef  do
     @moduledoc false
     defstruct(annotation: nil, line: "", indent: -1, id: nil, content: "text")

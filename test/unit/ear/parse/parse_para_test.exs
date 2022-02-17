@@ -46,6 +46,23 @@ defmodule Test.Unit.Ear.Parse.ParseParaTest do
       ])
       assert result == expected
     end
+
+    test "lots of whitespace" do
+      markdown = """
+
+      hello
+
+
+       world
+
+      """
+      result = parse(markdown)
+      expected = ok([
+        block("p", "hello", lnb: 2),
+        block("p", "world", lnb: 5)
+      ])
+      assert result == expected
+    end
   end
 
 end
