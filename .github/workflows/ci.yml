@@ -8,6 +8,7 @@ on:
   push:
     branches:
       - master
+      - rel-1.4.20
 
 jobs:
   test:
@@ -16,9 +17,6 @@ jobs:
     strategy:
       matrix:
         include:
-          - pair:
-            otp: 21.3
-            elixir: 1.10.0
           - pair:
             otp: 21.3
             elixir: 1.11.3
@@ -37,6 +35,9 @@ jobs:
           - pair:
             otp: 24.1.7
             elixir: 1.13.0
+          - pair:
+            otp: 24.2.1
+            elixir: 1.13.3
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-elixir@v1
