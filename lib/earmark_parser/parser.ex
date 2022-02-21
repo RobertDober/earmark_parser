@@ -667,22 +667,24 @@ defmodule EarmarkParser.Parser do
   ###################################################################
 
   defp _html_match_to_closing(opener, rest, annotation),
-    do: _find_closing_tags([opener], rest, [String.trim_leading(opener.line)], annotation)
+    do: _find_closing_tags([opener], rest, [opener.line], [], annotation)
 
-  defp _find_closing_tags(needed, input, html_lines, annotation)
+  defp _find_closing_tags(needed, input, html_lines, text_lines, annotation)
+
   # No more open tags, happy case
-  defp _find_closing_tags([], rest, html_lines, annotation),
+  defp _find_closing_tags([], rest, html_lines, [], annotation),
     do: {html_lines, rest, [], annotation}
 
   # run out of input, unhappy case
-  defp _find_closing_tags(needed, [], html_lines, annotation),
-    do: {html_lines, [], needed, annotation}
+  defp _find_closing_tags(needed, [], html_lines, text_lines, annotation),
+    do: {_add_text_lines(html_lines, text_lines), [], needed, annotation}
 
   # still more lines, still needed closing
   defp _find_closing_tags(
          needed = [needed_hd | needed_tl],
          [rest_hd | rest_tl],
          html_lines,
+         text_lines,
          annotation
        ) do
     cond do
@@ -690,7 +692,8 @@ defmodule EarmarkParser.Parser do
         _find_closing_tags(
           needed_tl,
           rest_tl,
-          [String.trim_leading(rest_hd.line) | html_lines],
+          [rest_hd.line | _add_text_lines(html_lines, text_lines)],
+          [],
           _override_annotation(annotation, rest_hd)
         )
 
@@ -698,14 +701,21 @@ defmodule EarmarkParser.Parser do
         _find_closing_tags(
           [rest_hd | needed],
           rest_tl,
-          [String.trim_leading(rest_hd.line) | html_lines],
+          [rest_hd.line | _add_text_lines(html_lines, text_lines)],
+          [],
           annotation
         )
 
       true ->
-        _find_closing_tags(needed, rest_tl, [rest_hd.line | html_lines], annotation)
+        _find_closing_tags(needed, rest_tl, html_lines, [rest_hd.line | text_lines], annotation)
     end
   end
+
+  defp _add_text_lines(html_lines, []),
+    do: html_lines
+
+  defp _add_text_lines(html_lines, text_lines),
+    do: [text_lines |> Enum.reverse() |> Enum.join("\n") | html_lines]
 
   ###########
   # Helpers #

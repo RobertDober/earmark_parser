@@ -11,7 +11,7 @@ defmodule Acceptance.Ast.Html.Block.UnannotatedBlockTest do
         "<table>\n  <tr>\n    <td>\n           hi\n    </td>\n  </tr>\n</table>\n\nokay.\n"
 
       ast = [
-        {"table", [], ["  <tr>", "    <td>", "           hi", "    </td>", "  </tr>"], @verbatim},
+        {"table", [], ["  <tr>\n    <td>\n           hi\n    </td>\n  </tr>"], @verbatim},
         p("okay.")
       ]
 
@@ -22,7 +22,22 @@ defmodule Acceptance.Ast.Html.Block.UnannotatedBlockTest do
 
     test "div (ine?)" do
       markdown = "<div>\n  *hello*\n         <foo><a>\n</div>\n"
-      ast = [vtag("div", ["  *hello*", "         <foo><a>"])]
+      ast = [vtag("div", ["  *hello*\n         <foo><a>"])]
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
+
+    test "code" do
+      markdown = """
+      <code>
+      > hello
+
+      > world
+      </code>
+      """
+
+      ast = [vtag("code", ["> hello\n\n> world"])]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -38,7 +53,7 @@ defmodule Acceptance.Ast.Html.Block.UnannotatedBlockTest do
 
     test "even block elements" do
       markdown = "<div>\n```elixir\ndefmodule Mine do\n```\n</div>"
-      ast = [vtag("div", ["```elixir", "defmodule Mine do", "```"])]
+      ast = [vtag("div", ["```elixir\ndefmodule Mine do\n```"])]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -216,7 +231,7 @@ defmodule Acceptance.Ast.Html.Block.UnannotatedBlockTest do
 
     test "this is not closing" do
       markdown = "<div>\nline\n</hello></div>"
-      ast = [{"div", [], ["line", "</hello></div>"], @verbatim}]
+      ast = [{"div", [], ["line\n</hello></div>"], @verbatim}]
       messages = [{:warning, 1, "Failed to find closing <div>"}]
 
       assert as_ast(markdown) == {:error, ast, messages}
@@ -224,7 +239,7 @@ defmodule Acceptance.Ast.Html.Block.UnannotatedBlockTest do
 
     test "therefore the div continues" do
       markdown = "<div>\nline\n</hello></div>\n</div>"
-      ast = [vtag("div", ["line", "</hello></div>"])]
+      ast = [vtag("div", ["line\n</hello></div>"])]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
