@@ -118,12 +118,12 @@ defmodule EarmarkParser.LineScanner do
           content: String.trim(heading),
           indent: 0,
           ial: ial,
-          line: stripped_line
+          line: line
         }
 
       match = lt_four? && Regex.run(~r/\A>\s?(.*)/, content) ->
         [_, quote] = match
-        %Line.BlockQuote{content: quote, indent: indent, ial: ial, line: stripped_line}
+        %Line.BlockQuote{content: quote, indent: indent, ial: ial, line: line}
 
       match = Regex.run(@indent_re, line) ->
         [_, spaces, more_spaces, rest] = match

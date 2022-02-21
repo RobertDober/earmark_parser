@@ -317,9 +317,9 @@ defmodule Functional.Scanner.LineTypeTest do
     |> Enum.map(fn {{input, token, _nil}, test_nb} ->
       tag = "ial_#{test_nb}" |> String.to_atom()
       name = "test: #{test_nb} (#{input})"
-      input_ = "#{input}#{@ial}"
+      input = "#{input}#{@ial}"
       result =
-        EarmarkParser.LineScanner.type_of({input_, 1774}, false)
+        EarmarkParser.LineScanner.type_of({input, 1774}, false)
       indent = input |> String.replace(@all_but_leading_ws, "") |> String.length()
       expected = struct(token, ial: ".ial_class", line: input, indent: indent, lnb: 1774)
 
@@ -343,9 +343,9 @@ defmodule Functional.Scanner.LineTypeTest do
     |> Enum.map(fn {{input, token}, test_nb} ->
       tag = "block_ial_#{test_nb}" |> String.to_atom()
       name = "test: #{test_nb} (#{input})"
-      input_ = "#{input}#{@ial}"
+      input = "#{input}#{@ial}"
       result =
-        EarmarkParser.LineScanner.type_of({input_, 1774}, false)
+        EarmarkParser.LineScanner.type_of({input, 1774}, false)
       indent = input |> String.replace(@all_but_leading_ws, "") |> String.length()
       expected = struct(token, content: token.content <> @ial, ial: ".ial_class", line: input, indent: indent, lnb: 1774)
 
