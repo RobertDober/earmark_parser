@@ -22,10 +22,45 @@ defmodule Acceptance.Ast.IalTest do
       assert as_ast(markdown) == {:ok, ast, messages}
     end
 
+    test "blockquote and headers with simple ial" do
+      markdown = "> ### some code {: .classy}"
+      html = "<blockquote><h3 class=\"classy\">some code</h3></blockquote>\n"
+      ast      = parse_html(html)
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
+
     test "img with simple ial" do
       markdown = "![link](url){:#thatsme}"
       html = "<p><img alt=\"link\" id=\"thatsme\" src=\"url\" /></p>\n"
       ast      = parse_html(html)
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
+
+    test "triple quoted with simple ial" do
+      markdown = """
+      ```
+      hello {: .example}
+      ```
+      """
+
+      ast = parse_html("<pre><code>hello {: .example}</code></pre>")
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
+
+    test "triple quoted with backquote and simple ial" do
+      markdown = """
+      ```
+      > ## hello {: .example}
+      ```
+      """
+
+      ast = parse_html("<pre><code>> ## hello {: .example}</code></pre>")
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -47,7 +82,6 @@ defmodule Acceptance.Ast.IalTest do
 
       assert as_ast(markdown) == {:ok, ast, messages}
     end
-    
   end
 
   describe "IAL multiple values" do

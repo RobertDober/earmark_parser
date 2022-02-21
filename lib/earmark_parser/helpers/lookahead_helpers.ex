@@ -59,10 +59,6 @@ defmodule EarmarkParser.Helpers.LookaheadHelpers do
   defp has_still_opening_backtix([{:other, _} | rest], nil),
     do: has_still_opening_backtix(rest, nil)
 
-  # Mystery fix, in Earmark the lexer behaves differently
-  defp has_still_opening_backtix([{:verbatim, _} | rest], nil),
-    do: has_still_opening_backtix(rest, nil)
-
   defp has_still_opening_backtix([{:backtix, btx} | rest], nil),
     do: has_still_opening_backtix(rest, {:new, btx})
 

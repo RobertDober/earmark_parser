@@ -1,6 +1,16 @@
 
 ## 1.4.20 2022-02-21
 
+- [Preserve newlines inside HTML code](https://github.com/RobertDober/earmark_parser/pull/97)
+
+  Kudos to [José Valim](https://github.com/josevalim)
+
+- [Do not remove ial on blockquote inside triple quoted](https://github.com/RobertDober/earmark_parser/pull/96)
+
+  Kudos to [José Valim](https://github.com/josevalim)
+
+- Removed support for Elixir 1.10 (following `ex_doc`'s lead)
+
 
 ## 1.4.19 2022-01-07
 
