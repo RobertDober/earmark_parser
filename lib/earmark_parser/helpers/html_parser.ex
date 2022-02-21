@@ -65,7 +65,7 @@ defmodule EarmarkParser.Helpers.HtmlParser do
     tag_tpl |> Tuple.append(Enum.reverse(lines)) |> Tuple.append(@verbatim)
   end
   defp _parse_rest([last_line], {tag, _}=tag_tpl, lines) do
-    case Regex.run(~r{\A</#{tag}>\s*(.*)}, last_line) do
+    case Regex.run(~r{\A\s*</#{tag}>\s*(.*)}, last_line) do
       nil         -> tag_tpl |> Tuple.append(Enum.reverse([last_line|lines])) |> Tuple.append(@verbatim)
       [_, ""]     -> tag_tpl |> Tuple.append(Enum.reverse(lines)) |> Tuple.append(@verbatim)
       [_, suffix] -> [tag_tpl |> Tuple.append(Enum.reverse(lines)) |> Tuple.append(@verbatim), suffix]
