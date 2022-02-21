@@ -1,12 +1,10 @@
 defmodule EarmarkParser.MixProject do
   use Mix.Project
 
-  @version "1.4.20"
+  @version "1.4.20-pre"
   @url "https://github.com/RobertDober/earmark_parser"
 
   @deps [
-    # {:credo, "~> 0.10", only: [:dev, :test]},
-    # {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
     {:earmark_ast_dsl, "~> 0.3.5", only: [:test]},
     {:excoveralls, "~> 0.14.4", only: [:test]},
     {:extractly, "~> 0.5.3", only: [:dev]},
@@ -31,7 +29,7 @@ defmodule EarmarkParser.MixProject do
     [
       app: :earmark_parser,
       version: @version,
-      elixir: "~> 1.10",
+      elixir: "~> 1.11",
       elixirc_paths: elixirc_paths(Mix.env()),
       deps: @deps,
       description: @description,
