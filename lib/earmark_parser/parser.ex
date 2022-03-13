@@ -1,4 +1,5 @@
 defmodule EarmarkParser.Parser do
+
   @moduledoc false
   alias EarmarkParser.{Block, Line, LineScanner, Options}
 
@@ -55,6 +56,7 @@ defmodule EarmarkParser.Parser do
   def parse_lines(lines, options, recursive) do
     {blocks, footnotes, options} =
       lines |> remove_trailing_blank_lines() |> lines_to_blocks(options, recursive)
+
 
     links = links_from_blocks(blocks)
     {blocks, links, footnotes, options}
@@ -264,7 +266,7 @@ defmodule EarmarkParser.Parser do
     {code_lines, rest} = Enum.split_while(list, &indent_or_blank?/1)
     code_lines = remove_trailing_blank_lines(code_lines)
     code = for line <- code_lines, do: properly_indent(line, 1)
-    _parse(rest, [%Block.Code{lines: code, lnb: lnb} | result], options, recursive)
+    _parse([%Line.Blank{}|rest], [%Block.Code{lines: code, lnb: lnb} | result], options, recursive)
   end
 
   ###############
