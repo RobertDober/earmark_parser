@@ -1,3 +1,6 @@
+## 1.4.21 2022-03-13
+
+- [Paragraph context lost after indented code blocks](https://github.com/robertdober/earmark_parser/issues/98)
 
 ## 1.4.20 2022-02-21
 
