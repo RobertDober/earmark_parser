@@ -16,7 +16,7 @@ defmodule Test.Acceptance.Regressions.I065BadLnbRefStyleTest do
   end
 
   @max_case """
-  * top 
+  * top
     `
 
     * zero
