@@ -1,3 +1,9 @@
+## 1.4.22 2022-03-14
+
+Fixes all List Regressions introduced in 1.4.19
+
+GFM support for lists remain limited (spaced and tight lists are not 100% compliant) but is better than in 1.4.18
+
 ## 1.4.21 2022-03-13
 
 - [Paragraph context lost after indented code blocks](https://github.com/robertdober/earmark_parser/issues/98)
