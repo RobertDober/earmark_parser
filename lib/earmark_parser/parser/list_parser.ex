@@ -55,7 +55,7 @@ defmodule EarmarkParser.Parser.ListParser do
   end
 
   defp _parse_list_items_spaced_np([%Line.Blank{}|rest], items, ctxt) do
-    ctxt1 = %{ctxt|options: %{ctxt.options|line: ctxt.options.line + 1}}
+    ctxt1 = %{ctxt|lines: [""|ctxt.lines], options: %{ctxt.options|line: ctxt.options.line + 1}}
     _parse_list_items_spaced_np(rest, items, ctxt1)
   end
   defp _parse_list_items_spaced_np([%Line.Ruler{}|_]=lines, items, ctxt) do
