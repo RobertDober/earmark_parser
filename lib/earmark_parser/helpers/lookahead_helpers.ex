@@ -14,7 +14,8 @@ defmodule EarmarkParser.Helpers.LookaheadHelpers do
   Otherwise `{nil, 0}` is returned
   """
   def opens_inline_code(%{line: line, lnb: lnb}) do
-    case tokenize(line, with: :string_lexer) |> IO.inspect()  |> has_still_opening_backtix(nil) do
+    # case tokenize(line, with: :string_lexer) |> IO.inspect()  |> has_still_opening_backtix(nil) do
+    case tokenize(line, with: :string_lexer) |> has_still_opening_backtix(nil) do
       nil -> {nil, 0}
       {_, btx} -> {btx, lnb}
     end
