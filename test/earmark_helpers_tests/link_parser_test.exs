@@ -143,7 +143,7 @@ defmodule EarmarkParserHelpersTests.LinkParserTest do
     end
   end
   defp parse_link(markdown) do
-    EarmarkParser.Helpers.LinkParser.parse_link(markdown, 0)
+    EarmarkParser.Parser.LinkParser.parse_link(markdown, 0)
   end
 end
 

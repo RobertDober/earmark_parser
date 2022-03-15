@@ -18,7 +18,7 @@ defmodule EarmarkParser.Helpers.HtmlParser do
   # Parse One Tag
   # -------------
 
-  @attribute ~r{\A([-\w]+)=(["'])(.*?)\2\s*}
+  @attribute ~r{\A ([-\w]+) = (["']) (.*?) \2 \s*}x
   defp _parse_atts(string, tag, atts) do
     case Regex.run(@attribute, string) do
       [all, name, _delim, value] -> _parse_atts(behead(string, all), tag, [{name, value}|atts])
@@ -27,24 +27,19 @@ defmodule EarmarkParser.Helpers.HtmlParser do
   end
 
   # Are leading and trailing "-"s ok?
-  @tag_head ~r{\A\s*<([-\w]+)\s*}
+  @tag_head ~r{\A \s* <([-\w]+) \s*}x
   defp _parse_tag(string) do
     case Regex.run(@tag_head, string) do
       [all, tag] -> _parse_atts(behead(string, all), tag, [])
-      _          -> nil
     end
   end
 
-  @tag_tail ~r{\A.*?(/?)>\s*(.*)\z}
+  @tag_tail ~r{\A .*? (/?)> \s* (.*) \z}x
   defp _parse_tag_tail(string, tag, atts) do
     case Regex.run(@tag_tail, string) do
       [_, closing, suffix]  ->
         suffix1 = String.replace(suffix, ~r{\s*</#{tag}>.*}, "")
         _close_tag_tail(tag, atts, closing != "", suffix1)
-      # [_, _, ""]            -> {:ok, {tag, Enum.reverse(atts)} }
-      # [_, "", suffix]       -> {:ok, {tag, Enum.reverse(atts)}, suffix }
-      # [_, _closing, suffix] -> {:ext, {tag, Enum.reverse(atts)}, suffix }
-      _                     -> nil
     end
   end
 

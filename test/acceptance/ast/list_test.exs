@@ -104,6 +104,14 @@ defmodule Acceptance.Ast.ListTest do
       assert as_ast(markdown) == {:ok, ast, messages}
     end
 
+    test "what about zero?" do
+      markdown = "0. zero"
+      ast = [ol(li("zero"), start: "0")]
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
+
     test "one?" do
       markdown = "2. one"
       html     = "<ol start=\"2\"><li>one</li></ol>"

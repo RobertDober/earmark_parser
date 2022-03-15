@@ -28,20 +28,15 @@ defmodule EarmarkParser.AstRenderer do
   #############
   # Paragraph #
   #############
-  defp render_block(%Block.Para{lnb: lnb, lines: lines, attrs: attrs} = para, context, loose?) do
+  defp render_block(%Block.Para{lnb: lnb, lines: lines, attrs: attrs} = para, context, _loose?) do
     context1 = convert(lines, lnb, context)
     value = context1.value |> Enum.reverse()
 
     ast =
-      if loose? do
-        emit("p", value, Enum.map(attrs || %{}, &attrs_to_string_keys/1))
-      else
-        value
-      end
+      emit("p", value, Enum.map(attrs || %{}, &attrs_to_string_keys/1))
+      |> annotate(para)
 
-    ast_ = annotate(ast, para)
-
-    prepend(context, ast_, context1)
+    prepend(context, ast, context1)
   end
 
   ########

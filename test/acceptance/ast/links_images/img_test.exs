@@ -34,6 +34,13 @@ defmodule Acceptance.Ast.LinkImages.ImgTest do
       assert as_ast(markdown) == {:ok, ast, messages}
     end
 
+    test "missed case" do
+      markdown = "![text](pre[\\()"
+      ast = [ p([tag("img", [], src: "pre[(", alt: "text"), ")" ]) ]
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
   end
 
   describe "Link and Image imbrication" do

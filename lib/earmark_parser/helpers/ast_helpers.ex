@@ -69,9 +69,6 @@ defmodule EarmarkParser.Helpers.AstHelpers do
   end
 
   @doc false
-  def render_link(url_from_pure_link),
-    do: render_link(url_from_pure_link, url_from_pure_link)
-
   def render_link(url, text) do
     emit("a", text, href: _encode(url))
   end

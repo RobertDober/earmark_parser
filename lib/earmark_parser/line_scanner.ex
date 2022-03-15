@@ -160,7 +160,7 @@ defmodule EarmarkParser.LineScanner do
         [_, tag] = match
         %Line.HtmlOneLine{tag: tag, content: line, indent: 0, line: line}
 
-      match = !recursive && Regex.run(~r/^<([-\w]+?)(?:\s.*)?>/, line) ->
+      match = !recursive && Regex.run(~r/\A < ([-\w]+?) (?:\s.*)? >/x, line) ->
         [_, tag] = match
         %Line.HtmlOpenTag{tag: tag, content: line, indent: 0, line: line}
 

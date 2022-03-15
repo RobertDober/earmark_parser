@@ -43,5 +43,5 @@ defmodule EarmarkParser.Ast.Renderer.TableRenderer do
   defp _align_to_style(:left), do: [{"style", "text-align: left;"}]
   defp _align_to_style(:right), do: [{"style", "text-align: right;"}]
   defp _align_to_style(:center), do: [{"style", "text-align: center;"}]
-  defp _align_to_style(_), do: []
 end
+# SPDX-License-Identifier: Apache-2.0

@@ -1,4 +1,4 @@
-defmodule EarmarkParser.Helpers.LinkParser do
+defmodule EarmarkParser.Parser.LinkParser do
 
   @moduledoc false
   import EarmarkParser.Helpers.LeexHelpers, only: [tokenize: 2]
