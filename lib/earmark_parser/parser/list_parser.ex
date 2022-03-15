@@ -1,7 +1,5 @@
 defmodule EarmarkParser.Parser.ListParser do
-  alias EarmarkParser.Block
-  alias EarmarkParser.Line
-  alias EarmarkParser.Options
+  alias EarmarkParser.{Block, Line, Options}
   alias EarmarkParser.Parser.ListInfo
 
   import EarmarkParser.Helpers.StringHelpers, only: [behead: 2]
@@ -24,27 +22,15 @@ defmodule EarmarkParser.Parser.ListParser do
   end
 
   def parse_list(lines, result, options \\ %Options{}) do
-    {items, rest, options1} = parse_list_items(lines, options)
+    {items, rest, options1} = _parse_list_items_init(lines, [], options)
     list                    = _make_list(items, _empty_list(items) )
     {[list|result], rest, options1}
   end
 
-  def parse_list_items(input, options) do
-    parse_list_items(:init, input, [], options)
-  end
-
-  defp parse_list_items(state, input, output, ctxt) do
-    _parse_list_items(state, input, output, ctxt)
-  end
-
-  defp _parse_list_items(state, input, output, ctxt)
-  defp _parse_list_items(:init, [item|rest], list_items, options) do
+  defp _parse_list_items_init([item|rest], list_items, options) do
     options1 = %{options|line: item.lnb}
-    parse_list_items(:start, rest, _make_and_prepend_list_item(item, list_items), %Ctxt{lines: [item.content], list_info: ListInfo.new(item), options: options1})
+    _parse_list_items_start(rest, _make_and_prepend_list_item(item, list_items), %Ctxt{lines: [item.content], list_info: ListInfo.new(item), options: options1})
   end
-  defp _parse_list_items(:end, rest, items, ctxt), do: {items, rest, ctxt.options}
-  defp _parse_list_items(:start, rest, items, ctxt), do: _parse_list_items_start(rest, items, ctxt)
-  defp _parse_list_items(:spaced?, rest, items, ctxt), do: _parse_list_items_spaced(rest, items, ctxt)
 
   defp _parse_list_items_spaced(input, items, ctxt)
   defp _parse_list_items_spaced(input, items, %{list_info: %{pending: @not_pending}}=ctxt) do
@@ -67,7 +53,7 @@ defmodule EarmarkParser.Parser.ListParser do
         _finish_list_items(input, list_items, false, ctxt)
       else
         {items1, options1} = _finish_list_item(list_items, false, _loose(ctxt))
-        parse_list_items(:init, input, items1, options1)
+        _parse_list_items_init(input, items1, options1)
       end
   end
   defp _parse_list_items_spaced_np([%Line.Indent{indent: ii}=item|rest], list_items, %{list_info: %{width: w}}=ctxt)
@@ -77,7 +63,7 @@ defmodule EarmarkParser.Parser.ListParser do
   end
   defp _parse_list_items_spaced_np([%Line.ListItem{}=line|rest], items, ctxt) do
     indented = _behead_spaces(line.line, ctxt.list_info.width)
-    parse_list_items(:start, rest, items, _update_ctxt(ctxt, indented, line))
+    _parse_list_items_start(rest, items, _update_ctxt(ctxt, indented, line))
   end
   # BUG: Still do not know how much to indent here???
   defp _parse_list_items_spaced_np([%{indent: indent, line: str_line}=line|rest], items, %{list_info: %{width: width}}=ctxt) when
@@ -97,7 +83,7 @@ defmodule EarmarkParser.Parser.ListParser do
   end
   defp _parse_list_items_spaced_pdg([line|rest], items, ctxt) do
     indented = _behead_spaces(line.line, ctxt.list_info.width)
-    parse_list_items(:spaced?, rest, items, _update_ctxt(ctxt, indented, line))
+    _parse_list_items_spaced(rest, items, _update_ctxt(ctxt, indented, line))
   end
 
 
@@ -111,7 +97,7 @@ defmodule EarmarkParser.Parser.ListParser do
 
   defp _parse_list_items_start_np(input, list_items, ctxt)
   defp _parse_list_items_start_np([%Line.Blank{}|input], items, ctxt) do
-    parse_list_items(:spaced?, input, items, _prepend_line(ctxt, ""))
+    _parse_list_items_spaced(input, items, _prepend_line(ctxt, ""))
   end
   defp _parse_list_items_start_np([], list_items, ctxt) do
     _finish_list_items([], list_items, true, ctxt)
@@ -128,13 +114,13 @@ defmodule EarmarkParser.Parser.ListParser do
         _finish_list_items(input, list_items, true, ctxt)
       else
         {items1, options1} = _finish_list_item(list_items, true, ctxt)
-        parse_list_items(:init, input, items1, options1)
+        _parse_list_items_init(input, items1, options1)
       end
   end
   # Slurp in everything else before a first blank line
   defp _parse_list_items_start_np([%{line: str_line}=line|rest], items, ctxt) do
     indented = _behead_spaces(str_line, ctxt.list_info.width)
-    parse_list_items(:start, rest, items, _update_ctxt(ctxt, indented, line))
+    _parse_list_items_start(rest, items, _update_ctxt(ctxt, indented, line))
   end
 
   defp _parse_list_items_start_pdg(input, items, ctxt)
@@ -142,7 +128,7 @@ defmodule EarmarkParser.Parser.ListParser do
     _finish_list_items([], items, true, ctxt)
   end
   defp _parse_list_items_start_pdg([line|rest], items, ctxt) do
-    parse_list_items(:start, rest, items, _update_ctxt(ctxt, line.line, line))
+    _parse_list_items_start(rest, items, _update_ctxt(ctxt, line.line, line))
   end
 
   defp _behead_spaces(str, len) do
@@ -175,7 +161,7 @@ defmodule EarmarkParser.Parser.ListParser do
 
   defp _finish_list_items(input, items, at_start?, ctxt) do
     {items1, options1} = _finish_list_item(items, at_start?, ctxt)
-    parse_list_items(:end, input, items1, %{ctxt|options: options1})
+    {items1, input, options1}
   end
 
   # INLINE CANDIDATE
