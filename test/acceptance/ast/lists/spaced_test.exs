@@ -51,7 +51,7 @@ defmodule Acceptance.Ast.Lists.SpacedPendingTest do
       markdown = """
       - Item 1
 
-        `Line 
+        `Line
         1`
       """
       ast = [
@@ -60,6 +60,36 @@ defmodule Acceptance.Ast.Lists.SpacedPendingTest do
 
       assert ast_from_md(markdown) == ast
     end
+  end
+
+  test "Ruler after Body" do
+    markdown = """
+    1. Alpha
+
+       Beta
+    -------
+    """
+    ast = [
+      ol(li(tags("p", ["Alpha", "Beta"]))),
+      void_tag("hr", class: "thin")
+    ]
+
+    assert ast_from_md(markdown) == ast
+  end
+
+  test "Different List Type after Body" do
+    markdown = """
+    1. Alpha
+
+       Beta
+    - Gamma
+    """
+    ast = [
+      ol(li(tags("p", ["Alpha", "Beta"]))),
+      ul(li("Gamma"))
+    ]
+
+    assert ast_from_md(markdown) == ast
   end
 end
 # SPDX-License-Identifier: Apache-2.0

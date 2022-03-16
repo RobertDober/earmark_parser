@@ -193,16 +193,11 @@ defmodule EarmarkParser.Parser.ListParser do
     %{ctxt|lines: [line|lines]}
   end
 
-  defp _starts_list?(line_list_item, list_items)
-  defp _starts_list?(_item, []), do: true
   defp _starts_list?(%{bullet: bullet1}, [%Block.ListItem{bullet: bullet2}|_]) do
     String.last(bullet1) != String.last(bullet2)
   end
 
-
-  defp _update_ctxt(ctxt, line, pending_line, loose? \\ false)
-  defp _update_ctxt(ctxt, nil, pending_line, loose?), do: %{ctxt | list_info: _update_list_info(ctxt.list_info, pending_line), loose?: loose?}
-  defp _update_ctxt(ctxt, line, pending_line, loose?) do
+  defp _update_ctxt(ctxt, line, pending_line, loose? \\ false) do
     %{_prepend_line(ctxt, line) | list_info: _update_list_info(ctxt.list_info, pending_line), loose?: loose?}
   end
 
