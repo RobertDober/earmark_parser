@@ -3,7 +3,7 @@ defmodule EarmarkParser.Parser.ListParser do
   alias EarmarkParser.Parser.ListInfo
 
   import EarmarkParser.Helpers.StringHelpers, only: [behead: 2]
-  import EarmarkParser.Helpers.LookaheadHelpers, only: [ still_inline_code: 2]
+  import EarmarkParser.Helpers.LookaheadHelpers, only: [opens_inline_code: 1, still_inline_code: 2]
   import EarmarkParser.Message, only: [add_message: 2]
 
   @moduledoc false
@@ -37,7 +37,6 @@ defmodule EarmarkParser.Parser.ListParser do
     _parse_list_items_spaced_np(input, items, ctxt)
   end
   defp _parse_list_items_spaced(input, items, ctxt) do
-    raise "HERE"
     _parse_list_items_spaced_pdg(input, items, ctxt)
   end
 
@@ -84,7 +83,7 @@ defmodule EarmarkParser.Parser.ListParser do
   end
   defp _parse_list_items_spaced_pdg([line|rest], items, ctxt) do
     indented = _behead_spaces(line.line, ctxt.list_info.width)
-    _parse_list_items_spaced(rest, items, _update_ctxt(ctxt, indented, line))
+    _parse_list_items_spaced(rest, items, _update_ctxt(ctxt, indented, line, true))
   end
 
 
@@ -208,6 +207,11 @@ defmodule EarmarkParser.Parser.ListParser do
   end
 
   # INLINE CANDIDATE
+  defp _update_list_info(%{pending: @not_pending}=list_info, line) do
+    pending = opens_inline_code(line)
+    %{list_info | pending: pending}
+  end
+
   defp _update_list_info(%{pending: pending}=list_info, line) do
     pending1 = still_inline_code(line, pending)
     %{list_info | pending: pending1}
