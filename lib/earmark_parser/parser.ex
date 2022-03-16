@@ -382,38 +382,6 @@ defmodule EarmarkParser.Parser do
   # ID definition #
   #################
 
-  # the title may be on the line following the iddef
-  defp _parse(
-         [defn = %Line.IdDef{title: title, lnb: lnb}, maybe_title | rest],
-         result,
-         options,
-         recursive
-       )
-       when title == nil do
-    title =
-      case maybe_title do
-        %Line.Text{content: content} -> LineScanner.matches_id_title(content)
-        _ -> nil
-      end
-
-    if title do
-      _parse(
-        rest,
-        [%Block.IdDef{id: defn.id, url: defn.url, title: title, lnb: lnb} | result],
-        options,
-        recursive
-      )
-    else
-      _parse(
-        [maybe_title | rest],
-        [%Block.IdDef{id: defn.id, url: defn.url, lnb: lnb} | result],
-        options,
-        recursive
-      )
-    end
-  end
-
-  # or not
   defp _parse([defn = %Line.IdDef{lnb: lnb} | rest], result, options, recursive) do
     _parse(
       rest,

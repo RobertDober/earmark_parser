@@ -27,7 +27,7 @@ defmodule EarmarkParser.Helpers.PureLinkHelpers do
     end
   end
 
-  @split_at_ending_parens ~r{(.*?)(\)*)\z}
+  @split_at_ending_parens ~r{ (.*?) (\)*) \z}x
   defp remove_trailing_closing_parens(leading_spaces, link_text) do
     [_, link_text, trailing_parens] = Regex.run(@split_at_ending_parens, link_text)
     trailing_paren_count = String.length(trailing_parens)

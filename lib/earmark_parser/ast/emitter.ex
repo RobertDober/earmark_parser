@@ -11,7 +11,6 @@ defmodule EarmarkParser.Ast.Emitter do
 
 
   defp _to_atts(atts)
-  defp _to_atts(nil), do: []
   defp _to_atts(atts) when is_map(atts) do
     atts
     |> Enum.into([])

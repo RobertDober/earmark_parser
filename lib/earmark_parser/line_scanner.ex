@@ -5,14 +5,6 @@ defmodule EarmarkParser.LineScanner do
 
   alias EarmarkParser.{Helpers, Line, Options}
 
-  @spec fence_delimiter(String.t()) :: maybe(String.t())
-  def fence_delimiter(line) do
-    case type_of({line, 0}, true) do
-      %Line.Fence{delimiter: delimiter} -> delimiter
-      _ -> nil
-    end
-  end
-
   # This is the re that matches the ridiculous "[id]: url title" syntax
 
   @id_title_part ~S"""
@@ -22,8 +14,6 @@ defmodule EarmarkParser.LineScanner do
           | \( (.*) \)         # in parens
         )
   """
-
-  @id_title_part_re ~r[^\s*#{@id_title_part}\s*$]x
 
   @id_re ~r'''
      ^\[(.+?)\]:            # [someid]:
@@ -54,14 +44,6 @@ defmodule EarmarkParser.LineScanner do
   @doc false
   def void_tag?(tag), do: Regex.match?(@void_tag_rgx, "<#{tag}>")
 
-  @doc false
-  # We want to add the original source line into every
-  # line we generate. We also need to expand tabs before
-  # proceeding
-
-  # (_,atom() | tuple() | #{},_) -> ['Elixir.B']
-  def scan_lines(lines, options \\ %Options{}, recursive \\ false)
-
   def scan_lines(lines, options, recursive) do
     _lines_with_count(lines, options.line - 1)
     |> _with_lookahead(options, recursive)
@@ -74,16 +56,6 @@ defmodule EarmarkParser.LineScanner do
   def type_of({line, lnb}, options = %Options{annotations: annotations}, recursive) do
     {line1, annotation} = line |> Helpers.expand_tabs() |> Helpers.remove_line_ending(annotations)
     %{_type_of(line1, options, recursive) | annotation: annotation, lnb: lnb}
-  end
-
-  @doc false
-  # Used by the block parser to test if a line following an IdDef
-  # is a possible title
-  def matches_id_title(content) do
-    case Regex.run(@id_title_part_re, content) do
-      [_, title] -> title
-      _ -> nil
-    end
   end
 
   defp _type_of(line, options = %Options{}, recursive) do

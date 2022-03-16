@@ -19,6 +19,13 @@ defmodule EarmarkParser.Helpers.TestPureLinkHelpers do
       assert result == expected
     end
 
+    test "closing parens before opening them" do
+      #                           0....+....1....+....2....+..
+      result = convert_pure_link("https://a.link.com?x=(a)b))")
+      expected = {a("https://a.link.com?x=(a)b", href: "https://a.link.com?x=(a)b"), 25}
+      assert result == expected
+    end
+
     test "however opening parens are" do
       #                           0....+....1....+...
       result = convert_pure_link("https://a.link.com(")

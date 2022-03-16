@@ -1,6 +1,7 @@
 defmodule Acceptance.Ast.InlineCodeTest do
   use ExUnit.Case, async: true
   import Support.Helpers, only: [as_ast: 1, parse_html: 1]
+  import EarmarkAstDsl
 
   describe "Inline Code" do
     test "plain simple" do
@@ -131,6 +132,21 @@ defmodule Acceptance.Ast.InlineCodeTest do
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
+    end
+  end
+
+  describe "closing and reopening" do
+    test "two codes" do
+      markdown = """
+      ` Single Opens
+      ` Single Closes ``Double reopens
+      """
+      ast = [
+        p([tag("code", "Single Opens", class: "inline"),  " Single Closes ``Double reopens"])
+      ]
+      messages = [{:warning, 2, "Closing unclosed backquotes `` at end of input"}]
+
+      assert as_ast(markdown) == {:error, ast, messages}
     end
   end
 end
