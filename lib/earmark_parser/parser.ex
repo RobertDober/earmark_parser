@@ -20,7 +20,7 @@ defmodule EarmarkParser.Parser do
   The options are a `%EarmarkParser.Options{}` structure. See `as_html!`
   for more details.
   """
-  def parse_markdown(lines, options \\ %Options{})
+  def parse_markdown(lines, options)
 
   def parse_markdown(lines, options = %Options{}) when is_list(lines) do
     {blocks, links, footnotes, options1} = parse(lines, options, false)
@@ -39,8 +39,6 @@ defmodule EarmarkParser.Parser do
     |> String.split(~r{\r\n?|\n})
     |> parse_markdown(options)
   end
-
-  def parse(text_lines), do: parse(text_lines, %Options{}, false)
 
   def parse(text_lines, options = %Options{}, recursive) do
     ["" | text_lines ++ [""]]
@@ -65,7 +63,7 @@ defmodule EarmarkParser.Parser do
   defp lines_to_blocks(lines, options, recursive) do
     {blocks, footnotes, options1} = _parse(lines, [], options, recursive)
 
-    {blocks |> assign_attributes_to_blocks([]) |> consolidate_list_items([]), footnotes, options1}
+    {blocks |> assign_attributes_to_blocks([]), footnotes, options1}
   end
 
   defp _parse(input, result, options, recursive)
@@ -450,9 +448,7 @@ defmodule EarmarkParser.Parser do
   # Assign attributes that follow a block to that block #
   #######################################################
 
-  defp assign_attributes_to_blocks([], result) do
-    Enum.reverse(result)
-  end
+  defp assign_attributes_to_blocks([], result), do: result
 
   defp assign_attributes_to_blocks([%Block.Ial{attrs: attrs}, block | rest], result) do
     assign_attributes_to_blocks(rest, [%{block | attrs: attrs} | result])
@@ -491,54 +487,6 @@ defmodule EarmarkParser.Parser do
         {result, lines, @not_pending, annotation}
     end
   end
-
-  ##################################################
-  # Consolidate one or more list items into a list #
-  ##################################################
-
-  defp consolidate_list_items([], result) do
-    # no need to reverse
-    result |> Enum.map(&compute_list_spacing/1)
-  end
-
-  # We have a list, and the next element is an item of the same type
-  defp consolidate_list_items(
-         [
-           list = %Block.List{type: type, blocks: items},
-           item = %Block.ListItem{type: type} | rest
-         ],
-         result
-       ) do
-    start = extract_start(item)
-    # original list is reversed
-    items = [item | items]
-    consolidate_list_items([%{list | blocks: items, start: start} | rest], result)
-  end
-
-  # We have an item, but no open list
-  defp consolidate_list_items([item = %Block.ListItem{type: type} | rest], result) do
-    start = extract_start(item)
-    consolidate_list_items([%Block.List{type: type, blocks: [item], start: start} | rest], result)
-  end
-
-  # Nothing to see here, move on
-  defp consolidate_list_items([head | rest], result) do
-    consolidate_list_items(rest, [head | result])
-  end
-
-  defp compute_list_spacing(list = %Block.List{blocks: items}) do
-    with spaced? = any_spaced_items?(items),
-         unified_items = Enum.map(items, &%{&1 | spaced?: spaced?}) do
-      %{list | blocks: unified_items}
-    end
-  end
-
-  # nop
-  defp compute_list_spacing(anything_else), do: anything_else
-
-  defp any_spaced_items?([]), do: false
-  defp any_spaced_items?([%{spaced?: true} | _]), do: true
-  defp any_spaced_items?([_ | tail]), do: any_spaced_items?(tail)
 
   ##################################################
   # Read in a table (consecutive TableLines with
@@ -720,15 +668,6 @@ defmodule EarmarkParser.Parser do
   end
 
   defp _override_annotation(annotation, line), do: annotation || line.annotation
-
-  @start_number_rgx ~r{\A0*(\d+)[.)]}
-  defp extract_start(%{bullet: bullet}) do
-    case Regex.run(@start_number_rgx, bullet) do
-      nil -> ""
-      [_, "1"] -> ""
-      [_, start] -> ~s{ start="#{start}"}
-    end
-  end
 
   defp remove_trailing_blank_lines(lines) do
     lines

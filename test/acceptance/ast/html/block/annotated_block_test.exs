@@ -18,7 +18,7 @@ defmodule Acceptance.Ast.Html.Block.AnnotatedBlockTest do
 
       messages = []
 
-      assert as_ast(markdown, annotations: @annotations) == {:ok, ast, messages}
+      assert as_ast(markdown, annotations: ~r{\*:}) == {:ok, ast, messages}
     end
     test "tables are just tables again (or was that mountains?)" do
       markdown =

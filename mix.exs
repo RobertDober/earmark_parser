@@ -5,7 +5,7 @@ defmodule EarmarkParser.MixProject do
   @url "https://github.com/RobertDober/earmark_parser"
 
   @deps [
-    {:earmark_ast_dsl, "~> 0.3.5", only: [:test]},
+    {:earmark_ast_dsl, "~> 0.3.6", only: [:test]},
     {:excoveralls, "~> 0.14.4", only: [:test]},
     {:extractly, "~> 0.5.3", only: [:dev]},
     {:floki, "~> 0.32", only: [:dev, :test]}

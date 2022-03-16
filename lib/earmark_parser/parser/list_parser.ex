@@ -37,6 +37,7 @@ defmodule EarmarkParser.Parser.ListParser do
     _parse_list_items_spaced_np(input, items, ctxt)
   end
   defp _parse_list_items_spaced(input, items, ctxt) do
+    raise "HERE"
     _parse_list_items_spaced_pdg(input, items, ctxt)
   end
 

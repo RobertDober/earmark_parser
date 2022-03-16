@@ -105,7 +105,6 @@ defmodule EarmarkParser.Helpers.AstHelpers do
     |> Map.merge(new, &_value_merger/3)
     |> Enum.into([])
     |> Enum.map(&attrs_to_string_keys/1)
-
   end
 
   defp _value_merger(key, val1, val2)

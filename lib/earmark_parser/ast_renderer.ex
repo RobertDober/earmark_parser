@@ -33,7 +33,7 @@ defmodule EarmarkParser.AstRenderer do
     value = context1.value |> Enum.reverse()
 
     ast =
-      emit("p", value, Enum.map(attrs || %{}, &attrs_to_string_keys/1))
+      emit("p", value, attrs)
       |> annotate(para)
 
     prepend(context, ast, context1)
@@ -87,8 +87,7 @@ defmodule EarmarkParser.AstRenderer do
           emit(
             "h#{level}",
             context1.value |> Enum.reverse(),
-            Enum.map(attrs || %{}, &attrs_to_string_keys/1)
-          )
+            attrs)
         ]
       end
     )
@@ -101,7 +100,7 @@ defmodule EarmarkParser.AstRenderer do
     context1 = render(blocks, clear_value(context))
 
     modify_value(context1, fn ast ->
-      [emit("blockquote", ast, Enum.map(attrs || %{}, &attrs_to_string_keys/1))]
+      [emit("blockquote", ast, attrs)]
     end)
   end
 
@@ -125,7 +124,7 @@ defmodule EarmarkParser.AstRenderer do
 
     prepend(
       clear_value(context2),
-      emit("table", rows_ast1, Enum.map(attrs || %{}, &attrs_to_string_keys/1))
+      emit("table", rows_ast1, attrs)
     )
   end
 
@@ -146,7 +145,7 @@ defmodule EarmarkParser.AstRenderer do
 
     prepend(
       context,
-      emit("pre", emit("code", lines, classes), Enum.map(attrs || %{}, &attrs_to_string_keys/1))
+      emit("pre", emit("code", lines, classes), attrs)
     )
   end
 
@@ -184,7 +183,7 @@ defmodule EarmarkParser.AstRenderer do
     context1 = render(blocks, clear_value(context), loose?)
     prepend(
       context,
-      emit("li", context1.value, Enum.map(attrs || %{}, &attrs_to_string_keys/1)),
+      emit("li", context1.value, attrs),
       context1
     )
   end
