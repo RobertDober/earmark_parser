@@ -9,7 +9,7 @@ defmodule Acceptance.Ast.Lists.ListAndInlineCodeTest do
       `Hello
       * World
       """
-      ast      = tag("ul", [tag("li", "And\n`Hello"), tag("li", "World")])
+      ast      = ul(tag("li", "And\n`Hello\n* World"))
       messages = [{:warning, 2, "Closing unclosed backquotes ` at end of input"}]
 
       assert as_ast(markdown) == {:error, [ast], messages}
@@ -25,7 +25,7 @@ defmodule Acceptance.Ast.Lists.ListAndInlineCodeTest do
 
     test "error in spaced part" do
       markdown = ~s(* And\n  `Hello\n   * World)
-      ast      = tag("ul", tag("li", "And\n`Hello\n * World"))
+      ast      = tag("ul", tag("li", "And\n`Hello\n   * World"))
       messages = [{:warning, 2, "Closing unclosed backquotes ` at end of input"}]
 
       assert as_ast(markdown) == {:error, [ast], messages}
@@ -38,7 +38,7 @@ defmodule Acceptance.Ast.Lists.ListAndInlineCodeTest do
         `Hello
          * World
       """
-      ast      = ul(li(["And",  "`Hello\n * World"]))
+      ast      = ul(li(tags("p",["And",  "`Hello\n * World"])))
       messages = [{:warning, 3, "Closing unclosed backquotes ` at end of input"}]
 
       assert as_ast(markdown) == {:error, [ast], messages}
@@ -52,7 +52,7 @@ defmodule Acceptance.Ast.Lists.ListAndInlineCodeTest do
         `Hello
          * World
       """
-      ast      = [p("Prefix1"), tag("ul", tag("li", ["And\nPrefix2\n`Hello\n * World"]))]
+      ast      = [p("Prefix1"), tag("ul", tag("li", ["And\nPrefix2\n`Hello\n   * World"]))]
       messages = [{:warning, 4, "Closing unclosed backquotes ` at end of input"}]
 
       assert as_ast(markdown) == {:error, ast, messages}
