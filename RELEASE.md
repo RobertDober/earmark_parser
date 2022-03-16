@@ -3,6 +3,14 @@
 
 - [Depreacting message to be passed in as an array in options, and fixing it](https://github.com/robertdober/earmark_parser/issues/86)
 
+## 1.4.23 2022-03-16
+
+Two more list regressions fixed
+
+- multi line inline code was ignored in the body parts of lists
+
+- spaced lists with inline code in their bodies (single and multiline) were rendered tightly (no surrounding `<p>...</p>`
+
 ## 1.4.22 2022-03-14
 
 Fixes all List Regressions introduced in 1.4.19
