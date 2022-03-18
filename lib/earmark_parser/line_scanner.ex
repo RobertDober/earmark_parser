@@ -266,7 +266,7 @@ defmodule EarmarkParser.LineScanner do
   defp _with_lookahead([line_lnb | lines], options, recursive) do
     case type_of(line_lnb, options, recursive) do
       %Line.Fence{delimiter: delimiter, indent: 0} = fence when recursive ->
-        stop = ~r/\A(#{delimiter})\s*([^`\s]*)\s*\z/u
+        stop = ~r/\A (?: #{delimiter} ) \s* ([^`\s]*) \s* \z/xu
         [fence | _lookahead_until_match(lines, stop, options, recursive)]
 
       %Line.HtmlComment{complete: false} = html_comment ->

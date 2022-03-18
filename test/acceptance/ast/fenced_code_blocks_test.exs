@@ -1,7 +1,5 @@
 defmodule Acceptance.Ast.FencedCodeBlocksTest do
-  use ExUnit.Case, async: true
-  import Support.Helpers, only: [as_ast: 1, as_ast: 2]
-  import EarmarkAstDsl
+  use Support.AcceptanceTestCase
 
   describe "Fenced code blocks" do
     test "no lang" do
@@ -69,12 +67,23 @@ defmodule Acceptance.Ast.FencedCodeBlocksTest do
     end
 
     test "in list" do
-      markdown = "- a\n- ```\n  b\n\n\n ```\n c\n- d\n"
-      ast = [{ "ul", [],
-        [{"li", [], ["a"], %{}},
-         {"li", [], [{"pre", [], [{"code", [], ["  b\n\n"], %{}}], %{}}, "c"], %{}},
-         {"li", [], ["d"], %{}}
-       ], %{}}]
+      markdown = """
+      - a
+      - ```
+        b
+
+
+       ```
+       c
+      - d
+      """
+      ast = [
+        ul([
+          li("a"),
+          li([pre_code("  b\n\n"), "c"]),
+          li("d")
+        ])
+      ]
 
       messages = []
 
