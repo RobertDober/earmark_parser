@@ -1,7 +1,6 @@
 defmodule Test.Acceptance.Ast.Footnotes.MultipleFnTest do
   use Support.AcceptanceTestCase
 
-  import Support.Helpers, only: [as_ast: 2]
   import Support.FootnoteHelpers
 
   describe "two footnotes" do
@@ -63,28 +62,6 @@ defmodule Test.Acceptance.Ast.Footnotes.MultipleFnTest do
       assert fn_ast(markdown) == ast
     end
 
-    test "errors in footnotes definitions" do
-      markdown = """
-      Hello[^1] World[^2]
-
-      [^1]: One
-      ===
-      [^2]: Two
-      ===
-      """
-
-      ast = [
-        p("Hello[^1] World[^2]"), p(), p()
-      ]
-
-      messages = [
-        {:error, 1, "footnote 1 undefined, reference to it ignored"},
-        {:error, 1, "footnote 2 undefined, reference to it ignored"},
-        {:warning, 4, "Unexpected line ==="},
-        {:warning, 6, "Unexpected line ==="}]
-
-       assert as_ast(markdown, footnotes: true) == {:error, ast, messages}
-    end
   end
 
   describe "three footnotes" do

@@ -1,10 +1,29 @@
 defmodule Acceptance.Ast.Footnotes.SingleFootnoteTest do
-  use ExUnit.Case, async: true
-  import Support.Helpers, only: [as_ast: 2]
+  use Support.AcceptanceTestCase
   import Support.FootnoteHelpers
-  import EarmarkAstDsl
 
   describe "Correct Footnotes" do
+    test "single word" do
+      markdown = """
+      foo[^1] again
+
+      [^1]: bar
+      """
+
+      ast = [
+        p([
+          "foo",
+          footnote(1),
+          " again"
+        ]),
+        footnotes([
+          footnote_def(1, p("bar"))
+        ])
+      ]
+
+      assert ast_from_md(markdown, footnotes: true) == ast
+    end
+
     test "plain text" do
       markdown = "foo[^1] again\n\n[^1]: bar baz"
 

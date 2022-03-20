@@ -16,7 +16,7 @@ defmodule EarmarkParser.LineScanner do
   """
 
   @id_re ~r'''
-     ^\[(.+?)\]:            # [someid]:
+     ^\[([^^].*?)\]:            # [someid]:
      \s+
      (?|
          < (\S+) >          # url in <>s

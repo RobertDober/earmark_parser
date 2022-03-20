@@ -3,6 +3,12 @@
 
 - [Depreacting message to be passed in as an array in options, and fixing it](https://github.com/robertdober/earmark_parser/issues/86)
 
+## 1.4.24 2022-03-20
+
+- Single worded footnote definitions where shadowed by ID Definitions, they tiebreak was resolved in favor of 
+  Footnotes as ID Definitions do not need, and might as a matter of fact almost never, start with a `^`
+  [Related Issue](https://github.com/RobertDober/earmark_parser/issues/99)
+
 ## 1.4.23 2022-03-16
 
 Two more list regressions fixed
