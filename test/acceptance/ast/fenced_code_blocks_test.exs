@@ -115,7 +115,7 @@ defmodule Acceptance.Ast.FencedCodeBlocksTest do
     end
 
     @tag timeout: 500
-    test "parses large single-line top-level code blocks" do
+    test "does not hang on large single-line top-level code blocks" do
       code = String.duplicate("a", 200_000)
 
       markdown = """
