@@ -75,10 +75,10 @@ defmodule Acceptance.Ast.Html.Block.AnnotatedBlockTest do
 
     test "even non-closed block elements" do
       markdown = "<div>\n```elixir\ndefmodule Mine do\n</div>"
-      ast = [vtag("div", ["```elixir\ndefmodule Mine do"])]
-      messages = []
+      ast = [vtag("div", ["```elixir\ndefmodule Mine do\n</div>"])]
+      messages = [{:warning, 1, "Failed to find closing <div>"}]
 
-      assert as_ast(markdown, annotations: @annotations) == {:ok, ast, messages}
+      assert as_ast(markdown, annotations: @annotations) == {:error, ast, messages}
     end
 
     test "even block elements" do
