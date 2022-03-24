@@ -1,7 +1,15 @@
 
 ## 1.5.0 2022-??-??
 
-- [Depreacting message to be passed in as an array in options, and fixing it](https://github.com/robertdober/earmark_parser/issues/86)
+-  [Depreacting message to be passed in as an array in options, and fixing it](https://github.com/robertdober/earmark_parser/issues/86)
+
+## 1.4.25 2022-03-24
+
+- [Two PRs to assure lookahead scanning is applied on the top level, where needed most](https://github.com/robertdober/earmark_parser/issues/100)
+  [and corresponding performance test](https://github.com/robertdober/earmark_parser/issues/101)
+
+  Kudos to [jonatanklosko](https://github.com/jonatanklosko)
+
 
 ## 1.4.24 2022-03-20
 
