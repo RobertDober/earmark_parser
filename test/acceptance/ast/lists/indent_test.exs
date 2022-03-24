@@ -1,7 +1,5 @@
 defmodule Test.Acceptance.Ast.Lists.IndentTest do
   use Support.AcceptanceTestCase
-  import Support.AstHelpers, only: [ast_from_md: 1]
-  import EarmarkAstDsl
 
   describe "Code Blocks near List Items (#9) https://github.com/RobertDober/earmark_parser/issues/9" do
     test "simple imbrication, unspaced" do
@@ -157,3 +155,4 @@ defmodule Test.Acceptance.Ast.Lists.IndentTest do
     end
   end
 end
+# SPDX-License-Identifier: Apache-2.0

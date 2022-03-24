@@ -3,7 +3,6 @@ defmodule EarmarkParser.Parser.ListParser do
   alias EarmarkParser.Parser.ListInfo
 
   import EarmarkParser.Helpers.StringHelpers, only: [behead: 2]
-  import EarmarkParser.Helpers.LookaheadHelpers, only: [opens_inline_code: 1, still_inline_code: 2]
   import EarmarkParser.Message, only: [add_message: 2]
   import ListInfo
 

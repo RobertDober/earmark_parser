@@ -1,6 +1,5 @@
 defmodule Acceptance.Ast.Lists.ListAndInlineCodeTest do
   use Support.AcceptanceTestCase
-  import Support.Helpers, only: [as_ast: 1, parse_html: 1]
 
   describe "List parsing running into EOI inside inline code" do
     test "simple case" do

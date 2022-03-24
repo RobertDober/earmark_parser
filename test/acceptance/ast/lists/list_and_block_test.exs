@@ -1,7 +1,5 @@
 defmodule Acceptance.Ast.Lists.ListAndBlockTest do
-  use ExUnit.Case
-  import Support.Helpers, only: [as_ast: 1, parse_html: 1]
-  import EarmarkAstDsl
+  use Support.AcceptanceTestCase
 
   describe "Block Quotes in Lists" do
     # Incorrect behavior needs to be fixed with #249 or #304
@@ -26,7 +24,7 @@ defmodule Acceptance.Ast.Lists.ListAndBlockTest do
 
   # #349
   describe "Code Blocks in Lists" do
-    @tag :wip 
+    @tag :wip
     test "Regression #349" do
       markdown = """
       * List item1
@@ -50,7 +48,6 @@ defmodule Acceptance.Ast.Lists.ListAndBlockTest do
 
       assert as_ast(markdown) == {:ok, ast, messages}
     end
-    @tag :wip 
     test "Regression #349/counter example" do
       markdown = """
       * List item1
@@ -64,15 +61,14 @@ defmodule Acceptance.Ast.Lists.ListAndBlockTest do
             https://mydomain.org/user_or_team/repo_name/blob/master/path
 
       """
-      ast = tag("ul", tag("li", [
-        p("List item1"),
-        tag("pre", tag("code", ["Text1", "", "* List item2", "", "Text2", "",
-                                "https://mydomain.org/user_or_team/repo_name/blob/master/path"]))]))
-      messages = []
+      ast = [
+        ul(
+          li([p("List item1"), p("Text1"), ul(li("List item2")), p("Text"),
+            pre_code("https://mydomain.org/user_or_team/repo_name/blob/master/path")]))]
 
-      assert as_ast(markdown) == {:ok, ast, messages}
+      assert ast_from_md(markdown) == ast
     end
   end
-  
+
 end
 # SPDX-License-Identifier: Apache-2.0
