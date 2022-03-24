@@ -113,6 +113,22 @@ defmodule Acceptance.Ast.FencedCodeBlocksTest do
 
       assert as_ast(@indented) == {:ok, expected, []}
     end
+
+    @tag timeout: 500
+    test "does not hang on large single-line top-level code blocks" do
+      code = String.duplicate("a", 200_000)
+
+      markdown = """
+      ```
+      #{code}
+      ```
+      """
+
+      ast = [pre_code(code)]
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
   end
 end
 
