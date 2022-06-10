@@ -18,11 +18,12 @@ defmodule EarmarkParser.Helpers.HtmlParser do
   # Parse One Tag
   # -------------
 
-  @attribute ~r{\A ([-\w]+) = (["']) (.*?) \2 \s*}x
+  @attribute ~r{\A ([-\w]+) (= (["']) (.*?) \3 \s*)?}x
   defp _parse_atts(string, tag, atts) do
     case Regex.run(@attribute, string) do
-      [all, name, _delim, value] -> _parse_atts(behead(string, all), tag, [{name, value}|atts])
-      _                          -> _parse_tag_tail(string, tag, atts)
+      [all, name, _delim, _v, value] -> _parse_atts(behead(string, all), tag, [{name, value}|atts])
+      [all, name]                    -> _parse_atts(behead(string, all), tag, [{name, name}|atts])
+      _                              -> _parse_tag_tail(string, tag, atts)
     end
   end
 

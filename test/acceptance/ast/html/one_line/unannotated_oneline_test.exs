@@ -19,6 +19,13 @@ defmodule Acceptance.Ast.Html.Oneline.UnannotatedOnelineTest do
 
       assert as_ast(markdown) == {:ok, ast, messages}
     end
+
+    test "valueless attributes" do
+      markdown = "<input type=\"checkbox\" checked></input>"
+      ast = [vtag("input", nil, type: "checkbox", checked: "checked")]
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
   end
 end
-
