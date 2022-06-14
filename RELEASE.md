@@ -21,9 +21,11 @@
 
 ## 1.4.24 2022-03-20
 
-- Single worded footnote definitions where shadowed by ID Definitions, they tiebreak was resolved in favor of 
-  Footnotes as ID Definitions do not need, and might as a matter of fact almost never, start with a `^`
+- Single worded footnote definitions where shadowed by ID Definitions, the tiebreak was resolved in favor of
+  Footnotes as ID Definitions do not need, and might as a matter of fact almost never, to start with a `^`
   [Related Issue](https://github.com/RobertDober/earmark_parser/issues/99)
+
+- Unused import warning removed
 
 ## 1.4.23 2022-03-16
 
