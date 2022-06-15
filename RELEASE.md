@@ -3,6 +3,14 @@
 
 -  [Depreacting message to be passed in as an array in options, and fixing it](https://github.com/robertdober/earmark_parser/issues/86)
 
+## 1.4.26 2022-06-15
+
+- Allow unquoted values for HTML attributes
+
+- [Accept valueless HTML attributes](https://github.com/RobertDober/earmark_parser/pull/106)
+
+  Kudos to [Tom Conroy](https://github.com/tomconroy)
+
 ## 1.4.25 2022-03-24
 
 - [Two PRs to assure lookahead scanning is applied on the top level, where needed most](https://github.com/robertdober/earmark_parser/issues/100)

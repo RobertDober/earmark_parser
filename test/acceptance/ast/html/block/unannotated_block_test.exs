@@ -223,7 +223,7 @@ defmodule Acceptance.Ast.Html.Block.UnannotatedBlockTest do
 
     test "parses unquoted attrs" do
       markdown = "<div class=my-div >\nline\n</div>"
-      ast = [vtag("div", "line")]
+      ast = [vtag("div", "line", class: "my-div")]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
