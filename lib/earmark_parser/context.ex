@@ -111,7 +111,7 @@ defmodule EarmarkParser.Context do
           escape: ~r{^\\([\\`*\{\}\[\]()\#+\-.!_>~|])},
           url: ~r{^(https?:\/\/[^\s<]+[^<.,:;\"\')\]\s])},
           strikethrough: ~r{^~~(?=\S)([\s\S]*?\S)~~},
-          text: ~r{^[\s\S]+?(?=[\\<!\[_*`~]|https?://| \{2,\}\n|$)}
+          text: ~r{^[\s\S]+?(?=[\\<!\[_*`~^]|https?://| \{2,\}\n|$)}
         ]
 
         if options.breaks do

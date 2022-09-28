@@ -2,7 +2,7 @@ defmodule Acceptance.Ast.HorizontalRulesTest do
   use ExUnit.Case, async: true
   import Support.Helpers, only: [as_ast: 1, parse_html: 1]
   import EarmarkAstDsl
-  
+
   describe "Horizontal rules" do
 
     test "thick, thin & medium" do
@@ -76,6 +76,22 @@ defmodule Acceptance.Ast.HorizontalRulesTest do
       assert as_ast(markdown) == {:ok, ast, messages}
     end
 
+    test "subindex" do
+      markdown = "This is H~2~O, only water"
+      ast      = [p(["This is H", tag("sub", "2"), "O, only water"])]
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
+
+    test "superindex" do
+      markdown = "we get O(n^2^)"
+      ast      = [p(["we get O(n", tag("sup", "2"), ")"])]
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
+
     test "in lists" do
       markdown = "- foo\n***\n- bar\n"
       html     = "<ul>\n<li>foo</li>\n</ul>\n<hr class=\"thick\"/>\n<ul>\n<li>bar</li>\n</ul>\n"
@@ -103,7 +119,7 @@ defmodule Acceptance.Ast.HorizontalRulesTest do
     end
   end
 
-  describe "Horizontal Rules and IAL" do 
+  describe "Horizontal Rules and IAL" do
     test "add a class and an id" do
       markdown = "***\n{: .custom}\n---\n{: .klass #id42}\n___\n{: hello=world}\n"
       html     = "<hr class=\"custom thick\" />\n<hr class=\"klass thin\" id=\"id42\" />\n<hr class=\"medium\" hello=\"world\" />\n"
