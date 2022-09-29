@@ -1,7 +1,6 @@
 defmodule EarmarkParser.Helpers.LookaheadHelpers do
 
   @moduledoc false
-  use EarmarkParser.Types
 
   import EarmarkParser.Helpers.LeexHelpers
 

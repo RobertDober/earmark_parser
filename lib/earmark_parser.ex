@@ -92,6 +92,19 @@ defmodule EarmarkParser do
       {:ok, [{"p", [], [{"a", [{"href", "page"}], ["page"], %{wikilink: true}}], %{}}], []}
 
 
+  ### Sub and Sup HTML Elements
+
+  This feature is not enabled by default but can be enabled with the option `sub_sup: true`
+
+  Therefore we will get
+
+      iex(0)> EarmarkParser.as_ast("H~2~O or a^n^ + b^n^ = c^n^")
+      {:ok, [{"p", [], ["H~2~O or a^n^ + b^n^ = c^n^"], %{}}], []}
+
+  But by specifying `sub_sup: true`
+
+      iex(0)> EarmarkParser.as_ast("H~2~O or a^n^ + b^n^ = c^n^", sub_sup: true)
+      {:ok, [{"p", [], ["H", {"sub", [], ["2"], %{}}, "O or a", {"sup", [], ["n"], %{}}, " + b", {"sup", [], ["n"], %{}}, " = c", {"sup", [], ["n"], %{}}], %{}}], []}
 
   ### Github Flavored Markdown
 

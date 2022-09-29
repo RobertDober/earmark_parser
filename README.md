@@ -24,6 +24,7 @@
     - [Additional link parsing via options](#additional-link-parsing-via-options)
     - [Pure links](#pure-links)
     - [Wikilinks...](#wikilinks)
+  - [Sub and Sup HTML Elements](#sub-and-sup-html-elements)
   - [Github Flavored Markdown](#github-flavored-markdown)
     - [Strike Through](#strike-through)
     - [Syntax Highlighting](#syntax-highlighting)
@@ -148,6 +149,23 @@ But can be deactivated
 ```
 
 
+### Sub and Sup HTML Elements
+
+This feature is not enabled by default but can be enabled with the option `sub_sup: true`
+
+Therefore we will get
+
+```elixir
+    iex(0)> EarmarkParser.as_ast("H~2~O or a^n^ + b^n^ = c^n^")
+    {:ok, [{"p", [], ["H~2~O or a^n^ + b^n^ = c^n^"], %{}}], []}
+```
+
+But by specifying `sub_sup: true`
+
+```elixir
+    iex(0)> EarmarkParser.as_ast("H~2~O or a^n^ + b^n^ = c^n^", sub_sup: true)
+    {:ok, [{"p", [], ["H", {"sub", [], ["2"], %{}}, "O or a", {"sup", [], ["n"], %{}}, " + b", {"sup", [], ["n"], %{}}, " = c", {"sup", [], ["n"], %{}}], %{}}], []}
+```
 
 ### Github Flavored Markdown
 
