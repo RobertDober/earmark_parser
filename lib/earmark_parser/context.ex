@@ -1,6 +1,5 @@
 defmodule EarmarkParser.Context do
   @moduledoc false
-  use EarmarkParser.Types
   alias EarmarkParser.Options
 
   @type t :: %__MODULE__{

@@ -1,8 +1,6 @@
 defmodule EarmarkParser.LineScanner do
   @moduledoc false
 
-  use EarmarkParser.Types
-
   alias EarmarkParser.{Helpers, Line, Options}
 
   # This is the re that matches the ridiculous "[id]: url title" syntax

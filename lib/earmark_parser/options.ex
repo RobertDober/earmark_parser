@@ -1,7 +1,5 @@
 defmodule EarmarkParser.Options do
 
-  use EarmarkParser.Types
-
   # What we use to render
   defstruct renderer: EarmarkParser.HtmlRenderer,
             # Inline style options
@@ -25,6 +23,7 @@ defmodule EarmarkParser.Options do
             # [{:error|:warning, lnb, text},...]
             messages: MapSet.new([]),
             pure_links: true,
+            sub_sup: false,
 
             # deprecated
             pedantic: false,

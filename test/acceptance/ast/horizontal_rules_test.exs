@@ -76,6 +76,7 @@ defmodule Acceptance.Ast.HorizontalRulesTest do
       assert as_ast(markdown) == {:ok, ast, messages}
     end
 
+    @tag :wip
     test "subindex" do
       markdown = "This is H~2~O, only water"
       ast      = [p(["This is H", tag("sub", "2"), "O, only water"])]
@@ -84,6 +85,7 @@ defmodule Acceptance.Ast.HorizontalRulesTest do
       assert as_ast(markdown) == {:ok, ast, messages}
     end
 
+    @tag :wip
     test "superindex" do
       markdown = "we get O(n^2^)"
       ast      = [p(["we get O(n", tag("sup", "2"), ")"])]

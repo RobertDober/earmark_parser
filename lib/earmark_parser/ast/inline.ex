@@ -37,26 +37,23 @@ defmodule EarmarkParser.Ast.Inline do
     _convert(src1, lnb1, context1, use_linky1?)
   end
 
-  @linky_converter_names [
-    :converter_for_link_and_image,
-    :converter_for_reflink,
-    :converter_for_footnote,
-    :converter_for_nolink
-  ]
-
   defp all_converters do
     [
       converter_for_escape: &converter_for_escape/1,
       converter_for_autolink: &converter_for_autolink/1,
+      # only if use_linky?
       converter_for_link_and_image: &converter_for_link_and_image/1,
       converter_for_reflink: &converter_for_reflink/1,
       converter_for_footnote: &converter_for_footnote/1,
       converter_for_nolink: &converter_for_nolink/1,
+      #
       converter_for_strikethrough_gfm: &converter_for_strikethrough_gfm/1,
       converter_for_strong: &converter_for_strong/1,
       converter_for_em: &converter_for_em/1,
+      # only for option sub_sup
       converter_for_sub: &converter_for_sub/1,
       converter_for_sup: &converter_for_sup/1,
+      #
       converter_for_code: &converter_for_code/1,
       converter_for_br: &converter_for_br/1,
       converter_for_inline_ial: &converter_for_inline_ial/1,
@@ -66,19 +63,11 @@ defmodule EarmarkParser.Ast.Inline do
   end
 
   defp _convert_next(src, lnb, context, use_linky?) do
-    converters =
-      if use_linky? do
-        all_converters()
-      else
-        all_converters() |> Keyword.drop(@linky_converter_names)
-      end
-
-    _find_and_execute_converter({src, lnb, context, use_linky?}, converters)
+    _find_and_execute_converter({src, lnb, context, use_linky?})
   end
 
-  @spec _find_and_execute_converter(conversion_data(), list) :: conversion_data()
-  defp _find_and_execute_converter({src, lnb, context, use_linky?}, converters) do
-    converters
+  defp _find_and_execute_converter({src, lnb, context, use_linky?}) do
+    all_converters
     |> Enum.find_value(fn {_converter_name, converter} ->
       converter.({src, lnb, context, use_linky?})
     end)
@@ -90,7 +79,7 @@ defmodule EarmarkParser.Ast.Inline do
   #
   ######################
   @escape_rule ~r{^\\([\\`*\{\}\[\]()\#+\-.!_>])}
-  defp converter_for_escape({src, lnb, context, use_linky?}) do
+  def converter_for_escape({src, lnb, context, use_linky?}) do
     if match = Regex.run(@escape_rule, src) do
       [match, escaped] = match
       {behead(src, match), lnb, prepend(context, escaped), use_linky?}
@@ -98,7 +87,7 @@ defmodule EarmarkParser.Ast.Inline do
   end
 
   @autolink_rgx ~r{^<([^ >]+(@|:\/)[^ >]+)>}
-  defp converter_for_autolink({src, lnb, context, use_linky?}) do
+  def converter_for_autolink({src, lnb, context, use_linky?}) do
     if match = Regex.run(@autolink_rgx, src) do
       [match, link, protocol] = match
       {href, text} = convert_autolink(link, protocol)
@@ -107,7 +96,7 @@ defmodule EarmarkParser.Ast.Inline do
     end
   end
 
-  defp converter_for_pure_link({src, lnb, context, use_linky?}) do
+  def converter_for_pure_link({src, lnb, context, use_linky?}) do
     if context.options.pure_links do
       case PureLinkHelpers.convert_pure_link(src) do
         {ast, length} -> {behead(src, length), lnb, prepend(context, ast), use_linky?}
@@ -116,75 +105,83 @@ defmodule EarmarkParser.Ast.Inline do
     end
   end
 
-  defp converter_for_link_and_image({src, lnb, context, use_linky?}) do
-    match = LinkParser.parse_link(src, lnb)
+  def converter_for_link_and_image({src, lnb, context, use_linky?}) do
+    if use_linky? do
+      match = LinkParser.parse_link(src, lnb)
 
-    if match do
-      {match1, text, href, title, link_or_img} = match
+      if match do
+        {match1, text, href, title, link_or_img} = match
 
-      out =
-        case link_or_img do
-          :link -> output_link(context, text, href, title, lnb)
-          :wikilink -> maybe_output_wikilink(context, text, href, title, lnb)
-          :image -> render_image(text, href, title)
+        out =
+          case link_or_img do
+            :link -> output_link(context, text, href, title, lnb)
+            :wikilink -> maybe_output_wikilink(context, text, href, title, lnb)
+            :image -> render_image(text, href, title)
+          end
+
+        if out do
+          {behead(src, match1), lnb, prepend(context, out), use_linky?}
         end
-
-      if out do
-        {behead(src, match1), lnb, prepend(context, out), use_linky?}
       end
     end
   end
 
   @link_text ~S{(?:\[[^]]*\]|[^][]|\])*}
   @reflink ~r{^!?\[(#{@link_text})\]\s*\[([^]]*)\]}x
-  defp converter_for_reflink({src, lnb, context, use_linky?}) do
-    if match = Regex.run(@reflink, src) do
-      {match_, alt_text, id} =
-        case match do
-          [match__, id, ""] -> {match__, id, id}
-          [match__, alt_text, id] -> {match__, alt_text, id}
-        end
+  def converter_for_reflink({src, lnb, context, use_linky?}) do
+    if use_linky? do
+      if match = Regex.run(@reflink, src) do
+        {match_, alt_text, id} =
+          case match do
+            [match__, id, ""] -> {match__, id, id}
+            [match__, alt_text, id] -> {match__, alt_text, id}
+          end
 
-      case reference_link(context, match_, alt_text, id, lnb) do
-        {:ok, out} -> {behead(src, match_), lnb, prepend(context, out), use_linky?}
-        _ -> nil
+        case reference_link(context, match_, alt_text, id, lnb) do
+          {:ok, out} -> {behead(src, match_), lnb, prepend(context, out), use_linky?}
+          _ -> nil
+        end
       end
     end
   end
 
-  defp converter_for_footnote({src, lnb, context, use_linky?}) do
-    case Regex.run(context.rules.footnote, src) do
-      [match, id] ->
-        case footnote_link(context, match, id) do
-          {:ok, out} ->
-            {behead(src, match), lnb, _prepend_footnote(context, out, id), use_linky?}
+  def converter_for_footnote({src, lnb, context, use_linky?}) do
+    if use_linky? do
+      case Regex.run(context.rules.footnote, src) do
+        [match, id] ->
+          case footnote_link(context, match, id) do
+            {:ok, out} ->
+              {behead(src, match), lnb, _prepend_footnote(context, out, id), use_linky?}
 
-          _ ->
-            converter_for_text(
-              {src, lnb,
-               Message.add_message(
-                 context,
-                 {:error, lnb, "footnote #{id} undefined, reference to it ignored"}
-               ), use_linky?}
-            )
-        end
+            _ ->
+              converter_for_text(
+                {src, lnb,
+                 Message.add_message(
+                   context,
+                   {:error, lnb, "footnote #{id} undefined, reference to it ignored"}
+                 ), use_linky?}
+              )
+          end
 
-      _ ->
-        nil
+        _ ->
+          nil
+      end
     end
   end
 
   @nolink ~r{^!?\[((?:\[[^]]*\]|[^][])*)\]}
-  defp converter_for_nolink({src, lnb, context, use_linky?}) do
-    case Regex.run(@nolink, src) do
-      [match, id] ->
-        case reference_link(context, match, id, id, lnb) do
-          {:ok, out} -> {behead(src, match), lnb, prepend(context, out), use_linky?}
-          _ -> nil
-        end
+  def converter_for_nolink({src, lnb, context, use_linky?}) do
+    if use_linky? do
+      case Regex.run(@nolink, src) do
+        [match, id] ->
+          case reference_link(context, match, id, id, lnb) do
+            {:ok, out} -> {behead(src, match), lnb, prepend(context, out), use_linky?}
+            _ -> nil
+          end
 
-      _ ->
-        nil
+        _ ->
+          nil
+      end
     end
   end
 
@@ -192,49 +189,53 @@ defmodule EarmarkParser.Ast.Inline do
   # Simple Tags: em, strong, del #
   ################################
   @strikethrough_rgx ~r{\A~~(?=\S)([\s\S]*?\S)~~}
-  defp converter_for_strikethrough_gfm({src, _, _, _} = conv_tuple) do
+  def converter_for_strikethrough_gfm({src, _, _, _} = conv_tuple) do
     if match = Regex.run(@strikethrough_rgx, src) do
       _converter_for_simple_tag(conv_tuple, match, "del")
     end
   end
 
   @strong_rgx ~r{\A__([\s\S]+?)__(?!_)|^\*\*([\s\S]+?)\*\*(?!\*)}
-  defp converter_for_strong({src, _, _, _} = conv_tuple) do
+  def converter_for_strong({src, _, _, _} = conv_tuple) do
     if match = Regex.run(@strong_rgx, src) do
       _converter_for_simple_tag(conv_tuple, match, "strong")
     end
   end
 
   @emphasis_rgx ~r{\A\b_((?:__|[\s\S])+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)}
-  defp converter_for_em({src, _, _, _} = conv_tuple) do
+  def converter_for_em({src, _, _, _} = conv_tuple) do
     if match = Regex.run(@emphasis_rgx, src) do
       _converter_for_simple_tag(conv_tuple, match, "em")
     end
   end
 
-  @sub_rgx ~r{\A~(?=\S)([\s\S]*?\S)~}
-  def converter_for_sub({src, _, _, _} = conv_tuple) do
+  @sub_rgx ~r{\A~(?=\S)(.*?\S)~}
+  def converter_for_sub({src, _, %{options: %{sub_sup: true}}, _} = conv_tuple) do
     if match = Regex.run(@sub_rgx, src) do
       _converter_for_simple_tag(conv_tuple, match, "sub")
     end
   end
 
-  @sup_rgx ~r{\A\^(?=\S)([\s\S]*?\S)\^}
-  def converter_for_sup({src, _, _, _} = conv_tuple) do
+  def converter_for_sub(_), do: nil
+
+  @sup_rgx ~r{\A\^(?=\S)(.*?\S)\^}
+  def converter_for_sup({src, _, %{options: %{sub_sup: true}}, _} = conv_tuple) do
     if match = Regex.run(@sup_rgx, src) do
       _converter_for_simple_tag(conv_tuple, match, "sup")
     end
   end
 
+  def converter_for_sup(_), do: nil
+
   @squash_ws ~r{\s+}
   @code ~r{^
-    (`+)		# $1 = Opening run of `
-    (.+?)		# $2 = The code block
-    (?<!`)
-    \1			# Matching closer
-    (?!`)
-    }xs
-  defp converter_for_code({src, lnb, context, use_linky?}) do
+  (`+)		# $1 = Opening run of `
+  (.+?)		# $2 = The code block
+  (?<!`)
+  \1			# Matching closer
+  (?!`)
+}xs
+  def converter_for_code({src, lnb, context, use_linky?}) do
     if match = Regex.run(@code, src) do
       [match, _, content] = match
       # Commonmark
@@ -250,7 +251,7 @@ defmodule EarmarkParser.Ast.Inline do
 
   @inline_ial ~r<^\s*\{:\s*(.*?)\s*}>
 
-  defp converter_for_inline_ial({src, lnb, context, use_linky?}) do
+  def converter_for_inline_ial({src, lnb, context, use_linky?}) do
     if match = Regex.run(@inline_ial, src) do
       [match, ial] = match
       {context1, ial_attrs} = parse_attrs(context, ial, lnb)
@@ -259,7 +260,7 @@ defmodule EarmarkParser.Ast.Inline do
     end
   end
 
-  defp converter_for_br({src, lnb, context, use_linky?}) do
+  def converter_for_br({src, lnb, context, use_linky?}) do
     if match = Regex.run(context.rules.br, src, return: :index) do
       [{0, match_len}] = match
       {behead(src, match_len), lnb, prepend(context, emit("br")), use_linky?}
@@ -268,7 +269,7 @@ defmodule EarmarkParser.Ast.Inline do
 
   @line_ending ~r{\r\n?|\n}
   @spec converter_for_text(conversion_data()) :: conversion_data()
-  defp converter_for_text({src, lnb, context, _}) do
+  def converter_for_text({src, lnb, context, _}) do
     matched =
       case Regex.run(context.rules.text, src) do
         [match] -> match
