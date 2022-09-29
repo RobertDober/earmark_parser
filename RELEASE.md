@@ -3,6 +3,18 @@
 
 -  [Depreacting message to be passed in as an array in options, and fixing it](https://github.com/robertdober/earmark_parser/issues/86)
 
+## 1.4.27 2022-09-30
+
+- [Nice addition of sub and sup elements](https://github.com/RobertDober/earmark_parser/tree/i108-sub-and-sup)
+
+  Needs to be enabled with the option `sub_sup: true` renders `~x~` inside `<sub>` and `^x^` inside `<sup>`
+
+  Kudos to [manuel-rubio](https://github.com/manuel-rubio)
+
+- Optimisation in the inline renderer
+
+- Removal of compiler warnings
+
 ## 1.4.26 2022-06-15
 
 - Allow unquoted values for HTML attributes

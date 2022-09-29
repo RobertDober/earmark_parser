@@ -67,7 +67,7 @@ defmodule EarmarkParser.Ast.Inline do
   end
 
   defp _find_and_execute_converter({src, lnb, context, use_linky?}) do
-    all_converters
+    all_converters()
     |> Enum.find_value(fn {_converter_name, converter} ->
       converter.({src, lnb, context, use_linky?})
     end)
