@@ -55,6 +55,8 @@ defmodule EarmarkParser.Ast.Inline do
       converter_for_strikethrough_gfm: &converter_for_strikethrough_gfm/1,
       converter_for_strong: &converter_for_strong/1,
       converter_for_em: &converter_for_em/1,
+      converter_for_sub: &converter_for_sub/1,
+      converter_for_sup: &converter_for_sup/1,
       converter_for_code: &converter_for_code/1,
       converter_for_br: &converter_for_br/1,
       converter_for_inline_ial: &converter_for_inline_ial/1,
@@ -207,6 +209,20 @@ defmodule EarmarkParser.Ast.Inline do
   defp converter_for_em({src, _, _, _} = conv_tuple) do
     if match = Regex.run(@emphasis_rgx, src) do
       _converter_for_simple_tag(conv_tuple, match, "em")
+    end
+  end
+
+  @sub_rgx ~r{\A~(?=\S)([\s\S]*?\S)~}
+  def converter_for_sub({src, _, _, _} = conv_tuple) do
+    if match = Regex.run(@sub_rgx, src) do
+      _converter_for_simple_tag(conv_tuple, match, "sub")
+    end
+  end
+
+  @sup_rgx ~r{\A\^(?=\S)([\s\S]*?\S)\^}
+  def converter_for_sup({src, _, _, _} = conv_tuple) do
+    if match = Regex.run(@sup_rgx, src) do
+      _converter_for_simple_tag(conv_tuple, match, "sup")
     end
   end
 
