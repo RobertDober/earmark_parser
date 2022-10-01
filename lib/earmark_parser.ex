@@ -98,12 +98,12 @@ defmodule EarmarkParser do
 
   Therefore we will get
 
-      iex(0)> EarmarkParser.as_ast("H~2~O or a^n^ + b^n^ = c^n^")
+      iex(9)> EarmarkParser.as_ast("H~2~O or a^n^ + b^n^ = c^n^")
       {:ok, [{"p", [], ["H~2~O or a^n^ + b^n^ = c^n^"], %{}}], []}
 
   But by specifying `sub_sup: true`
 
-      iex(0)> EarmarkParser.as_ast("H~2~O or a^n^ + b^n^ = c^n^", sub_sup: true)
+      iex(10)> EarmarkParser.as_ast("H~2~O or a^n^ + b^n^ = c^n^", sub_sup: true)
       {:ok, [{"p", [], ["H", {"sub", [], ["2"], %{}}, "O or a", {"sup", [], ["n"], %{}}, " + b", {"sup", [], ["n"], %{}}, " = c", {"sup", [], ["n"], %{}}], %{}}], []}
 
   ### Github Flavored Markdown
@@ -112,8 +112,32 @@ defmodule EarmarkParser do
 
   #### Strike Through
 
-      iex(9)> EarmarkParser.as_ast("~~hello~~")
+      iex(11)> EarmarkParser.as_ast("~~hello~~")
       {:ok, [{"p", [], [{"del", [], ["hello"], %{}}], %{}}], []}
+
+  #### GFM Tables
+
+  Are not enabled by default
+
+      iex(12)> as_ast("a|b\\n-|-\\nc|d\\n")
+      {:ok, [{"p", [], ["a|b\\n-|-\\nc|d\\n"], %{}}], []}
+
+  But can be enabled with `gfm_tables: true`
+
+      iex(13)> as_ast("a|b\n-|-\nc|d\n", gfm_tables: true)
+      {:ok,
+        [
+          {
+            "table",
+            [],
+            [
+              {"thead", [], [{"tr", [], [{"th", [{"style", "text-align: left;"}], ["a"], %{}}, {"th", [{"style", "text-align: left;"}], ["b"], %{}}], %{}}], %{}},
+              {"tbody", [], [{"tr", [], [{"td", [{"style", "text-align: left;"}], ["c"], %{}}, {"td", [{"style", "text-align: left;"}], ["d"], %{}}], %{}}], %{}}
+            ],
+            %{}
+          }
+        ],
+        []}
 
   #### Syntax Highlighting
 
@@ -122,11 +146,11 @@ defmodule EarmarkParser do
 
   For example:
 
-      iex(10)> [
-      ...(10)>    "```elixir",
-      ...(10)>    " @tag :hello",
-      ...(10)>    "```"
-      ...(10)> ] |> as_ast()
+      iex(14)> [
+      ...(14)>    "```elixir",
+      ...(14)>    " @tag :hello",
+      ...(14)>    "```"
+      ...(14)> ] |> as_ast()
       {:ok, [{"pre", [], [{"code", [{"class", "elixir"}], [" @tag :hello"], %{}}], %{}}], []}
 
   will be rendered as shown in the doctest above.
@@ -139,11 +163,11 @@ defmodule EarmarkParser do
 
   In the following example we want more than one additional class, so we add more prefixes.
 
-      iex(11)> [
-      ...(11)>    "```elixir",
-      ...(11)>    " @tag :hello",
-      ...(11)>    "```"
-      ...(11)> ] |> as_ast(%EarmarkParser.Options{code_class_prefix: "lang- language-"})
+      iex(15)> [
+      ...(15)>    "```elixir",
+      ...(15)>    " @tag :hello",
+      ...(15)>    "```"
+      ...(15)> ] |> as_ast(%EarmarkParser.Options{code_class_prefix: "lang- language-"})
       {:ok, [{"pre", [], [{"code", [{"class", "elixir lang-elixir language-elixir"}], [" @tag :hello"], %{}}], %{}}], []}
 
 
@@ -151,20 +175,19 @@ defmodule EarmarkParser do
 
   **N.B.** Footnotes are disabled by default, use `as_ast(..., footnotes: true)` to enable them
 
-
   Footnotes are now a **superset** of GFM Footnotes. This implies some changes
 
     - Footnote definitions (`[^footnote_id]`) must come at the end of your document (_GFM_)
     - Footnotes that are not referenced are not rendered anymore (_GFM_)
     - Footnote definitions can contain any markup with the exception of footnote definitions
 
-      iex(12)> markdown = [
-      ...(12)> "My reference[^to_footnote]",
-      ...(12)> "",
-      ...(12)> "[^1]: I am not rendered",
-      ...(12)> "[^to_footnote]: Important information"]
-      ...(12)> {:ok, ast, []} = as_ast(markdown, footnotes: true)
-      ...(12)> ast
+      iex(16)> markdown = [
+      ...(16)> "My reference[^to_footnote]",
+      ...(16)> "",
+      ...(16)> "[^1]: I am not rendered",
+      ...(16)> "[^to_footnote]: Important information"]
+      ...(16)> {:ok, ast, []} = as_ast(markdown, footnotes: true)
+      ...(16)> ast
       [
         {"p", [], ["My reference",
           {"a",
@@ -183,6 +206,36 @@ defmodule EarmarkParser do
 
     For more complex examples of footnotes, please refer to
     [these tests](https://github.com/RobertDober/earmark_parser/tree/master/test/acceptance/ast/footnotes/multiple_fn_test.exs)
+
+  #### Breaks
+
+      Hard linebreaks are disabled by default
+
+          iex(17)> ["* a","  b", "c"]
+          ...(17)> |> as_ast()
+          {:ok,
+            [{"ul", [], [{"li", [], ["a\nb\nc"], %{}}], %{}}],
+            []}
+
+      But can be enabled with `breaks: true`
+
+          iex(18)> ["* a","  b", "c"]
+          ...(18)> |> as_ast(breaks: true)
+          {:ok, [{"ul", [], [{"li", [], ["a", {"br", [], [], %{}}, "b", {"br", [], [], %{}}, "c"], %{}}], %{}}], []}
+
+  #### Enabling **all** options that are disabled by default
+
+      Can be achieved with the `all: true` option
+
+          iex(19)> [
+          ...(19)> "a^n^",
+          ...(19)> "b~2~",
+          ...(19)> "[[wikilink]]"]
+          ...(19)> |> as_ast(all: true)
+          {:ok, [
+            {"p", [], ["a", {"sup", [], ["n"], %{}}, {"br", [], [], %{}}, "b", {"sub", [], ["2"], %{}}, {"br", [], [], %{}}, {"a", [{"href", "wikilink"}], ["wikilink"], %{wikilink: true}}], %{}}
+            ],
+            []}
 
   #### Tables
 
@@ -236,30 +289,30 @@ defmodule EarmarkParser do
 
   E.g.
 
-      iex(13)> lines = [ "<div><span>", "some</span><text>", "</div>more text" ]
-      ...(13)> EarmarkParser.as_ast(lines)
+      iex(20)> lines = [ "<div><span>", "some</span><text>", "</div>more text" ]
+      ...(20)> EarmarkParser.as_ast(lines)
       {:ok, [{"div", [], ["<span>", "some</span><text>"], %{verbatim: true}}, "more text"], []}
 
   And a line starting with an opening tag and ending with the corresponding closing tag is parsed in similar
   fashion
 
-      iex(14)> EarmarkParser.as_ast(["<span class=\"superspan\">spaniel</span>"])
+      iex(21)> EarmarkParser.as_ast(["<span class=\"superspan\">spaniel</span>"])
       {:ok, [{"span", [{"class", "superspan"}], ["spaniel"], %{verbatim: true}}], []}
 
   What is HTML?
 
   We differ from strict GFM by allowing **all** tags not only HTML5 tags this holds for one liners....
 
-      iex(15)> {:ok, ast, []} = EarmarkParser.as_ast(["<stupid />", "<not>better</not>"])
-      ...(15)> ast
+      iex(22)> {:ok, ast, []} = EarmarkParser.as_ast(["<stupid />", "<not>better</not>"])
+      ...(22)> ast
       [
         {"stupid", [], [], %{verbatim: true}},
         {"not", [], ["better"], %{verbatim: true}}]
 
   and for multi line blocks
 
-      iex(16)> {:ok, ast, []} = EarmarkParser.as_ast([ "<hello>", "world", "</hello>"])
-      ...(16)> ast
+      iex(23)> {:ok, ast, []} = EarmarkParser.as_ast([ "<hello>", "world", "</hello>"])
+      ...(23)> ast
       [{"hello", [], ["world"], %{verbatim: true}}]
 
   #### HTML Comments
@@ -269,7 +322,7 @@ defmodule EarmarkParser do
 
   E.g.
 
-      iex(17)> EarmarkParser.as_ast(" <!-- Comment\ncomment line\ncomment --> text -->\nafter")
+      iex(24)> EarmarkParser.as_ast(" <!-- Comment\ncomment line\ncomment --> text -->\nafter")
       {:ok, [{:comment, [], [" Comment", "comment line", "comment "], %{comment: true}}, {"p", [], ["after"], %{}}], []}
 
 
@@ -287,22 +340,22 @@ defmodule EarmarkParser do
 
   Therefore we stick to a more predictable approach.
 
-        iex(18)> markdown = [
-        ...(18)> "* aa",
-        ...(18)> "  ```",
-        ...(18)> "Second",
-        ...(18)> "  ```" ]
-        ...(18)> as_ast(markdown)
+        iex(25)> markdown = [
+        ...(25)> "* aa",
+        ...(25)> "  ```",
+        ...(25)> "Second",
+        ...(25)> "  ```" ]
+        ...(25)> as_ast(markdown)
         {:ok, [{"ul", [], [{"li", [], ["aa", {"pre", [], [{"code", [], ["Second"], %{}}], %{}}], %{}}], %{}}], []}
 
   Also we do support the immediate style of block content inside lists
 
-        iex(19)> as_ast("* > Nota Bene!")
+        iex(26)> as_ast("* > Nota Bene!")
         {:ok, [{"ul", [], [{"li", [], [{"blockquote", [], [{"p", [], ["Nota Bene!"], %{}}], %{}}], %{}}], %{}}], []}
 
   or
 
-        iex(20)> as_ast("1. # Breaking...")
+        iex(27)> as_ast("1. # Breaking...")
         {:ok, [{"ol", [], [{"li", [], [{"h1", [], ["Breaking..."], %{}}], %{}}], %{}}], []}
 
 
@@ -313,34 +366,34 @@ defmodule EarmarkParser do
   HTML attributes can be added to any block-level element. We use
   the Kramdown syntax: add the line `{:` _attrs_ `}` following the block.
 
-      iex(21)> markdown = ["# Headline", "{:.from-next-line}"]
-      ...(21)> as_ast(markdown)
+      iex(28)> markdown = ["# Headline", "{:.from-next-line}"]
+      ...(28)> as_ast(markdown)
       {:ok, [{"h1", [{"class", "from-next-line"}], ["Headline"], %{}}], []}
 
   Headers can also have the IAL string at the end of the line
 
-      iex(22)> markdown = ["# Headline{:.from-same-line}"]
-      ...(22)> as_ast(markdown)
+      iex(29)> markdown = ["# Headline{:.from-same-line}"]
+      ...(29)> as_ast(markdown)
       {:ok, [{"h1", [{"class", "from-same-line"}], ["Headline"], %{}}], []}
 
   A special use case is headers inside blockquotes which allow for some nifty styling in `ex_doc`*
   see [this PR](https://github.com/elixir-lang/ex_doc/pull/1400) if you are interested in the technical
   details
 
-      iex(23)> markdown = ["> # Headline{:.warning}"]
-      ...(23)> as_ast(markdown)
+      iex(30)> markdown = ["> # Headline{:.warning}"]
+      ...(30)> as_ast(markdown)
       {:ok, [{"blockquote", [], [{"h1", [{"class", "warning"}], ["Headline"], %{}}], %{}}], []}
 
   This also works for headers inside lists
 
-      iex(24)> markdown = ["- # Headline{:.warning}"]
-      ...(24)> as_ast(markdown)
+      iex(31)> markdown = ["- # Headline{:.warning}"]
+      ...(31)> as_ast(markdown)
       {:ok, [{"ul", [], [{"li", [], [{"h1", [{"class", "warning"}], ["Headline"], %{}}], %{}}], %{}}], []}
 
   It still works for inline code, as it did before
 
-      iex(25)> markdown = "`Enum.map`{:lang=elixir}"
-      ...(25)> as_ast(markdown)
+      iex(32)> markdown = "`Enum.map`{:lang=elixir}"
+      ...(32)> as_ast(markdown)
       {:ok, [{"p", [], [{"code", [{"class", "inline"}, {"lang", "elixir"}], ["Enum.map"], %{}}], %{}}], []}
 
 
@@ -364,26 +417,26 @@ defmodule EarmarkParser do
   It is possible to add IAL attributes to generated links or images in the following
   format.
 
-      iex(26)> markdown = "[link](url) {: .classy}"
-      ...(26)> EarmarkParser.as_ast(markdown)
+      iex(33)> markdown = "[link](url) {: .classy}"
+      ...(33)> EarmarkParser.as_ast(markdown)
       { :ok, [{"p", [], [{"a", [{"class", "classy"}, {"href", "url"}], ["link"], %{}}], %{}}], []}
 
   For both cases, malformed attributes are ignored and warnings are issued.
 
-      iex(27)> [ "Some text", "{:hello}" ] |> Enum.join("\n") |> EarmarkParser.as_ast()
+      iex(34)> [ "Some text", "{:hello}" ] |> Enum.join("\n") |> EarmarkParser.as_ast()
       {:error, [{"p", [], ["Some text"], %{}}], [{:warning, 2,"Illegal attributes [\"hello\"] ignored in IAL"}]}
 
   It is possible to escape the IAL in both forms if necessary
 
-      iex(28)> markdown = "[link](url)\\{: .classy}"
-      ...(28)> EarmarkParser.as_ast(markdown)
+      iex(35)> markdown = "[link](url)\\{: .classy}"
+      ...(35)> EarmarkParser.as_ast(markdown)
       {:ok, [{"p", [], [{"a", [{"href", "url"}], ["link"], %{}}, "{: .classy}"], %{}}], []}
 
   This of course is not necessary in code blocks or text lines
   containing an IAL-like string, as in the following example
 
-      iex(29)> markdown = "hello {:world}"
-      ...(29)> EarmarkParser.as_ast(markdown)
+      iex(36)> markdown = "hello {:world}"
+      ...(36)> EarmarkParser.as_ast(markdown)
       {:ok, [{"p", [], ["hello {:world}"], %{}}], []}
 
   ## Limitations
@@ -468,28 +521,28 @@ defmodule EarmarkParser do
 
   ### Annotated Paragraphs
 
-      iex(30)> as_ast("hello %> annotated", annotations: "%>")
+      iex(37)> as_ast("hello %> annotated", annotations: "%>")
       {:ok, [{"p", [], ["hello "], %{annotation: "%> annotated"}}], []}
 
   If we annotate more than one line in a para the first annotation takes precedence
 
-      iex(31)> as_ast("hello %> annotated\nworld %> discarded", annotations: "%>")
+      iex(38)> as_ast("hello %> annotated\nworld %> discarded", annotations: "%>")
       {:ok, [{"p", [], ["hello \nworld "], %{annotation: "%> annotated"}}], []}
 
   ### Annotated HTML elements
 
   In one line
 
-      iex(32)> as_ast("<span>One Line</span> // a span", annotations: "//")
+      iex(39)> as_ast("<span>One Line</span> // a span", annotations: "//")
       {:ok, [{"span", [], ["One Line"], %{annotation: "// a span", verbatim: true}}], []}
 
   or block elements
 
-      iex(33)> [
-      ...(33)> "<div> : annotation",
-      ...(33)> "  <span>text</span>",
-      ...(33)> "</div> : discarded"
-      ...(33)> ] |> as_ast(annotations: " : ")
+      iex(40)> [
+      ...(40)> "<div> : annotation",
+      ...(40)> "  <span>text</span>",
+      ...(40)> "</div> : discarded"
+      ...(40)> ] |> as_ast(annotations: " : ")
       {:ok, [{"div", [], ["  <span>text</span>"], %{annotation: " : annotation", verbatim: true}}], []}
 
   ### Commenting your Markdown
@@ -497,13 +550,13 @@ defmodule EarmarkParser do
   Although many markdown elements do not support annotations yet, they can be used to comment your markdown, w/o cluttering
   the generated AST with comments
 
-      iex(34)> [
-      ...(34)> "# Headline --> first line",
-      ...(34)> "- item1 --> a list item",
-      ...(34)> "- item2 --> another list item",
-      ...(34)> "",
-      ...(34)> "<http://somewhere/to/go> --> do not go there"
-      ...(34)> ] |> as_ast(annotations: "-->")
+      iex(41)> [
+      ...(41)> "# Headline --> first line",
+      ...(41)> "- item1 --> a list item",
+      ...(41)> "- item2 --> another list item",
+      ...(41)> "",
+      ...(41)> "<http://somewhere/to/go> --> do not go there"
+      ...(41)> ] |> as_ast(annotations: "-->")
       {:ok, [
         {"h1", [], ["Headline"], %{}},
         {"ul", [], [{"li", [], ["item1 "], %{}}, {"li", [], ["item2 "], %{}}], %{}},
@@ -517,16 +570,16 @@ defmodule EarmarkParser do
   import EarmarkParser.Message, only: [sort_messages: 1]
 
   @doc """
-      iex(35)> markdown = "My `code` is **best**"
-      ...(35)> {:ok, ast, []} = EarmarkParser.as_ast(markdown)
-      ...(35)> ast
+      iex(42)> markdown = "My `code` is **best**"
+      ...(42)> {:ok, ast, []} = EarmarkParser.as_ast(markdown)
+      ...(42)> ast
       [{"p", [], ["My ", {"code", [{"class", "inline"}], ["code"], %{}}, " is ", {"strong", [], ["best"], %{}}], %{}}]
 
 
 
-      iex(36)> markdown = "```elixir\\nIO.puts 42\\n```"
-      ...(36)> {:ok, ast, []} = EarmarkParser.as_ast(markdown, code_class_prefix: "lang-")
-      ...(36)> ast
+      iex(43)> markdown = "```elixir\\nIO.puts 42\\n```"
+      ...(43)> {:ok, ast, []} = EarmarkParser.as_ast(markdown, code_class_prefix: "lang-")
+      ...(43)> ast
       [{"pre", [], [{"code", [{"class", "elixir lang-elixir"}], ["IO.puts 42"], %{}}], %{}}]
 
   **Rationale**:

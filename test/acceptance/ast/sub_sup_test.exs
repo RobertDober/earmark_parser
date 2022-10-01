@@ -38,5 +38,53 @@ defmodule Acceptance.Ast.SubSupTest do
       assert as_ast(markdown, sub_sup: true) == {:ok, ast, messages}
     end
   end
+
+  describe "regression with all" do
+    test "with all" do
+      markdown = "n^2^"
+      ast      = [p(["n", tag("sup", "2")])]
+      messages = []
+
+      assert as_ast(markdown, all: true) == {:ok, ast, messages}
+    end
+    test "with sub_sup" do
+      markdown = "n^2^"
+      ast      = [p(["n", tag("sup", "2")])]
+      messages = []
+
+      assert as_ast(markdown, all: true) == {:ok, ast, messages}
+    end
+    test "with sub_sup and all" do
+      markdown = "n^2^"
+      ast      = [p(["n", tag("sup", "2")])]
+      messages = []
+
+      assert as_ast(markdown, sub_sup: true, all: true) == {:ok, ast, messages}
+    end
+  end
+
+  describe "works with sub" do
+    test "with all" do
+      markdown = "n~2~"
+      ast      = [p(["n", tag("sub", "2")])]
+      messages = []
+
+      assert as_ast(markdown, all: true) == {:ok, ast, messages}
+    end
+    test "with sub_sub" do
+      markdown = "n~2~"
+      ast      = [p(["n", tag("sub", "2")])]
+      messages = []
+
+      assert as_ast(markdown, all: true) == {:ok, ast, messages}
+    end
+    test "with sub_sub and all" do
+      markdown = "n~2~"
+      ast      = [p(["n", tag("sub", "2")])]
+      messages = []
+
+      assert as_ast(markdown, sub_sup: true, all: true) == {:ok, ast, messages}
+    end
+  end
 end
 # SPDX-License-Identifier: Apache-2.0
