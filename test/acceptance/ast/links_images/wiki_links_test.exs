@@ -47,6 +47,24 @@ defmodule Acceptance.Ast.LinkImages.WikiLinksTest do
 
       assert as_ast(markdown, wikilinks: true) == {:ok, ast, messages}
     end
+
+    test "links in a list don't get wrapped in a p tag" do
+      markdown = "* Test: [[page | My Label]]"
+      html = "<ul><li>Test: <a href=\"page\">My Label</a></li></ul>\n"
+      ast      = parse_html(html, &add_wikilinks_metadata/1)
+      messages = []
+
+      assert as_ast(markdown, wikilinks: true) == {:ok, ast, messages}
+    end
+
+    test "links in a list don't get wrapped in a p tag when using GFM" do
+      markdown = "* Test: [[page | My Label]]"
+      html = "<ul><li>Test: <a href=\"page\">My Label</a></li></ul>\n"
+      ast      = parse_html(html, &add_wikilinks_metadata/1)
+      messages = []
+
+      assert as_ast(markdown, wikilinks: true, gfm_tables: true) == {:ok, ast, messages}
+    end
   end
 
   def add_wikilinks_metadata({"a", _, _}), do: %{wikilink: true}
