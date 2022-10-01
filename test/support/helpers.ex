@@ -17,11 +17,6 @@ defmodule Support.Helpers do
     EarmarkParser.as_ast(markdown, options)
   end
 
-  defmacro assert_ast_ok(markdown, ast) do
-    quote do
-      assert(Support.AstHelpers.ast_from_md(unquote(markdown)) == unqoute(ast))
-    end
-  end
   def parse_html(html, metadata_fun \\ fn _ -> %{} end) do
     if System.get_env("DEBUG") do
       _parse_html(html) |> _add_4th(metadata_fun) |> IO.inspect
@@ -51,6 +46,8 @@ defmodule Support.Helpers do
   def gfm_context do
     Context.update_context(context())
   end
+
+  def with_metadata(node, metadata_fun), do: _add_4th(node, metadata_fun)
 
   defp _add_4th(node, metadata_fun)
   defp _add_4th(nodes, metadata_fun) when is_list(nodes) do
