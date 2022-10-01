@@ -3,6 +3,15 @@
 
 -  [Depreacting message to be passed in as an array in options, and fixing it](https://github.com/robertdober/earmark_parser/issues/86)
 
+## 1.4.28 2022-10-01
+
+- [Do not wrap labelled wikilinks in `<p>` tags](https://github.com/RobertDober/earmark_parser/pull/112)
+
+  Kudos to [Ben Olive](https://github.com/sionide21)
+
+- Add option `all: true` enabling all options which are disabled by default, which are:
+            `breaks`, `footnotes`, `gfm_tables`, `sub_sup`, `wikilinks`
+
 ## 1.4.27 2022-09-30
 
 - [Nice addition of sub and sup elements](https://github.com/RobertDober/earmark_parser/tree/i108-sub-and-sup)
