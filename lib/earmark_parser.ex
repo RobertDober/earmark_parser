@@ -211,28 +211,27 @@ defmodule EarmarkParser do
 
       Hard linebreaks are disabled by default
 
-          iex(17)> markdown = "* a\n  b\nc"
-          ...(17)> as_ast(markdown)
+          iex(17)> ["* a","  b", "c"]
+          ...(17)> |> as_ast()
           {:ok,
             [{"ul", [], [{"li", [], ["a\nb\nc"], %{}}], %{}}],
             []}
 
       But can be enabled with `breaks: true`
 
-          iex(18)> markdown = "* a\n  b\nc"
-          ...(18)> as_ast(markdown, breaks: true)
+          iex(18)> ["* a","  b", "c"]
+          ...(18)> |> as_ast(breaks: true)
           {:ok, [{"ul", [], [{"li", [], ["a", {"br", [], [], %{}}, "b", {"br", [], [], %{}}, "c"], %{}}], %{}}], []}
 
   #### Enabling **all** options that are disabled by default
 
       Can be achieved with the `all: true` option
 
-          iex(19)> markdown = """
-          ...(19)> a^n^
-          ...(19)> b~2~
-          ...(19)> [[wikilink]]
-          ...(19)> """
-          ...(19)> as_ast(markdown, all: true)
+          iex(19)> [
+          ...(19)> "a^n^",
+          ...(19)> "b~2~",
+          ...(19)> "[[wikilink]]"]
+          ...(19)> |> as_ast(all: true)
           {:ok, [
             {"p", [], ["a", {"sup", [], ["n"], %{}}, {"br", [], [], %{}}, "b", {"sub", [], ["2"], %{}}, {"br", [], [], %{}}, {"a", [{"href", "wikilink"}], ["wikilink"], %{wikilink: true}}], %{}}
             ],
