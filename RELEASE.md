@@ -12,6 +12,8 @@
 - Add option `all: true` enabling all options which are disabled by default, which are:
             `breaks`, `footnotes`, `gfm_tables`, `sub_sup`, `wikilinks`
 
+- Fix bug for `a^n^` not being parsed as sup
+
 ## 1.4.27 2022-09-30
 
 - [Nice addition of sub and sup elements](https://github.com/RobertDober/earmark_parser/tree/i108-sub-and-sup)

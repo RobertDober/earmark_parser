@@ -47,8 +47,6 @@ defmodule Support.Helpers do
     Context.update_context(context())
   end
 
-  def with_metadata(node, metadata_fun), do: _add_4th(node, metadata_fun)
-
   defp _add_4th(node, metadata_fun)
   defp _add_4th(nodes, metadata_fun) when is_list(nodes) do
     nodes
