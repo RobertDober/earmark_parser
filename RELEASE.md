@@ -3,6 +3,10 @@
 
 -  [Depreacting message to be passed in as an array in options, and fixing it](https://github.com/robertdober/earmark_parser/issues/86)
 
+## 1.4.29
+
+-
+
 ## 1.4.28 2022-10-01
 
 - [Do not wrap labelled wikilinks in `<p>` tags](https://github.com/RobertDober/earmark_parser/pull/112)
