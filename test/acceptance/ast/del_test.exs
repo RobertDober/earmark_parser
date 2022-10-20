@@ -1,6 +1,6 @@
 defmodule Acceptance.Ast.DelTest do
   use ExUnit.Case, async: true
-  import Support.Helpers, only: [as_ast: 1, as_ast: 2]
+  import Support.Helpers, only: [as_ast: 1]
   import EarmarkAstDsl
 
   describe "single occurrence" do
@@ -49,7 +49,7 @@ defmodule Acceptance.Ast.DelTest do
     test "full of tildes" do
       markdown = "~Not ~~yes~~ ~~a trap~ this one~~ what ~else~?  ~~!~~"
       ast = [p([
-        "~Not ", tag("del", "yes"), " ", tag("del", "a trap~ this one"), "what ~else~?  ", tag("del", "!")])]
+        "~Not ", tag("del", "yes"), " ", tag("del", "a trap~ this one"), " what ~else~?  ", tag("del", "!")])]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
