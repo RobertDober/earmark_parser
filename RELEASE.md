@@ -3,9 +3,9 @@
 
 -  [Depreacting message to be passed in as an array in options, and fixing it](https://github.com/robertdober/earmark_parser/issues/86)
 
-## 1.4.29
+## 1.4.29 2022-10-20
 
--
+- Bugfix for [Strike Through Only Working on start of line #115](https://github.com/RobertDober/earmark_parser/issues/115)
 
 ## 1.4.28 2022-10-01
 
