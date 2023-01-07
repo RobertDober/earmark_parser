@@ -277,6 +277,14 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
 
       assert as_ast(markdown) == {:ok, ast, messages}
     end
+
+    test "tilde in url" do
+      markdown = ~s{http://example.com/~user/alpha~1}
+      ast = [p(tag("a", markdown, href: markdown))]
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
   end
 
   describe "Escapes in text (was regtest #198)" do

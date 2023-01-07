@@ -1,7 +1,13 @@
 
-## 1.5.0 2022-??-??
+## 1.5.0 2023-??-??
 
 -  [Depreacting message to be passed in as an array in options, and fixing it](https://github.com/robertdober/earmark_parser/issues/86)
+
+## 1.4.30 2023-??-??
+
+- Adding a non regression test for `~` inside links (was broken earlier)
+
+  Kudos to [Faried Nawaz](https://github.com/faried)
 
 ## 1.4.29 2022-10-20
 
