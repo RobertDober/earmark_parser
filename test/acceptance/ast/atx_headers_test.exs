@@ -85,6 +85,29 @@ defmodule Acceptance.Ast.AtxHeadersTest do
       assert as_ast(markdown) == {:ok, [ast], messages}
     end
 
+    test "closing headers can get creative" do
+      markdown = "### foo######\n"
+      ast      = tag("h3", "foo")
+      messages = []
+
+      assert as_ast(markdown) == {:ok, [ast], messages}
+    end
+
+    test "hash can still be used in a header" do
+      markdown = "# C# #\n"
+      ast      = tag("h1", "C#")
+      messages = []
+
+      assert as_ast(markdown) == {:ok, [ast], messages}
+    end
+
+    test "closing header with hash" do
+      markdown = "# C# (language)#\n"
+      ast      = tag("h1", "C# (language)")
+      messages = []
+
+      assert as_ast(markdown) == {:ok, [ast], messages}
+    end
   end
 end
 
