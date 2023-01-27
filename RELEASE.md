@@ -5,6 +5,10 @@
 
 ## 1.4.30 2023-??-??
 
+- [Fixed a problem with headers that close with # but have a # inside too ](https://github.com/RobertDober/earmark_parser/pull/122)
+
+  Kudos to [Alex Martsinovich](https://github.com/martosaur)
+
 - Adding a non regression test for `~` inside links (was broken earlier)
 
   Kudos to [Faried Nawaz](https://github.com/faried)
