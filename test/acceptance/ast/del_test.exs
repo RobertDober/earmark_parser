@@ -29,7 +29,7 @@ defmodule Acceptance.Ast.DelTest do
     end
 
     test "in the middle of some text, with `breaks: true`" do
-      markdown = "Some deleted ~~text~~ here"
+      markdown = "Some deleted ~~old text~~ here"
       ast = [p(["Some deleted ", tag("del", "old text"), " here"])]
       messages = []
 
