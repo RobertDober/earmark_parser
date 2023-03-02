@@ -144,6 +144,17 @@ defmodule Acceptance.Ast.LinkImages.ImgTest do
 
       assert as_ast(markdown) == {:ok, ast, messages}
     end
+
+    test "base64-encoded image" do
+      file = File.read!("test/fixtures/sample.png")
+      markdown = "![](data:image/png;base64,#{Base.encode64(file)})"
+
+      assert {:ok, [
+        {"p", [], [
+            {"img", [{"src", "data:image/png;base64," <> _}, {"alt", ""}], [], %{}}
+          ], %{}}
+        ], []} = as_ast(markdown)
+    end
   end
 end
 
