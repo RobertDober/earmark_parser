@@ -8,7 +8,7 @@ defmodule EarmarkParser.Helpers do
     Regex.replace(~r{(.*?)\t}, line, &expander/2)
   end
 
-  @trailing_ial_rgx ~r< (\s* \S .*?) {: \s* ([^}]+) \s* } \s* \z>x
+  @trailing_ial_rgx ~r< (?<!^)(?'ial'{: \s* [^}]+ \s* }) \s* \z >x
   @doc ~S"""
   Returns a tuple containing a potentially present IAL and the line w/o the IAL
 
@@ -24,9 +24,15 @@ defmodule EarmarkParser.Helpers do
       {nil, "{:.line-ial}"}
   """
   def extract_ial(line) do
-    case Regex.run(@trailing_ial_rgx, line) do
-      nil -> {nil, line}
-      [_, line_, ial] -> {ial, line_}
+    case Regex.split(@trailing_ial_rgx, line, include_captures: true, parts: 2, on: [:ial]) do
+      [_] -> {nil, line}
+      [line_, "{:" <> ial, _] ->
+        ial_ =
+          ial
+          |> String.trim_trailing("}")
+          |> String.trim()
+
+        {ial_, String.trim_trailing(line_)}
     end
   end
 
