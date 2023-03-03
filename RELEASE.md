@@ -5,6 +5,9 @@
 
 ## 1.4.31 2023=03-03
 
+- PR [Fix catastrophic backtracking in IAL regex](https://github.com/RobertDober/earmark_parser/pull/125)
+  Special Kudos for spotting **and** fixing this [Alex Martsinovich](https://github.com/martosaur)
+
 - Bugfix for [Strikethrough not working if option `breaks: true`](https://github.com/RobertDober/earmark_parser/issues/123)
   Kudos to [Mayel de Borniol](https://github.com/mayel) for providing tests
 
