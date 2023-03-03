@@ -3,7 +3,7 @@
 
 -  [Depreacting message to be passed in as an array in options, and fixing it](https://github.com/robertdober/earmark_parser/issues/86)
 
-## 1.4.31 2023=03-03
+## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.31 2023-03-03
 
 - PR [Fix catastrophic backtracking in IAL regex](https://github.com/RobertDober/earmark_parser/pull/125)
   Special Kudos for spotting **and** fixing this [Alex Martsinovich](https://github.com/martosaur)
