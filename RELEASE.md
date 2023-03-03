@@ -3,6 +3,12 @@
 
 -  [Depreacting message to be passed in as an array in options, and fixing it](https://github.com/robertdober/earmark_parser/issues/86)
 
+## 1.4.31 2023=03-03
+
+- Bugfix for [Strikethrough not working if option `breaks: true`](https://github.com/RobertDober/earmark_parser/issues/123)
+  Kudos to [Mayel de Borniol](https://github.com/mayel) for providing tests
+
+
 ## 1.4.30 2023-01-27
 
 - [Fixed a problem with headers that close with # but have a # inside too ](https://github.com/RobertDober/earmark_parser/pull/122)

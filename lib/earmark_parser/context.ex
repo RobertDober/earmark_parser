@@ -119,7 +119,7 @@ defmodule EarmarkParser.Context do
         if options.breaks do
           break_updates = [
             br: ~r{^ *\n(?!\s*$)},
-            text: ~r{^[\s\S]+?(?=[\\<!\[_*`#{subsup}]|https?://| *\n|$)}
+            text: ~r{^[\s\S]+?(?=~~|[\\<!\[_*`#{subsup}]|https?://| *\n|$)}
           ]
 
           Keyword.merge(rules, break_updates)
