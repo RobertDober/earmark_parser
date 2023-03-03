@@ -1,6 +1,6 @@
 defmodule Acceptance.Ast.DelTest do
   use ExUnit.Case, async: true
-  import Support.Helpers, only: [as_ast: 1]
+  import Support.Helpers, only: [as_ast: 1, as_ast: 2]
   import EarmarkAstDsl
 
   describe "single occurrence" do
@@ -26,6 +26,14 @@ defmodule Acceptance.Ast.DelTest do
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
+    end
+
+    test "in the middle of some text, with `breaks: true`" do
+      markdown = "Some deleted ~~old text~~ here"
+      ast = [p(["Some deleted ", tag("del", "old text"), " here"])]
+      messages = []
+
+      assert as_ast(markdown, breaks: true) == {:ok, ast, messages}
     end
 
     test "and finally, at the end" do
