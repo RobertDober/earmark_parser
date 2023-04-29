@@ -19,7 +19,7 @@ defmodule EarmarkParser.Helpers.HtmlParser do
   # -------------
 
   @quoted_attr ~r{\A ([-\w]+) \s* = \s* (["']) (.*?) \2 \s*}x
-  @unquoted_attr ~r{\A ([-\w]+) (?: \s* = \s* ([^&\s]*))? \s*}x
+  @unquoted_attr ~r{\A ([-\w]+) (?: \s* = \s* ([^&\s>]*))? \s*}x
   defp _parse_atts(string, tag, atts) do
     case Regex.run(@quoted_attr, string) do
       [all, name, _delim, value] -> _parse_atts(behead(string, all), tag, [{name, value}|atts])
