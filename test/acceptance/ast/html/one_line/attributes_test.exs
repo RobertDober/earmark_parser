@@ -39,6 +39,22 @@ defmodule Acceptance.Ast.Html.Oneline.AttributesTest do
 
       assert as_ast(markdown) == {:ok, ast, messages}
     end
+
+    test "without space before > in non-void element" do
+      markdown = "Before\n\n<span class=test>inside</span>\n\nAfter"
+      ast = [p(["Before"]), vtag("span", ["inside"], class: "test"), p(["After"])]
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
+
+    test "without space before > in void element" do
+      markdown = "Before\n\n<img src=image.png>\n\nAfter"
+      ast = [p(["Before"]), vtag("img", [], src: "image.png"), p(["After"])]
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
   end
 
   describe "valueless attributes" do
