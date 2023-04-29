@@ -3,6 +3,11 @@
 
 -  [Depreacting message to be passed in as an array in options, and fixing it](https://github.com/robertdober/earmark_parser/issues/86)
 
+## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.32 2023-04-29
+
+- PR [Fix of a crash on unquoted html attributes](https://github.com/RobertDober/earmark_parser/pull/127)
+    Kudos to [Sebastian Seilund](https://github.com/sebastianseilund)
+
 ## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.31 2023-03-03
 
 - PR [Fix catastrophic backtracking in IAL regex](https://github.com/RobertDober/earmark_parser/pull/125)
@@ -10,7 +15,6 @@
 
 - Bugfix for [Strikethrough not working if option `breaks: true`](https://github.com/RobertDober/earmark_parser/issues/123)
   Kudos to [Mayel de Borniol](https://github.com/mayel) for providing tests
-
 
 ## 1.4.30 2023-01-27
 
