@@ -21,13 +21,14 @@ defmodule Acceptance.Ast.Footnotes.SingleFootnoteTest do
         ])
       ]
 
-      assert ast_from_md(markdown, footnotes: true) == ast
+      {:ok, result_ast, []} = as_ast(markdown, footnotes: true)
+      assert_asts_are_equal(result_ast, ast)
     end
 
     test "plain text" do
       markdown = "foo[^1] again\n\n[^1]: bar baz"
 
-      ast = [
+      expected_ast = [
         p([
           "foo",
           footnote(1),
@@ -38,9 +39,8 @@ defmodule Acceptance.Ast.Footnotes.SingleFootnoteTest do
         ])
       ]
 
-      messages = []
-
-      assert as_ast(markdown, footnotes: true) == {:ok, ast, messages}
+      {:ok, result_ast, []} = as_ast(markdown, footnotes: true)
+      assert_asts_are_equal(result_ast, expected_ast)
     end
 
     test "not numeric" do
@@ -56,9 +56,9 @@ defmodule Acceptance.Ast.Footnotes.SingleFootnoteTest do
         ])
       ]
 
-      messages = []
 
-      assert as_ast(markdown, footnotes: true) == {:ok, ast, messages}
+      {:ok, result_ast, []} = as_ast(markdown, footnotes: true)
+      assert_asts_are_equal(result_ast, ast)
     end
 
     test "plain text, but no footnotes" do
@@ -69,9 +69,9 @@ defmodule Acceptance.Ast.Footnotes.SingleFootnoteTest do
         p("[^1]: bar baz\ngoo")
       ]
 
-      messages = []
 
-      assert as_ast(markdown, footnotes: false) == {:ok, ast, messages}
+      {:ok, result_ast, []} = as_ast(markdown, footnotes: true)
+      assert_asts_are_equal(result_ast, ast)
     end
 
     test "A link inside the footnote" do
@@ -97,10 +97,8 @@ defmodule Acceptance.Ast.Footnotes.SingleFootnoteTest do
         )
       ]
 
-      messages = []
-
-      # as_ast(markdown, footnotes: true, pure_links: true)
-      assert as_ast(markdown, footnotes: true, pure_links: true) == {:ok, ast, messages}
+      {:ok, result_ast, []} = as_ast(markdown, footnotes: true, pure_links: true)
+      assert_asts_are_equal(result_ast, ast)
     end
 
     test "A two line footnote" do
@@ -119,9 +117,8 @@ defmodule Acceptance.Ast.Footnotes.SingleFootnoteTest do
         footnotes(footnote_def(1, p("which describes some\ncode")))
       ]
 
-      messages = []
-
-      assert as_ast(markdown, footnotes: true, pure_links: true) == {:ok, ast, messages}
+      {:ok, result_ast, []} = as_ast(markdown, footnotes: true, pure_links: true)
+      assert_asts_are_equal(result_ast, ast)
     end
 
     test "A block inside the footnote" do
@@ -147,9 +144,8 @@ defmodule Acceptance.Ast.Footnotes.SingleFootnoteTest do
         )
       ]
 
-      messages = []
-
-      assert as_ast(markdown, footnotes: true, pure_links: true) == {:ok, ast, messages}
+      {:ok, result_ast, []} = as_ast(markdown, footnotes: true, pure_links: true)
+      assert_asts_are_equal(result_ast, ast)
     end
   end
 end

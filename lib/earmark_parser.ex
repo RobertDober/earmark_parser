@@ -199,7 +199,7 @@ defmodule EarmarkParser do
          [{"hr", [], [], %{}},
           {"ol", [],
            [{"li", [{"id", "fn:to_footnote"}],
-             [{"a", [{"class", "reversefootnote"}, {"href", "#fnref:to_footnote"}, {"title", "return to article"}], ["&#x21A9;"], %{}},
+             [{"a", [{"title", "return to article"}, {"class", "reversefootnote"}, {"href", "#fnref:to_footnote"}], ["&#x21A9;"], %{}},
               {"p", [], ["Important information"], %{}}], %{}}
           ], %{}}], %{}}
       ]

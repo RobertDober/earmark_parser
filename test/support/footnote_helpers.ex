@@ -17,10 +17,10 @@ defmodule Support.FootnoteHelpers do
 
   def footnote(number) do
     a("#{number}",
+      title: "see footnote",
       href: "#fn:#{number}",
-      id: "fnref:#{number}",
       class: "footnote",
-      title: "see footnote"
+      id: "fnref:#{number}"
     )
   end
 

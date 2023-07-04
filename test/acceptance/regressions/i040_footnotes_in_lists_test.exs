@@ -1,5 +1,5 @@
 defmodule Test.Acceptance.Regressions.I040FootnotesInListsTest do
-  use ExUnit.Case
+  use Support.AcceptanceTestCase
 
   @min_case """
   * here is a footnote in a list[^1]
@@ -45,7 +45,7 @@ defmodule Test.Acceptance.Regressions.I040FootnotesInListsTest do
        ], %{}}
     ]
 
-    assert ast == expected
+    assert_asts_are_equal(ast, expected)
   end
 
   @ok_case """
@@ -87,6 +87,6 @@ defmodule Test.Acceptance.Regressions.I040FootnotesInListsTest do
        ], %{}}
     ]
 
-    assert ast == expected
+    assert_asts_are_equal(ast, expected)
   end
 end

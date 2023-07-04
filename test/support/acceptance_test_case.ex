@@ -8,7 +8,7 @@ defmodule Support.AcceptanceTestCase do
 
       import Support.Helpers
       import EarmarkAstDsl
-      import Support.AstHelpers, only: [ast_from_md: 1, ast_from_md: 2]
+      import Support.AstHelpers, only: [assert_asts_are_equal: 2, ast_from_md: 1, ast_from_md: 2]
     end
   end
 

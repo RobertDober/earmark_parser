@@ -31,7 +31,8 @@ defmodule Test.Acceptance.Ast.Footnotes.MultipleFnTest do
         ])
       ]
 
-      assert fn_ast(markdown) == ast
+      {:ok, result_ast, []} = as_ast(markdown, footnotes: true)
+      assert_asts_are_equal(result_ast, ast)
     end
 
     test "first is not referenced" do
@@ -59,7 +60,8 @@ defmodule Test.Acceptance.Ast.Footnotes.MultipleFnTest do
         )
       ]
 
-      assert fn_ast(markdown) == ast
+      {:ok, result_ast, []} = as_ast(markdown, footnotes: true)
+      assert_asts_are_equal(result_ast, ast)
     end
 
   end
@@ -88,7 +90,8 @@ defmodule Test.Acceptance.Ast.Footnotes.MultipleFnTest do
         ])
       ]
 
-      assert fn_ast(markdown) == ast
+      {:ok, result_ast, []} = as_ast(markdown, footnotes: true)
+      assert_asts_are_equal(result_ast, ast)
     end
 
     test "one used twice -- still ambiguous" do
@@ -114,7 +117,8 @@ defmodule Test.Acceptance.Ast.Footnotes.MultipleFnTest do
         ])
       ]
 
-      assert fn_ast(markdown) == ast
+      {:ok, result_ast, []} = as_ast(markdown, footnotes: true)
+      assert_asts_are_equal(result_ast, ast)
     end
   end
 end

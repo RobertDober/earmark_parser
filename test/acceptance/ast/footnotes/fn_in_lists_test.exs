@@ -32,7 +32,8 @@ defmodule Test.Acceptance.Ast.Footnotes.FnInListsTest do
         ])
       ]
 
-      assert fn_ast(markdown) == ast
+      {:ok, result_ast, []} = as_ast(markdown, footnotes: true)
+      assert_asts_are_equal(result_ast, ast)
     end
 
     test "list body, first is not referenced" do
@@ -64,7 +65,8 @@ defmodule Test.Acceptance.Ast.Footnotes.FnInListsTest do
         )
       ]
 
-      assert fn_ast(markdown) == ast
+      {:ok, result_ast, []} = as_ast(markdown, footnotes: true)
+      assert_asts_are_equal(result_ast, ast)
     end
   end
 
