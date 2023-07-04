@@ -3,6 +3,11 @@
 
 -  [Depreacting message to be passed in as an array in options, and fixing it](https://github.com/robertdober/earmark_parser/issues/86)
 
+## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.33 2023-07-04
+
+- PR [Avoid warnings in String#slice/2 with Elixir 1.16](https://github.com/RobertDober/earmark_parser/pull/128)
+    Kudos to [José Valim](https://github.com/josevalim)
+
 ## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.32 2023-04-29
 
 - PR [Fix of a crash on unquoted html attributes](https://github.com/RobertDober/earmark_parser/pull/127)
