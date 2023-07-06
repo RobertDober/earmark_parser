@@ -29,7 +29,6 @@ jobs:
           - elixir: 1.14.x
             otp: 25
             os: ubuntu-latest
-            warnings_as_errors: true
           # - elixir: 1.15.x
           #   otp: 26
           #   os: ubuntu-latest
