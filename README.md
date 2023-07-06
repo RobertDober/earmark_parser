@@ -1,7 +1,7 @@
 
 # EarmarkParser A Pure Elixir Markdown Parser
 
-[![CI](https://github.com/robertdober/earmark_parser/workflows/CI/badge.svg)](https://github.com/robertdober/earmark_parser/actions)
+[![CI](https://github.com/robertdober/earmark_parser/workflows/elixir.yml/badge.svg)](https://github.com/robertdober/earmark_parser/actions)
 [![Coverage Status](https://coveralls.io/repos/github/RobertDober/earmark_parser/badge.svg?branch=master)](https://coveralls.io/github/RobertDober/earmark_parser?branch=master)
 [![Hex.pm](https://img.shields.io/hexpm/v/earmark_parser.svg)](https://hex.pm/packages/earmark_parser)
 [![Hex.pm](https://img.shields.io/hexpm/dw/earmark_parser.svg)](https://hex.pm/packages/earmark_parser)
@@ -255,30 +255,28 @@ Footnotes are now a **superset** of GFM Footnotes. This implies some changes
   - Footnotes that are not referenced are not rendered anymore (_GFM_)
   - Footnote definitions can contain any markup with the exception of footnote definitions
 
-```elixir
-    iex(16)> markdown = [
-    ...(16)> "My reference[^to_footnote]",
-    ...(16)> "",
-    ...(16)> "[^1]: I am not rendered",
-    ...(16)> "[^to_footnote]: Important information"]
-    ...(16)> {:ok, ast, []} = as_ast(markdown, footnotes: true)
-    ...(16)> ast
-    [
-      {"p", [], ["My reference",
-        {"a",
-         [{"href", "#fn:to_footnote"}, {"id", "fnref:to_footnote"}, {"class", "footnote"}, {"title", "see footnote"}],
-         ["to_footnote"], %{}}
-      ], %{}},
-      {"div",
-       [{"class", "footnotes"}],
-       [{"hr", [], [], %{}},
-        {"ol", [],
-         [{"li", [{"id", "fn:to_footnote"}],
-           [{"a", [{"class", "reversefootnote"}, {"href", "#fnref:to_footnote"}, {"title", "return to article"}], ["&#x21A9;"], %{}},
-            {"p", [], ["Important information"], %{}}], %{}}
-        ], %{}}], %{}}
-    ]
-```
+        # iex(16)> markdown = [
+        # ...(16)> "My reference[^to_footnote]",
+        # ...(16)> "",
+        # ...(16)> "[^1]: I am not rendered",
+        # ...(16)> "[^to_footnote]: Important information"]
+        # ...(16)> {:ok, ast, []} = as_ast(markdown, footnotes: true)
+        # ...(16)> ast
+        # [
+        #   {"p", [], ["My reference",
+        #     {"a",
+        #     [{"href", "#fn:to_footnote"}, {"id", "fnref:to_footnote"}, {"class", "footnote"}, {"title", "see footnote"}],
+        #     ["to_footnote"], %{}}
+        #   ], %{}},
+        #   {"div",
+        #   [{"class", "footnotes"}],
+        #   [{"hr", [], [], %{}},
+        #     {"ol", [],
+        #     [{"li", [{"id", "fn:to_footnote"}],
+        #       [{"a", [{"title", "return to article"}, {"class", "reversefootnote"}, {"href", "#fnref:to_footnote"}], ["&#x21A9;"], %{}},
+        #         {"p", [], ["Important information"], %{}}], %{}}
+        #     ], %{}}], %{}}
+        # ]
 
   For more complex examples of footnotes, please refer to
   [these tests](https://github.com/RobertDober/earmark_parser/tree/master/test/acceptance/ast/footnotes/multiple_fn_test.exs)
