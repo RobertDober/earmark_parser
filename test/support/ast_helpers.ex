@@ -44,7 +44,7 @@ defmodule Support.AstHelpers do
     delta1 = _delta_between(result, expected)
     _delta_between(result_rest, expected_rest, [delta1, delta])
   end
-  defp _delta_between({rtag, ratts, rcont, rmeta}, {etag, eatts, econt, emeta}, delta) do
+  defp _delta_between({rtag, ratts, rcont, rmeta}, {etag, eatts, econt, emeta}, _delta) do
     inner_delta = _delta_between(rcont, econt)
     outer_delta = [{rtag, etag}, {rmeta, emeta}, {ratts|>Enum.into(%{}), eatts|>Enum.into(%{})}]
                   |> Enum.reduce([], fn {a, b}, d ->
