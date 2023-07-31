@@ -23,7 +23,7 @@ defmodule Acceptance.Ast.Lists.ListAndencedCodeTest do
       ast = [
         code("  before", class: "elixir"),
         ul(li([p("Header 1"),
-          code("     inner", class: "erlang"),
+          code("   inner", class: "erlang"),
           level2_list]))]
 
       assert ast_from_md(markdown) == ast
