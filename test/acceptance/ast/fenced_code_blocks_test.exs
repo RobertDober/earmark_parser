@@ -80,7 +80,33 @@ defmodule Acceptance.Ast.FencedCodeBlocksTest do
       ast = [
         ul([
           li("a"),
-          li([pre_code("  b\n\n"), "c"]),
+          li([pre_code("b\n\n"), "c"]),
+          li("d")
+        ])
+      ]
+
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
+
+    test "in double list" do
+      markdown = """
+      - a
+        - ```
+          b
+
+
+          ```
+          c
+      - d
+      """
+      ast = [
+        ul([
+          li([
+            "a",
+            ul(li([pre_code("b\n\n"), "c"]))
+          ]),
           li("d")
         ])
       ]

@@ -116,8 +116,9 @@ defmodule EarmarkParser.Parser.ListParser do
   defp _parse_list_items_start_pdg([], items, list_info) do
     _finish_list_items([], items, true, list_info)
   end
-  defp _parse_list_items_start_pdg([line|rest], items, list_info) do
-    _parse_list_items_start(rest, items, update_list_info(list_info, line.line, line))
+  defp _parse_list_items_start_pdg([%{line: str_line}=line|rest], items, list_info) do
+    indented = _behead_spaces(str_line, list_info.width)
+    _parse_list_items_start(rest, items, update_list_info(list_info, indented, line))
   end
 
   defp _behead_spaces(str, len) do
