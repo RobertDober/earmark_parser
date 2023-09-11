@@ -3,6 +3,11 @@
 
 -  [Depreacting message to be passed in as an array in options, and fixing it](https://github.com/robertdober/earmark_parser/issues/86)
 
+## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.34 2023-09-11
+
+- PR [Strip spaces in front of code blocks](https://github.com/RobertDober/earmark_parser/pull/132)
+    Kudos to [Lukas Larsson](https://github.com/garazdawi)
+
 ## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.33 2023-07-04
 
 - PR [Avoid warnings in String#slice/2 with Elixir 1.16](https://github.com/RobertDober/earmark_parser/pull/128)
