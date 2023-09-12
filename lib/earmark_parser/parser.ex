@@ -40,6 +40,10 @@ defmodule EarmarkParser.Parser do
     |> parse_markdown(options)
   end
 
+  def parse_markdown(lines, _) do
+    raise ArgumentError, "#{inspect lines} not a binary, nor a list of binaries"
+  end
+
   def parse(text_lines, options = %Options{}, recursive) do
     ["" | text_lines ++ [""]]
     |> LineScanner.scan_lines(options, recursive)

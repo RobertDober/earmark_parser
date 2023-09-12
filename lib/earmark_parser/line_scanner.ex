@@ -51,9 +51,13 @@ defmodule EarmarkParser.LineScanner do
       when is_boolean(recursive),
       do: type_of(line, %Options{}, recursive)
 
-  def type_of({line, lnb}, options = %Options{annotations: annotations}, recursive) do
+  def type_of({line, lnb}, options = %Options{annotations: annotations}, recursive) when is_binary(line) do
     {line1, annotation} = line |> Helpers.expand_tabs() |> Helpers.remove_line_ending(annotations)
     %{_type_of(line1, options, recursive) | annotation: annotation, lnb: lnb}
+  end
+
+  def type_of({line, lnb}, _, _) do
+    raise ArgumentError, "line number #{lnb} #{inspect line} is not a binary"
   end
 
   defp _type_of(line, options = %Options{}, recursive) do

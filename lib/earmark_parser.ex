@@ -613,6 +613,10 @@ defmodule EarmarkParser do
     as_ast(lines, struct(Options, options |> Map.delete(:__struct__) |> Enum.into([])))
   end
 
+  def as_ast(_, options) do
+    raise ArgumentError, "#{inspect options} not a legal options map or keyword list"
+  end
+
   defp _as_ast(lines, options) do
     {blocks, context} = EarmarkParser.Parser.parse_markdown(lines, Options.normalize(options))
     EarmarkParser.AstRenderer.render(blocks, context)
