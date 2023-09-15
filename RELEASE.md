@@ -1,5 +1,7 @@
 
-## 1.5.0 2023-??-??
+## 1.5.0-pre1 2023-??-??
+
+- Using minipeg instead of leaky string_lexer
 
 -  [Depreacting message to be passed in as an array in options, and fixing it](https://github.com/robertdober/earmark_parser/issues/86)
 
@@ -15,7 +17,6 @@
 
 - Better error messages for bad data passed into `EarmarkParser.as_ast`
 
-- Using minipeg instead of leaky string_lexer
 
 ## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.34 2023-09-11
 

@@ -6,6 +6,7 @@ defmodule EarmarkParser.MixProject do
 
   @deps [
     {:dialyxir, "~> 1.4.1", only: [:dev]},
+    {:minipeg, "~> 0.3.1", path: "../minipeg"},
     {:earmark_ast_dsl, "~> 0.3.7", only: [:test]},
     {:excoveralls, "~> 0.14.4", only: [:test]},
     {:extractly, "~> 0.5.3", only: [:dev]},
