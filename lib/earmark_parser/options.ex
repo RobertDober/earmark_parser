@@ -106,7 +106,7 @@ defmodule EarmarkParser.Options do
       | messages:
           MapSet.new([
             {:deprecated, 0,
-             "messages is an internal option that is ignored and will be removed from the API in v1.5.1"}
+             "messages is an internal option that is ignored and will be removed from the API in v1.5"}
           ])
     }
   end
