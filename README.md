@@ -737,7 +737,7 @@ Thank you all who have already helped with Earmark/EarmarkParser, your names are
 
 Copyright © 2014,5,6,7,8,9;2020 Dave Thomas, The Pragmatic Programmers
 @/+pragdave,  dave@pragprog.com
-Copyright © 2020 Robert Dober
+Copyright © 2020,1,2,3 Robert Dober
 robert.dober@gmail.com
 
 ## LICENSE
