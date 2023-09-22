@@ -4,7 +4,7 @@ defmodule Test.Acceptance.Regressions.I086BadOptionsTest do
   describe "can pass a bad option" do
     test "bad option is corrected and get deprecation" do
       ast = [{"p", [], ["some text"], %{}}]
-      messages = [{:deprecated, 0, "messages is an internal option that is ignored and will be removed from the API in v1.5.1"}]
+      messages = [{:deprecated, 0, "messages is an internal option that is ignored and will be removed from the API in v1.5"}]
 
       assert EarmarkParser.as_ast("some text", messages: []) == {:ok, ast, messages}
     end

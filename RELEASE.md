@@ -5,6 +5,12 @@
 
 - [Parsing HTML]
 
+## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.36 2023-09-22
+
+- Correting deprection version for smarty_pants
+
+- Checking for result type `EarmarkParser.t` of `EarmarkParser.as_ast`
+
 ## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.35 2023-09-12
 
 - Better error messages for bad data passed into `EarmarkParser.as_ast`

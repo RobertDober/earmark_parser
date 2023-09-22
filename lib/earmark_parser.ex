@@ -9,6 +9,11 @@ defmodule EarmarkParser do
   @type ast_node :: binary() | ast_tuple()
   @type ast :: list(ast_node())
 
+  @type error :: {atom(), non_neg_integer(), binary()}
+  @type errors :: list(error())
+
+  @type t :: {:ok, ast(), []} | {:error, ast(), errors()}
+
   @moduledoc ~S"""
 
   ### API
@@ -586,6 +591,7 @@ defmodule EarmarkParser do
 
   The AST is exposed in the spirit of [Floki's](https://hex.pm/packages/floki).
   """
+  @spec as_ast(binary()|list(binary()), any()) :: t()
   def as_ast(lines, options \\ %Options{})
 
   def as_ast(lines, %Options{} = options) do
