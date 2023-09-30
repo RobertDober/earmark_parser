@@ -28,10 +28,10 @@ defmodule EarmarkParser.Parser.LinkParser do
 
   @doc false
   def parse_link(src, lnb) do
-    case parse!(src, lexer: :link_text_lexer, parser: :link_text_parser) do
+    case parse!(src, lexer: :earmark_parser_link_text_lexer, parser: :earmark_parser_link_text_parser) do
         {link_or_img, link_text, parsed_text} ->
          beheaded  = behead(src, to_string(parsed_text))
-         tokens    = tokenize(beheaded, with: :link_text_lexer)
+         tokens    = tokenize(beheaded, with: :earmark_parser_link_text_lexer)
          p_url(tokens, lnb) |> make_result(to_string(link_text), to_string(parsed_text), link_or_img)
         _ -> nil
     end
