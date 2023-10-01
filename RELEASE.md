@@ -5,6 +5,13 @@
 
 - [Parsing HTML]
 
+## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.37 2023-10-01
+
+- [José fixed more deprecation warnings for Elixir 1.6](https://github.com/RobertDober/earmark_parser/pull/138)
+
+- [José namespaced yecc and leex files for me <3](https://github.com/RobertDober/earmark_parser/pull/137)
+
+
 ## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.36 2023-09-22
 
 - Correting deprection version for smarty_pants
