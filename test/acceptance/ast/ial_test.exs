@@ -17,6 +17,9 @@ defmodule Acceptance.Ast.IalTest do
       markdown = "`some code`{: .classy}"
       html = "<p><code class=\"inline classy\">some code</code></p>\n"
       ast      = parse_html(html)
+
+      [{"p", [], [{"code", [{"class", "inline classy"}], ["some code"], %{line: 1}}], %{}}]
+
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}

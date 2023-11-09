@@ -11,7 +11,7 @@ defmodule Acceptance.Ast.Lists.SpacedPendingTest do
     ast = [
       ul(li([
         p("Item 1"),
-        p(["This is ", inline_code("pending")])]))
+        p(["This is ", inline_code("pending", [], %{line: 3})])]))
     ]
 
     assert ast_from_md(markdown) == ast
@@ -27,7 +27,7 @@ defmodule Acceptance.Ast.Lists.SpacedPendingTest do
     ast = [
       ul(li([
         p("Item 1"),
-        p(["This is ", inline_code("pending")])]))
+        p(["This is ", inline_code("pending", [], %{line: 3})])]))
     ]
 
     assert ast_from_md(markdown) == ast
@@ -55,7 +55,7 @@ defmodule Acceptance.Ast.Lists.SpacedPendingTest do
         1`
       """
       ast = [
-        ul(li([p("Item 1"), p(inline_code("Line 1"))]))
+        ul(li([p("Item 1"), p(inline_code("Line 1", [], %{line: 3}))]))
       ]
 
       assert ast_from_md(markdown) == ast
@@ -90,6 +90,12 @@ defmodule Acceptance.Ast.Lists.SpacedPendingTest do
     ]
 
     assert ast_from_md(markdown) == ast
+  end
+
+  # remove after upgrading earmark_ast_dsl
+  defp inline_code(content, attrs, new_meta) do
+    {tag, attrs, content, meta} = inline_code(content, attrs)
+    {tag, attrs, content, Map.merge(meta, new_meta)}
   end
 end
 # SPDX-License-Identifier: Apache-2.0

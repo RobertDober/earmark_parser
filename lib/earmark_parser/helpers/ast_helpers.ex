@@ -42,8 +42,8 @@ defmodule EarmarkParser.Helpers.AstHelpers do
   end
 
   @doc false
-  def codespan(text) do 
-    emit("code", text, class: "inline")
+  def codespan(text, lnb) do
+    emit("code", text, [class: "inline"], %{line: lnb})
   end
 
   @doc false

@@ -17,12 +17,27 @@ defmodule Support.Helpers do
     EarmarkParser.as_ast(markdown, options)
   end
 
-  def parse_html(html, metadata_fun \\ fn _ -> %{} end) do
+  def parse_html(html, metadata_fun \\ &default_metadata_fun/1) do
     if System.get_env("DEBUG") do
       _parse_html(html) |> _add_4th(metadata_fun) |> IO.inspect
     else
       _parse_html(html) |> _add_4th(metadata_fun)
     end
+  end
+
+  # Floki does not keep track of lines so let's pretend it does for code spans
+  defp default_metadata_fun({"code", attrs, _}) do
+    case List.keyfind(attrs, "class", 0) do
+      {"class", "inline" <> _} ->
+        %{line: 1}
+
+      _ ->
+        %{}
+    end
+  end
+
+  defp default_metadata_fun(_other) do
+    %{}
   end
 
   def test_links do

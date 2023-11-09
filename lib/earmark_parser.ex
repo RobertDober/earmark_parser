@@ -399,7 +399,7 @@ defmodule EarmarkParser do
 
       iex(32)> markdown = "`Enum.map`{:lang=elixir}"
       ...(32)> as_ast(markdown)
-      {:ok, [{"p", [], [{"code", [{"class", "inline"}, {"lang", "elixir"}], ["Enum.map"], %{}}], %{}}], []}
+      {:ok, [{"p", [], [{"code", [{"class", "inline"}, {"lang", "elixir"}], ["Enum.map"], %{line: 1}}], %{}}], []}
 
 
   _attrs_ can be one or more of:
@@ -578,7 +578,7 @@ defmodule EarmarkParser do
       iex(42)> markdown = "My `code` is **best**"
       ...(42)> {:ok, ast, []} = EarmarkParser.as_ast(markdown)
       ...(42)> ast
-      [{"p", [], ["My ", {"code", [{"class", "inline"}], ["code"], %{}}, " is ", {"strong", [], ["best"], %{}}], %{}}]
+      [{"p", [], ["My ", {"code", [{"class", "inline"}], ["code"], %{line: 1}}, " is ", {"strong", [], ["best"], %{}}], %{}}]
 
 
 

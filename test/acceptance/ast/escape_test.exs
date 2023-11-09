@@ -30,7 +30,7 @@ defmodule Acceptance.Ast.EscapeTest do
 
     test "less obviously - escpe the escapes" do
       markdown = "\\\\` code`"
-      ast      = p(["\\", tag("code", "code", class: "inline")])
+      ast      = p(["\\", tag("code", "code", [class: "inline"], %{line: 1})])
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
