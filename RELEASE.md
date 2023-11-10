@@ -5,6 +5,11 @@
 
 - [Parsing HTML]
 
+## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.38 2023-11-10
+
+- [Add metadata line to inline code spans](https://github.com/RobertDober/earmark_parser/pull/140)
+    Kudos to [Wojtek Mach](https://github.com/wojtekmach)
+
 ## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.37 2023-10-01
 
 - [José fixed more deprecation warnings for Elixir 1.6](https://github.com/RobertDober/earmark_parser/pull/138)
