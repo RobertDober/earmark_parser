@@ -112,7 +112,14 @@ defmodule EarmarkParser.AstRenderer do
          context,
          _loose?
        ) do
-    {rows_ast, context1} = render_rows(rows, lnb, aligns, context)
+         header_offset =
+           if header do
+             2 # 1 line for header text, 1 line for header separator
+           else
+             0
+           end
+
+    {rows_ast, context1} = render_rows(rows, lnb + header_offset, aligns, context)
 
     {rows_ast1, context2} =
       if header do

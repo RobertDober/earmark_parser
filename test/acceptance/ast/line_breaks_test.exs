@@ -81,6 +81,7 @@ defmodule Acceptance.Ast.LineBreaksTest do
 
       assert as_ast(markdown) == {:ok, ast, messages}
     end
+
     test "or in code blocks" do
       markdown = "```\nThe \nquick\n```"
       html     = "<pre><code>The \nquick</code></pre>\n"

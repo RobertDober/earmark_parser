@@ -153,7 +153,7 @@ defmodule Acceptance.Ast.TableTest do
       """
 
       ast = [
-        table(["This part is fine", {"This is ", tag(:code, "broken", class: :inline)}],
+        table(["This part is fine", {"This is ", tag(:code, "broken", [class: :inline], %{line: 4})}],
           head: ["What"]
         )
       ]

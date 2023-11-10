@@ -142,7 +142,7 @@ defmodule Acceptance.Ast.InlineCodeTest do
       ` Single Closes ``Double reopens
       """
       ast = [
-        p([tag("code", "Single Opens", class: "inline"),  " Single Closes ``Double reopens"])
+        p([tag("code", "Single Opens", [class: "inline"], %{line: 1}),  " Single Closes ``Double reopens"])
       ]
       messages = [{:warning, 2, "Closing unclosed backquotes `` at end of input"}]
 

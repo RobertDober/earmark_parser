@@ -244,7 +244,7 @@ defmodule EarmarkParser.Ast.Inline do
         |> String.trim()
         |> String.replace(@squash_ws, " ")
 
-      out = codespan(content1)
+      out = codespan(content1, lnb)
       {behead(src, match), lnb, prepend(context, out), use_linky?}
     end
   end

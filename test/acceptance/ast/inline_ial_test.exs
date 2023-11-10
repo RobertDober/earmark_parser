@@ -7,7 +7,7 @@ defmodule Test.Acceptance.Ast.InlineIalTest do
       {"###### Another Header{:.classy}", [{"h6", [{"class", "classy"}], ["Another Header"], %{}}]},
       {"> # Bq Header{:.classy-again}", [{"blockquote", [], [{"h1", [{"class", "classy-again"}], ["Bq Header"], %{}}], %{}}]},
       {"- # Bq in a list{:.class42 title=xxx}", [{"ul", [], [{"li", [], [{"h1", [{"class", "class42"}, {"title", "xxx"}], ["Bq in a list"], %{}}], %{}}], %{}}]},
-      {"`42|>inspect()`{:.elixir}", [{"p", [], [{"code", [{"class", "inline elixir"}], ["42|>inspect()"], %{}}], %{}}]}
+      {"`42|>inspect()`{:.elixir}", [{"p", [], [{"code", [{"class", "inline elixir"}], ["42|>inspect()"], %{line: 1}}], %{}}]}
     ]
     data
     |> Enum.with_index

@@ -6,7 +6,7 @@ defmodule Acceptance.Ast.DiverseTest do
   describe "etc" do
     test "entiy" do
       markdown = "`f&ouml;&ouml;`\n"
-      ast      = p(tag("code", "f&ouml;&ouml;", class: "inline"))
+      ast      = p(tag("code", "f&ouml;&ouml;", [class: "inline"], %{line: 1}))
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
