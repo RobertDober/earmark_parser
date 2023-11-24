@@ -30,7 +30,7 @@ defmodule EarmarkParser.Helpers.AstHelpers do
     [{t, merge_attrs(a, atts), c, m}|tags]
   end
   def augment_tag_with_ial([], _atts) do
-    [] 
+    []
   end
 
   @doc false
@@ -39,6 +39,15 @@ defmodule EarmarkParser.Helpers.AstHelpers do
       ["" | String.split(prefix || "")]
       |> Enum.map(fn pfx -> "#{pfx}#{language}" end)
       {"class", classes |> Enum.join(" ")}
+  end
+
+  @doc false
+  def math_inline(text, lnb) do
+    emit("code", text, [class: "math-inline"], %{line: lnb})
+  end
+
+  def math_display(text, lnb) do
+    emit("code", text, [class: "math-display"], %{line: lnb})
   end
 
   @doc false

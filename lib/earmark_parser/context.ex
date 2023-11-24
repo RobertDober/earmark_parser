@@ -110,16 +110,22 @@ defmodule EarmarkParser.Context do
       else
         ""
       end
+    math =
+      if options.math do
+        "$"
+      else
+        ""
+      end
     rule_updates =
       if options.gfm do
         rules = [
-          text: ~r{^[\s\S]+?(?=~~|[\\<!\[_*`#{subsup}]|https?://| \{2,\}\n|$)}
+          text: ~r{^[\s\S]+?(?=~~|[\\<!\[_*`#{math}#{subsup}]|https?://| \{2,\}\n|$)}
         ]
 
         if options.breaks do
           break_updates = [
             br: ~r{^ *\n(?!\s*$)},
-            text: ~r{^[\s\S]+?(?=~~|[\\<!\[_*`#{subsup}]|https?://| *\n|$)}
+            text: ~r{^[\s\S]+?(?=~~|[\\<!\[_*`#{math}#{subsup}]|https?://| *\n|$)}
           ]
 
           Keyword.merge(rules, break_updates)

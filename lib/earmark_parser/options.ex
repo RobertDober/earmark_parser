@@ -24,6 +24,7 @@ defmodule EarmarkParser.Options do
             messages: MapSet.new([]),
             pure_links: true,
             sub_sup: false,
+            math: false,
 
             # deprecated
             pedantic: false,
@@ -57,7 +58,7 @@ defmodule EarmarkParser.Options do
             # deprecated
             pedantic: boolean(),
             smartypants: boolean(),
-            timeout: nil | non_neg_integer() 
+            timeout: nil | non_neg_integer()
 
   }
 

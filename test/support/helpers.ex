@@ -31,6 +31,9 @@ defmodule Support.Helpers do
       {"class", "inline" <> _} ->
         %{line: 1}
 
+      {"class", "math-" <> _} ->
+        %{line: 1}
+
       _ ->
         %{}
     end
