@@ -54,6 +54,9 @@ defmodule EarmarkParser.Ast.Inline do
       converter_for_sub: &converter_for_sub/1,
       converter_for_sup: &converter_for_sup/1,
       #
+      converter_for_math_display: &converter_for_math_display/1,
+      converter_for_math_inline: &converter_for_math_inline/1,
+      #
       converter_for_code: &converter_for_code/1,
       converter_for_br: &converter_for_br/1,
       converter_for_inline_ial: &converter_for_inline_ial/1,
@@ -78,7 +81,7 @@ defmodule EarmarkParser.Ast.Inline do
   #  Converters
   #
   ######################
-  @escape_rule ~r{^\\([\\`*\{\}\[\]()\#+\-.!_>])}
+  @escape_rule ~r{^\\([\\`*\{\}\[\]()\#+\-.!_>$])}
   def converter_for_escape({src, lnb, context, use_linky?}) do
     if match = Regex.run(@escape_rule, src) do
       [match, escaped] = match
@@ -226,6 +229,30 @@ defmodule EarmarkParser.Ast.Inline do
   end
 
   def converter_for_sup(_), do: nil
+
+  @math_inline_rgx ~r{\A\$(?=[^\s$])([\s\S]*?[^\s\\])\$}
+  def converter_for_math_inline({src, lnb, %{options: %{math: true}} = context, use_linky?}) do
+    if match = Regex.run(@math_inline_rgx, src) do
+      [match, content] = match
+      content = String.trim(content)
+      out = math_inline(content, lnb)
+      {behead(src, match), lnb, prepend(context, out), use_linky?}
+    end
+  end
+
+  def converter_for_math_inline(_), do: nil
+
+  @math_display_rgx ~r{\A\$\$([\s\S]+?)\$\$}
+  def converter_for_math_display({src, lnb, %{options: %{math: true}} = context, use_linky?}) do
+    if match = Regex.run(@math_display_rgx, src) do
+      [match, content] = match
+      content = String.trim(content)
+      out = math_display(content, lnb)
+      {behead(src, match), lnb, prepend(context, out), use_linky?}
+    end
+  end
+
+  def converter_for_math_display(_), do: nil
 
   @squash_ws ~r{\s+}
   @code ~r{^

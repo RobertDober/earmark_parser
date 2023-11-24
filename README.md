@@ -25,6 +25,7 @@
     - [Pure links](#pure-links)
     - [Wikilinks...](#wikilinks)
   - [Sub and Sup HTML Elements](#sub-and-sup-html-elements)
+  - [Mathematical expressions](#mathematical-expressions)
   - [Github Flavored Markdown](#github-flavored-markdown)
     - [Strike Through](#strike-through)
     - [GFM Tables](#gfm-tables)
@@ -168,6 +169,34 @@ But by specifying `sub_sup: true`
 ```elixir
     iex(10)> EarmarkParser.as_ast("H~2~O or a^n^ + b^n^ = c^n^", sub_sup: true)
     {:ok, [{"p", [], ["H", {"sub", [], ["2"], %{}}, "O or a", {"sup", [], ["n"], %{}}, " + b", {"sup", [], ["n"], %{}}, " = c", {"sup", [], ["n"], %{}}], %{}}], []}
+```
+
+### Mathematical expressions
+
+> Note: math syntax within Markdown is not standardized, so this option is a subject to change in future releases.
+
+This feature is not enabled by default but can be enabled with the option `math: true`.
+
+When enabled, LaTeX formatted math can be written within Markdown. For more information, see [LaTeX/Mathematics](https://en.wikibooks.org/wiki/LaTeX/Mathematics) in Wikibooks.
+
+#### Inline expressions
+
+Inline-style expression can be written by surrounding the expression with dollar symbols (`$`).
+
+```elixir
+    iex> EarmarkParser.as_ast("$x = 1$", math: true)
+    {:ok, [{"p", [], [{"code", [{"class", "math-inline"}], ["x = 1"], %{line: 1}}], %{}}], []}
+```
+
+There must be no space between `$` and the surrounded expression. If you want to use a dollar sign in the same line as a math expression, you can escape the dollar with backslash (`\\$`).
+
+#### Expressions as blocks
+
+Display-style expression can be written by surrounding the expression with two dollar signs (`$$`).
+
+```elixir
+    iex> EarmarkParser.as_ast("$$x = 1$$", math: true)
+    {:ok, [{"p", [], [{"code", [{"class", "math-display"}], ["x = 1"], %{line: 1}}], %{}}], []}
 ```
 
 ### Github Flavored Markdown
