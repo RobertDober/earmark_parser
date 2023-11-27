@@ -1,7 +1,7 @@
 defmodule EarmarkParser.MixProject do
   use Mix.Project
 
-  @version "1.4.38"
+  @version "1.4.39"
   @url "https://github.com/RobertDober/earmark_parser"
 
   @deps [
@@ -12,20 +12,6 @@ defmodule EarmarkParser.MixProject do
     {:floki, "~> 0.32", only: [:dev, :test]}
   ]
 
-  @description """
-  Earmark AST the parser and AST Generator for
-  Dave Thomas' Earmark.
-
-  The parser generates
-  an Abstract Syntax Tree from Markdown.
-
-  The original Earmark will still provide the HTML Transformation and
-  the CLI, however its Scanner, Parser and AST Renderer have been
-  extracted into this library.
-  """
-
-  ############################################################
-
   def project do
     [
       app: :earmark_parser,
@@ -34,7 +20,7 @@ defmodule EarmarkParser.MixProject do
       elixir: "~> 1.11",
       elixirc_paths: elixirc_paths(Mix.env()),
       deps: @deps,
-      description: @description,
+      description: "AST parser and generator for Markdown",
       package: package(),
       preferred_cli_env: [
         coveralls: :test,
@@ -75,9 +61,6 @@ defmodule EarmarkParser.MixProject do
   defp elixirc_paths(:dev), do: ["lib", "bench", "dev"]
   defp elixirc_paths(_), do: ["lib"]
 
-  @prerequisites """
-  run `mix escript.install hex ex_doc` and adjust `PATH` accordingly
-  """
   @module "EarmarkParser"
   defp build_docs(_) do
     Mix.Task.run("compile")
@@ -85,9 +68,8 @@ defmodule EarmarkParser.MixProject do
     Mix.shell().info("Using escript: #{ex_doc} to build the docs")
 
     unless File.exists?(ex_doc) do
-      raise "cannot build docs because escript for ex_doc is not installed, make sure to \n#{
-              @prerequisites
-            }"
+      raise "cannot build docs because escript for ex_doc is not installed, " <>
+              "make sure to run `mix escript.install hex ex_doc` before"
     end
 
     args = [@module, @version, Mix.Project.compile_path()]
@@ -97,7 +79,6 @@ defmodule EarmarkParser.MixProject do
     System.cmd(ex_doc, args ++ opts)
     Mix.shell().info("Docs built successfully")
   end
-
 end
 
 # SPDX-License-Identifier: Apache-2.0
