@@ -26,6 +26,8 @@
     - [Wikilinks...](#wikilinks)
   - [Sub and Sup HTML Elements](#sub-and-sup-html-elements)
   - [Mathematical expressions](#mathematical-expressions)
+    - [Inline expressions](#inline-expressions)
+    - [Expressions as blocks](#expressions-as-blocks)
   - [Github Flavored Markdown](#github-flavored-markdown)
     - [Strike Through](#strike-through)
     - [GFM Tables](#gfm-tables)
@@ -183,10 +185,8 @@ When enabled, LaTeX formatted math can be written within Markdown. For more info
 
 Inline-style expression can be written by surrounding the expression with dollar symbols (`$`).
 
-```elixir
     iex> EarmarkParser.as_ast("$x = 1$", math: true)
     {:ok, [{"p", [], [{"code", [{"class", "math-inline"}], ["x = 1"], %{line: 1}}], %{}}], []}
-```
 
 There must be no space between `$` and the surrounded expression. If you want to use a dollar sign in the same line as a math expression, you can escape the dollar with backslash (`\\$`).
 
@@ -194,10 +194,8 @@ There must be no space between `$` and the surrounded expression. If you want to
 
 Display-style expression can be written by surrounding the expression with two dollar signs (`$$`).
 
-```elixir
     iex> EarmarkParser.as_ast("$$x = 1$$", math: true)
     {:ok, [{"p", [], [{"code", [{"class", "math-display"}], ["x = 1"], %{line: 1}}], %{}}], []}
-```
 
 ### Github Flavored Markdown
 
@@ -528,7 +526,7 @@ It still works for inline code, as it did before
 ```elixir
     iex(32)> markdown = "`Enum.map`{:lang=elixir}"
     ...(32)> as_ast(markdown)
-    {:ok, [{"p", [], [{"code", [{"class", "inline"}, {"lang", "elixir"}], ["Enum.map"], %{}}], %{}}], []}
+    {:ok, [{"p", [], [{"code", [{"class", "inline"}, {"lang", "elixir"}], ["Enum.map"], %{line: 1}}], %{}}], []}
 ```
 
 
@@ -723,7 +721,7 @@ the generated AST with comments
     iex(42)> markdown = "My `code` is **best**"
     ...(42)> {:ok, ast, []} = EarmarkParser.as_ast(markdown)
     ...(42)> ast
-    [{"p", [], ["My ", {"code", [{"class", "inline"}], ["code"], %{}}, " is ", {"strong", [], ["best"], %{}}], %{}}]
+    [{"p", [], ["My ", {"code", [{"class", "inline"}], ["code"], %{line: 1}}, " is ", {"strong", [], ["best"], %{}}], %{}}]
 
 
 
