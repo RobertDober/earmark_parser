@@ -307,10 +307,8 @@ defmodule EarmarkParser.LineScanner do
   defp _split_table_columns(line) do
     line
     |> String.split(~r{(?<!\\)\|})
-    |> Enum.map(fn col ->
-      col = String.trim(col)
-      Regex.replace(~r{\\\|}, col, "|")
-    end)
+    |> Enum.map(&String.trim/1)
+    |> Enum.map(fn col -> Regex.replace(~r{\\\|}, col, "|") end)
   end
 end
 
