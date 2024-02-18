@@ -87,7 +87,8 @@ defmodule EarmarkParser.AstRenderer do
           emit(
             "h#{level}",
             context1.value |> Enum.reverse(),
-            attrs)
+            attrs
+          )
         ]
       end
     )
@@ -107,32 +108,26 @@ defmodule EarmarkParser.AstRenderer do
   #########
   # Table #
   #########
+
+  defp render_block(
+         %Block.Table{lnb: lnb, header: nil, rows: rows, alignments: aligns, attrs: attrs},
+         context,
+         _loose?
+       ) do
+    {rows_ast, context} = render_rows(rows, lnb, aligns, context)
+    prepend(clear_value(context), emit("table", rows_ast, attrs))
+  end
+
   defp render_block(
          %Block.Table{lnb: lnb, header: header, rows: rows, alignments: aligns, attrs: attrs},
          context,
          _loose?
        ) do
-         header_offset =
-           if header do
-             2 # 1 line for header text, 1 line for header separator
-           else
-             0
-           end
-
-    {rows_ast, context1} = render_rows(rows, lnb + header_offset, aligns, context)
-
-    {rows_ast1, context2} =
-      if header do
-        {header_ast, context3} = render_header(header, lnb, aligns, context1)
-        {[header_ast | rows_ast], context3}
-      else
-        {rows_ast, context1}
-      end
-
-    prepend(
-      clear_value(context2),
-      emit("table", rows_ast1, attrs)
-    )
+    header_offset = 2
+    {rows_ast, context} = render_rows(rows, lnb + header_offset, aligns, context)
+    {header_ast, context} = render_header(header, lnb, aligns, context)
+    {rows_ast, context} = {[header_ast | rows_ast], context}
+    prepend(clear_value(context), emit("table", rows_ast, attrs))
   end
 
   ########
@@ -188,6 +183,7 @@ defmodule EarmarkParser.AstRenderer do
          _loose?
        ) do
     context1 = render(blocks, clear_value(context), loose?)
+
     prepend(
       context,
       emit("li", context1.value, attrs),
@@ -199,15 +195,16 @@ defmodule EarmarkParser.AstRenderer do
   # Text #
   ########
 
-  defp render_block(%Block.Text{line: line, lnb: lnb}, context, loose?) do
-    context1 = convert(line, lnb, clear_value(context))
-    ast = context1.value |> Enum.reverse()
+  defp render_block(%Block.Text{line: line, lnb: lnb}, context, true = _loose?) do
+    context = convert(line, lnb, clear_value(context))
+    ast = context.value |> Enum.reverse()
+    modify_value(context, fn _ -> [emit("p", ast)] end)
+  end
 
-    if loose? do
-      modify_value(context1, fn _ -> [emit("p", ast)] end)
-    else
-      modify_value(context1, fn _ -> ast end)
-    end
+  defp render_block(%Block.Text{line: line, lnb: lnb}, context, false = _loose?) do
+    context = convert(line, lnb, clear_value(context))
+    ast = context.value |> Enum.reverse()
+    modify_value(context, fn _ -> ast end)
   end
 
   ##################
@@ -215,13 +212,14 @@ defmodule EarmarkParser.AstRenderer do
   ##################
 
   @empty_set MapSet.new([])
-  defp render_block(%Block.FnList{}=fn_list, context, _loose?) do
+  defp render_block(%Block.FnList{} = fn_list, context, _loose?) do
     if MapSet.equal?(context.referenced_footnote_ids, @empty_set) do
       context
     else
       render_defined_fns(fn_list, context)
     end
   end
+
   #######################################
   # Isolated IALs are rendered as paras #
   #######################################
@@ -261,7 +259,6 @@ defmodule EarmarkParser.AstRenderer do
       start1 -> start1
     end
   end
-
 end
 
 # SPDX-License-Identifier: Apache-2.0
