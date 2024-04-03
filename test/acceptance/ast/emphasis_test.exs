@@ -28,6 +28,14 @@ defmodule Acceptance.Ast.EmphasisTest do
       assert as_ast(markdown) == {:ok, [ast], messages}
     end
 
+    test "important inline code" do
+      markdown = "_`_foo_`bar_"
+      ast      = p(em([inline_code("_foo_"), "bar"]))
+      messages = []
+
+      assert as_ast(markdown) == {:ok, [ast], messages}
+    end
+
     test "dont get confused" do
       markdown = "_foo*\n"
       ast      = p("_foo*")
@@ -95,6 +103,30 @@ defmodule Acceptance.Ast.EmphasisTest do
     test "one is not strong enough" do
       markdown = "foo*\n"
       ast      = p("foo*")
+      messages = []
+
+      assert as_ast(markdown) == {:ok, [ast], messages}
+    end
+
+    test "strong and stronger?" do
+      markdown = "***foo***"
+      ast      = p(em(strong("foo")))
+      messages = []
+
+      assert as_ast(markdown) == {:ok, [ast], messages}
+    end
+
+    test "the align to right problem" do
+      markdown = "___foo__"
+      ast      = p(["_", strong("foo")])
+      messages = []
+
+      assert as_ast(markdown) == {:ok, [ast], messages}
+    end
+
+    test "what to do here" do
+      markdown = "_____foo_____"
+      ast      = p(strong(em(strong("foo"))))
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}

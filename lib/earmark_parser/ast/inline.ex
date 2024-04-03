@@ -6,6 +6,7 @@ defmodule EarmarkParser.Ast.Inline do
   alias Parser.LinkParser
 
   import EarmarkParser.Ast.Emitter
+  import EarmarkParser.Ast.Inline.Converters.CodeConverter
   import EarmarkParser.Ast.Renderer.AstWalker
   import EarmarkParser.Helpers
   import EarmarkParser.Helpers.AttrParser
@@ -207,11 +208,15 @@ defmodule EarmarkParser.Ast.Inline do
     end
   end
 
-  @emphasis_rgx ~r{\A\b_((?:__|[\s\S])+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)}
+  @emphasis_rgx ~r{\A_((?:__|[\s\S])+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)}
   def converter_for_em({src, _, _, _} = conv_tuple) do
-    if match = Regex.run(@emphasis_rgx, src) do
+    if match = _parse_em(src) do
       _converter_for_simple_tag(conv_tuple, match, "em")
     end
+  end
+
+  defp _parse_em(src) do
+    Regex.run(@emphasis_rgx, src) |> IO.inspect() 
   end
 
   @sub_rgx ~r{\A~(?=\S)(.*?\S)~}
@@ -256,30 +261,35 @@ defmodule EarmarkParser.Ast.Inline do
 
   def converter_for_math_display(_), do: nil
 
-  @squash_ws ~r{\s+}
-  @code ~r{^
-  (`+)		# $1 = Opening run of `
-  (.+?)		# $2 = The code block
-  (?<!`)
-  \1			# Matching closer
-  (?!`)
-}xs
+  # @squash_ws ~r{\s+}
+  # @code ~r{^
+  # (`+)		# $1 = Opening run of `
+  # (.+?)		# $2 = The code block
+  # (?<!`)
+  # \1			# Matching closer
+  # (?!`)
+# }xs
   def converter_for_code({src, lnb, context, use_linky?}) do
-    if match = Regex.run(@code, src) do
-      [match, _, content] = match
-      # Commonmark
-      content1 =
-        content
-        |> String.trim()
-        |> String.replace(@squash_ws, " ")
-
-      out = codespan(content1, lnb)
-      {behead(src, match), lnb, prepend(context, out), use_linky?}
+    case convert_code(src) do
+      {content, rest} -> out = codespan(content, lnb)
+        {rest, lnb, prepend(context, out), use_linky?}
+      nil -> nil
     end
+
+    # if match = Regex.run(@code, src) do
+    #   [match, _, content] = match
+    #   # Commonmark
+    #   content1 =
+    #     content
+    #     |> String.trim()
+    #     |> String.replace(@squash_ws, " ")
+
+    #   out = codespan(content1, lnb)
+    #   {behead(src, match), lnb, prepend(context, out), use_linky?}
+    # end
   end
 
   @inline_ial ~r<^\s*\{:\s*(.*?)\s*}>
-
   def converter_for_inline_ial({src, lnb, context, use_linky?}) do
     if match = Regex.run(@inline_ial, src) do
       [match, ial] = match
