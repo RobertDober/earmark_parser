@@ -17,10 +17,12 @@ defmodule EarmarkParser.Ast.Inline do
   def convert(src, lnb, context)
 
   def convert(list, lnb, context) when is_list(list) do
+    # IO.inspect(context.rules)
     _convert(Enum.join(list, "\n"), lnb, context, true)
   end
 
   def convert(src, lnb, context) do
+    # IO.inspect(context.rules)
     _convert(src, lnb, context, true)
   end
 

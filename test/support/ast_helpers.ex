@@ -38,32 +38,5 @@ defmodule Support.AstHelpers do
   defp _content(s) when is_binary(s), do: [s]
   defp _content(c), do: c
 
-  defp _delta_between(result_ast, expected_ast, delta \\ [])
-  defp _delta_between([], [], delta), do: delta |> List.flatten
-  defp _delta_between([result|result_rest], [expected|expected_rest], delta) do
-    delta1 = _delta_between(result, expected)
-    _delta_between(result_rest, expected_rest, [delta1, delta])
-  end
-  defp _delta_between({rtag, ratts, rcont, rmeta}, {etag, eatts, econt, emeta}, _delta) do
-    inner_delta = _delta_between(rcont, econt)
-    outer_delta = [{rtag, etag}, {rmeta, emeta}, {ratts|>Enum.into(%{}), eatts|>Enum.into(%{})}]
-                  |> Enum.reduce([], fn {a, b}, d ->
-                    if a == b do
-                      d
-                    else
-                      [{a,b}, d]
-                    end
-                  end)
-    [outer_delta, inner_delta]
-  end
-  defp _delta_between(result, expected, delta) do
-    if result == expected do
-      delta 
-    else
-      [{result, expected}, delta]
-    end
-  end
-
-
 end
 # SPDX-License-Identifier: Apache-2.0
