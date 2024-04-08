@@ -92,7 +92,6 @@ defmodule EarmarkParser.Context do
   end
 
   #                 ( "[" .*? "]"n or anything w/o {"[", "]"}* or "]" ) *
-  @link_text ~S{(?:\[[^]]*\]|[^][]|\])*}
   # "
   # @href ~S{\s*<?(.*?)>?(?:\s+['"](.*?)['"])?\s*}
 
@@ -135,9 +134,6 @@ defmodule EarmarkParser.Context do
       else
         []
       end
-
-    footnote = if options.footnotes, do: ~r{^\[\^(#{@link_text})\]}, else: ~r{\z\A}
-    rule_updates = Keyword.merge(rule_updates, footnote: footnote)
 
     Keyword.merge(basic_rules(), rule_updates)
     |> Enum.into(%{})

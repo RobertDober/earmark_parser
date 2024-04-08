@@ -150,26 +150,12 @@ defmodule EarmarkParser.Ast.Inline do
     end
   end
 
+  @link_text ~S{(?:\[[^]]*\]|[^][]|\])*}
   def converter_for_footnote({src, lnb, context, use_linky?}) do
-    if use_linky? do
-      case Regex.run(context.rules.footnote, src) do
-        [match, id] ->
-          case footnote_link(context, match, id) do
-            {:ok, out} ->
-              {behead(src, match), lnb, _prepend_footnote(context, out, id), use_linky?}
-
-            _ ->
-              converter_for_text(
-                {src, lnb,
-                 Message.add_message(
-                   context,
-                   {:error, lnb, "footnote #{id} undefined, reference to it ignored"}
-                 ), use_linky?}
-              )
-          end
-
-        _ ->
-          nil
+    if use_linky? && context.options.footnotes do
+      case Regex.run(~r{^\[\^(#{@link_text})\]}, src) do
+        [match, id] -> convert_footnote(match, id, src, lnb, context, use_linky?)
+        _ -> nil
       end
     end
   end
@@ -399,13 +385,27 @@ defmodule EarmarkParser.Ast.Inline do
 
   defp reference_link(context, match, alt_text, id, lnb) do
     id = id |> replace(~r{\s+}, " ") |> String.downcase()
-
     case Map.fetch(context.links, id) do
       {:ok, link} ->
         {:ok, output_image_or_link(context, match, alt_text, link.url, link.title, lnb)}
 
       _ ->
         nil
+    end
+  end
+
+  defp convert_footnote(match, id, src, lnb, context, use_linky?) do
+    case footnote_link(context, match, id) do
+      {:ok, out} ->
+        {behead(src, match), lnb, _prepend_footnote(context, out, id), use_linky?}
+      _ ->
+        converter_for_text(
+          {src, lnb,
+           Message.add_message(
+             context,
+             {:error, lnb, "footnote #{id} undefined, reference to it ignored"}
+           ), use_linky?}
+        )
     end
   end
 

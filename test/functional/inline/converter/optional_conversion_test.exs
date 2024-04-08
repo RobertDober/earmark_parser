@@ -1,4 +1,4 @@
-defmodule Test.Functional.Inline.Converter.SingleConversionTest do
+defmodule Test.Functional.Inline.Converter.OptionalConversionTest do
   use Support.InlineConverterCase
 
   describe "line breaks:" do
