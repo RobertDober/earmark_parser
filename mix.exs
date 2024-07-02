@@ -6,7 +6,7 @@ defmodule EarmarkParser.MixProject do
 
   @deps [
     {:credo, "~> 1.7.5", only: [:dev]},
-    {:dialyxir, "~> 1.4.1", only: [:dev]},
+    {:dialyxir, "~> 1.4.1", only: [:dev], runtime: false},
     {:earmark_ast_dsl, "~> 0.3.7", only: [:test]},
     {:excoveralls, "~> 0.14.4", only: [:test]},
     {:extractly, "~> 0.5.3", only: [:dev]},
