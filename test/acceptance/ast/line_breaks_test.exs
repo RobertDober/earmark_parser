@@ -37,9 +37,9 @@ defmodule Acceptance.Ast.LineBreaksTest do
       assert as_ast(markdown) == {:ok, ast, messages}
     end
     test "only one line" do
-      markdown = "* The lonly  "
+      markdown = "* The lonely  "
       ast      = [
-        ul(li("The lonly  "))
+        ul(li("The lonely  "))
       ]
       messages = []
 

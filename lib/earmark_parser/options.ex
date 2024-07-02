@@ -129,7 +129,7 @@ defmodule EarmarkParser.Options do
 
   def normalize(options), do: struct(__MODULE__, options) |> normalize()
 
-  defp _deprecate_old_messages(opitons)
+  defp _deprecate_old_messages(options)
   defp _deprecate_old_messages(%__MODULE__{messages: %MapSet{}} = options), do: options
 
   defp _deprecate_old_messages(%__MODULE__{} = options) do

@@ -188,8 +188,8 @@ defmodule Acceptance.Ast.LinksImages.PureLinksTest do
     end
   end
 
-  describe "unicode charecters" do
-    test "support non alpha-numeric unicode charecters" do
+  describe "unicode characters" do
+    test "support non alphanumeric unicode characters" do
       markdown = "http://github.com?foo=😀"
       ast      = p([tag("a", ["http://github.com?foo=😀"], [{"href", "http://github.com?foo=#{URI.encode("😀")}"}])])
       messages = []
