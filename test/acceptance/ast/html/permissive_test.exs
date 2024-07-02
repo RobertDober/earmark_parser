@@ -27,7 +27,7 @@ defmodule Acceptance.Ast.Html.PermissiveTest do
     # Needs a fix with issue [#326](https://github.com/pragdave/earmark/issues/326)
     test "mixture of tags (was regtest #103)" do 
       markdown = "<x>a\n<y></y>\n<y>\n<z>\n</z>\n<z>\n</x>"
-      ast      = [{"x", '', ["a", "<y></y>", "<y>", "<z>", "</z>", "<z>"], @verbatim}]
+      ast      = [{"x", ~c"", ["a", "<y></y>", "<y>", "<z>", "</z>", "<z>"], @verbatim}]
       messages = Enum.zip([1, 3, 6], ~w[x y z])
                  |> Enum.map(fn {lnb, tag} -> {:warning, lnb, "Failed to find closing <#{tag}>"} end)
 
