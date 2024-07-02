@@ -5,6 +5,8 @@
 
 - [Parsing HTML]
 
+## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.41 2024-
+
 ## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.40 2024-07-02
 
 - **Gladly** following [`ex_doc`](https://github.com/elixir-lang/ex_doc/blob/main/mix.exs) to drop support for
