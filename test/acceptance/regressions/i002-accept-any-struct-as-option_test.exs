@@ -16,7 +16,7 @@ defmodule MyStruct do
 
     test "or activated" do
       ast =
-        [{"p", '', ["see ", {"a", [{"href", "https://my.site.com"}], ["https://my.site.com"], %{}}], %{}}]
+        [{"p", ~c"", ["see ", {"a", [{"href", "https://my.site.com"}], ["https://my.site.com"], %{}}], %{}}]
 
       assert as_ast(@markdown, %MyStruct{pure_links: true}) == {:ok, ast, []}
     end
