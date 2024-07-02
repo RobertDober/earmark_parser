@@ -7,11 +7,22 @@
 
 ## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.40 2024-07-02
 
+- More Github actions with fail-on-warning to avoid the need for fixes like the one below :blush:
+
 - [Fixed warning because of bad config of using dialxir](https://github.com/RobertDober/earmark_parser/pull/150)
     Kudos to [Jan Pieper](https://github.com/janpieper)
 
+- [More typespecs and nicer formatting](https://github.com/RobertDober/earmark_parser/pull/146)
+    Kudos to [Brad Hanks](https://github.com/bradhanks)
+
+- [Pattern matching related refactoring](https://github.com/RobertDober/earmark_parser/pull/145)
+    Kudos to [Brad Hanks](https://github.com/bradhanks)
+
 ## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.39 2023-11-25
-:w
+
+- [Optional Support for Math Syntax](https://github.com/RobertDober/earmark_parser/pull/142)
+    Kudos to [Jonatan Kłosko](https://github.com/jonatanklosko)
+
 ## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.38 2023-11-10
 
 - [Add metadata line to inline code spans](https://github.com/RobertDober/earmark_parser/pull/140)
