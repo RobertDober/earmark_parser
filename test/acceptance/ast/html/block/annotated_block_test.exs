@@ -197,9 +197,9 @@ defmodule Acceptance.Ast.Html.Block.AnnotatedBlockTest do
     end
 
     test "self closing block elements close para but only at BOL, atts do not matter" do
-      markdown = "alpha\ngamma<div class=\"fourty two\"/>beta"
+      markdown = "alpha\ngamma<div class=\"forty two\"/>beta"
       # SIC just do not write that markup
-      ast = [p("alpha\ngamma<div class=\"fourty two\"/>beta")]
+      ast = [p("alpha\ngamma<div class=\"forty two\"/>beta")]
       messages = []
 
       assert as_ast(markdown, annotations: @annotations) == {:ok, ast, messages}
@@ -233,9 +233,9 @@ defmodule Acceptance.Ast.Html.Block.AnnotatedBlockTest do
     end
 
     test "block elements close para but only at BOL, atts do not matter" do
-      markdown = "alpha\ngamma<div class=\"fourty two\"></div>beta"
+      markdown = "alpha\ngamma<div class=\"forty two\"></div>beta"
       # SIC just do not write that markup
-      ast = [p("alpha\ngamma<div class=\"fourty two\"></div>beta")]
+      ast = [p("alpha\ngamma<div class=\"forty two\"></div>beta")]
       messages = []
 
       assert as_ast(markdown, annotations: @annotations) == {:ok, ast, messages}

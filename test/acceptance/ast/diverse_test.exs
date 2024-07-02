@@ -4,7 +4,7 @@ defmodule Acceptance.Ast.DiverseTest do
   import EarmarkAstDsl
 
   describe "etc" do
-    test "entiy" do
+    test "entity" do
       markdown = "`f&ouml;&ouml;`\n"
       ast      = p(tag("code", "f&ouml;&ouml;", [class: "inline"], %{line: 1}))
       messages = []

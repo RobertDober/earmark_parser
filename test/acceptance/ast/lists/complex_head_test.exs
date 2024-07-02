@@ -102,7 +102,7 @@ defmodule Test.Acceptance.Ast.Lists.ComplexHeadTest do
         ul(li(["a", blockquote("b\nc\nd")]))]
       assert ast_from_md(markdown) == expected
     end
-    test "headline with negative indent stop the list/item definitely, but we need to aligne correctly" do
+    test "headline with negative indent stop the list/item definitely, but we need to align correctly" do
       markdown = """
       - a
           ## b

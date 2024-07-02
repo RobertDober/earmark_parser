@@ -20,7 +20,7 @@ defmodule EarmarkParserHelpersTests.LinkParserTest do
     end
 
     test "text part: complex imbrication" do
-      assert parse_link("[pre[iniside]suff]()") == {~s<[pre[iniside]suff]()>, ~s<pre[iniside]suff>, ~s<>, nil, :link}
+      assert parse_link("[pre[inside]suff]()") == {~s<[pre[inside]suff]()>, ~s<pre[inside]suff>, ~s<>, nil, :link}
     end
 
     test "text part: missing closing brackets" do
