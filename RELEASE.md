@@ -7,6 +7,15 @@
 
 ## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.41 2024-
 
+- [Fixed GHA to catch warnings in tests](https://github.com/RobertDober/earmark_parser/pull/153)
+    Kudos to [Kian-Meng Ang](https://github.com/kianmeng)
+
+- [Fixed warnings in tests](https://github.com/RobertDober/earmark_parser/pull/152)
+    Kudos to [Kian-Meng Ang](https://github.com/kianmeng)
+
+- [Fortunately there are folks who can spell **and** type](https://github.com/RobertDober/earmark_parser/pull/151)
+    Kudos to [Kian-Meng Ang](https://github.com/kianmeng)
+
 ## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.40 2024-07-02
 
 - **Gladly** following [`ex_doc`](https://github.com/elixir-lang/ex_doc/blob/main/mix.exs) to drop support for
