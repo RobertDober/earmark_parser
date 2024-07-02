@@ -58,7 +58,8 @@ jobs:
         env:
           CC: gcc-10
           CXX: g++-10
-      - run: mix test
+      - run: mix test --warnings-as-errors
+        if: matrix.warnings_as_errors
         env:
           CC: gcc-10
           CXX: g++-10
@@ -67,4 +68,3 @@ jobs:
 # They are provided by a third-party and are governed by
 # separate terms of service, privacy policy, and support
 # documentation.
-
