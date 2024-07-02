@@ -29,6 +29,12 @@ jobs:
           - elixir: 1.14.x
             otp: 25
             os: ubuntu-latest
+          - elixir: 1.15.x
+            otp: 25
+            os: ubuntu-latest
+          - elixir: 1.16.x
+            otp: 26
+            os: ubuntu-latest
           # - elixir: 1.15.x
           #   otp: 26
           #   os: ubuntu-latest

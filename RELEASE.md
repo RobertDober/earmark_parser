@@ -5,6 +5,13 @@
 
 - [Parsing HTML]
 
+## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.40 2024-07-02
+
+- [Fixed warning because of bad config of using dialxir](https://github.com/RobertDober/earmark_parser/pull/150)
+    Kudos to [Jan Pieper](https://github.com/janpieper)
+
+## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.39 2023-11-25
+:w
 ## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.38 2023-11-10
 
 - [Add metadata line to inline code spans](https://github.com/RobertDober/earmark_parser/pull/140)
