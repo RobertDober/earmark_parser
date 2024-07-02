@@ -18,7 +18,7 @@ defmodule EarmarkParser.MixProject do
       app: :earmark_parser,
       version: @version,
       compilers: [:leex, :yecc] ++ Mix.compilers(),
-      elixir: "~> 1.11",
+      elixir: "~> 1.13",
       elixirc_paths: elixirc_paths(Mix.env()),
       deps: @deps,
       description: "AST parser and generator for Markdown",

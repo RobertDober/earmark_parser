@@ -7,6 +7,9 @@
 
 ## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.40 2024-07-02
 
+- **Gladly** following [`ex_doc`](https://github.com/elixir-lang/ex_doc/blob/main/mix.exs) to drop support for
+  Elixir versions < 1.13
+
 - More Github actions with fail-on-warning to avoid the need for fixes like the one below :blush:
 
 - [Fixed warning because of bad config of using dialxir](https://github.com/RobertDober/earmark_parser/pull/150)
