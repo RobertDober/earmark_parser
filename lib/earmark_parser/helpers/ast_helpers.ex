@@ -25,12 +25,15 @@ defmodule EarmarkParser.Helpers.AstHelpers do
   end
 
   @doc false
-  def augment_tag_with_ial(tags, ial)
-  def augment_tag_with_ial([{t, a, c, m}|tags], atts) do
+  def augment_tag_with_ial(tags, ial, src)
+  def augment_tag_with_ial([{t, a, c, m}|tags], atts, _src) do
     [{t, merge_attrs(a, atts), c, m}|tags]
   end
-  def augment_tag_with_ial([], _atts) do
+  def augment_tag_with_ial([], _atts, _src) do
     []
+  end
+  def augment_tag_with_ial([any], _atts, src) do
+    [any <> src]
   end
 
   @doc false
