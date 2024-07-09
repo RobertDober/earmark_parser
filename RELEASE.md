@@ -5,7 +5,9 @@
 
 - [Parsing HTML]
 
-## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.41 2024-
+## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.41 2024-07-09
+
+- [Fixed bug #154 parser crashes on inline ial after escaped char](https://github.com/RobertDober/earmark_parser/issues/154) 
 
 - [Fixed GHA to catch warnings in tests](https://github.com/RobertDober/earmark_parser/pull/153)
     Kudos to [Kian-Meng Ang](https://github.com/kianmeng)
