@@ -12,20 +12,20 @@ defmodule Acceptance.Ast.Html.Block.AnnotatedBlockTest do
         "<table>\n  <tr>\n    <td>\n           hi\n    </td>\n  </tr>\n</table>\n\nokay.\n"
 
       ast = [
-        {"table", [], ["  <tr>", "    <td>", "           hi", "    </td>", "  </tr>"], @verbatim},
+        {"table", [], ["  <tr>\n    <td>\n           hi\n    </td>\n  </tr>"], @verbatim},
         p("okay.")
       ]
 
       messages = []
 
-      assert as_ast(markdown, annotations: @annotations) == {:ok, ast, messages}
+      assert as_ast(markdown, annotations: ~r{\*:}) == {:ok, ast, messages}
     end
     test "tables are just tables again (or was that mountains?)" do
       markdown =
         "<table> *: my_table\n  <tr>\n    <td>\n           hi\n    </td>\n  </tr>\n</table>\n\nokay.\n"
 
       ast = [
-        {"table", [], ["  <tr>", "    <td>", "           hi", "    </td>", "  </tr>"], annotated(@verbatim, "*: my_table")},
+        {"table", [], ["  <tr>\n    <td>\n           hi\n    </td>\n  </tr>"], annotated(@verbatim, "*: my_table")},
         p("okay.")
       ]
 
@@ -36,14 +36,15 @@ defmodule Acceptance.Ast.Html.Block.AnnotatedBlockTest do
 
     test "div (ine?) -- non-regression" do
       markdown = "<div>\n  *hello*\n         <foo><a>\n</div>\n"
-      ast = [vtag("div", ["  *hello*", "         <foo><a>"])]
+      ast = [vtag("div", ["  *hello*\n         <foo><a>"])]
       messages = []
 
       assert as_ast(markdown, annotations: @annotations) == {:ok, ast, messages}
     end
+
     test "div (ine?)" do
       markdown = "<div>*:my-div\n  *hello*\n         <foo><a>\n</div>\n"
-      ast = [vtag_annotated("div", ["  *hello*", "         <foo><a>"], "*:my-div")]
+      ast = [vtag_annotated("div", ["  *hello*\n         <foo><a>"], "*:my-div")]
       messages = []
 
       assert as_ast(markdown, annotations: @annotations) == {:ok, ast, messages}
@@ -66,7 +67,7 @@ defmodule Acceptance.Ast.Html.Block.AnnotatedBlockTest do
 
     test "even block elements -- non-regression" do
       markdown = "<div>\n```elixir\ndefmodule Mine do\n```\n</div>"
-      ast = [vtag("div", ["```elixir", "defmodule Mine do", "```"])]
+      ast = [vtag("div", ["```elixir\ndefmodule Mine do\n```"])]
       messages = []
 
       assert as_ast(markdown, annotations: @annotations) == {:ok, ast, messages}
@@ -74,7 +75,7 @@ defmodule Acceptance.Ast.Html.Block.AnnotatedBlockTest do
 
     test "even non-closed block elements" do
       markdown = "<div>\n```elixir\ndefmodule Mine do\n</div>"
-      ast = [vtag("div", ["```elixir", "defmodule Mine do"])]
+      ast = [vtag("div", ["```elixir\ndefmodule Mine do"])]
       messages = []
 
       assert as_ast(markdown, annotations: @annotations) == {:ok, ast, messages}
@@ -82,7 +83,7 @@ defmodule Acceptance.Ast.Html.Block.AnnotatedBlockTest do
 
     test "even block elements" do
       markdown = "<div>\n```elixir\ndefmodule Mine do\n```\n</div>*:at_the_end"
-      ast = [vtag_annotated("div", ["```elixir", "defmodule Mine do", "```"], "*:at_the_end")]
+      ast = [vtag_annotated("div", ["```elixir\ndefmodule Mine do\n```"], "*:at_the_end")]
       messages = []
 
       assert as_ast(markdown, annotations: @annotations) == {:ok, ast, messages}
@@ -260,7 +261,7 @@ defmodule Acceptance.Ast.Html.Block.AnnotatedBlockTest do
 
     test "this is not closing" do
       markdown = "<div>\nline\n</hello></div>"
-      ast = [{"div", [], ["line", "</hello></div>"], @verbatim}]
+      ast = [{"div", [], ["line\n</hello></div>"], @verbatim}]
       messages = [{:warning, 1, "Failed to find closing <div>"}]
 
       assert as_ast(markdown, annotations: @annotations) == {:error, ast, messages}
@@ -268,7 +269,7 @@ defmodule Acceptance.Ast.Html.Block.AnnotatedBlockTest do
 
     test "therefore the div continues" do
       markdown = "<div>\nline\n</hello></div>\n</div>"
-      ast = [vtag("div", ["line", "</hello></div>"])]
+      ast = [vtag("div", ["line\n</hello></div>"])]
       messages = []
 
       assert as_ast(markdown, annotations: @annotations) == {:ok, ast, messages}

@@ -5,14 +5,6 @@ defmodule EarmarkParser.LineScanner do
 
   alias EarmarkParser.{Helpers, Line, Options}
 
-  @spec fence_delimiter(String.t()) :: maybe(String.t())
-  def fence_delimiter(line) do
-    case type_of({line, 0}, true) do
-      %Line.Fence{delimiter: delimiter} -> delimiter
-      _ -> nil
-    end
-  end
-
   # This is the re that matches the ridiculous "[id]: url title" syntax
 
   @id_title_part ~S"""
@@ -22,8 +14,6 @@ defmodule EarmarkParser.LineScanner do
           | \( (.*) \)         # in parens
         )
   """
-
-  @id_title_part_re ~r[^\s*#{@id_title_part}\s*$]x
 
   @id_re ~r'''
      ^\[(.+?)\]:            # [someid]:
@@ -54,14 +44,6 @@ defmodule EarmarkParser.LineScanner do
   @doc false
   def void_tag?(tag), do: Regex.match?(@void_tag_rgx, "<#{tag}>")
 
-  @doc false
-  # We want to add the original source line into every
-  # line we generate. We also need to expand tabs before
-  # proceeding
-
-  # (_,atom() | tuple() | #{},_) -> ['Elixir.B']
-  def scan_lines(lines, options \\ %Options{}, recursive \\ false)
-
   def scan_lines(lines, options, recursive) do
     _lines_with_count(lines, options.line - 1)
     |> _with_lookahead(options, recursive)
@@ -74,16 +56,6 @@ defmodule EarmarkParser.LineScanner do
   def type_of({line, lnb}, options = %Options{annotations: annotations}, recursive) do
     {line1, annotation} = line |> Helpers.expand_tabs() |> Helpers.remove_line_ending(annotations)
     %{_type_of(line1, options, recursive) | annotation: annotation, lnb: lnb}
-  end
-
-  @doc false
-  # Used by the block parser to test if a line following an IdDef
-  # is a possible title
-  def matches_id_title(content) do
-    case Regex.run(@id_title_part_re, content) do
-      [_, title] -> title
-      _ -> nil
-    end
   end
 
   defp _type_of(line, options = %Options{}, recursive) do
@@ -118,12 +90,12 @@ defmodule EarmarkParser.LineScanner do
           content: String.trim(heading),
           indent: 0,
           ial: ial,
-          line: stripped_line
+          line: line
         }
 
       match = lt_four? && Regex.run(~r/\A>\s?(.*)/, content) ->
         [_, quote] = match
-        %Line.BlockQuote{content: quote, indent: indent, ial: ial, line: stripped_line}
+        %Line.BlockQuote{content: quote, indent: indent, ial: ial, line: line}
 
       match = Regex.run(@indent_re, line) ->
         [_, spaces, more_spaces, rest] = match
@@ -160,7 +132,7 @@ defmodule EarmarkParser.LineScanner do
         [_, tag] = match
         %Line.HtmlOneLine{tag: tag, content: line, indent: 0, line: line}
 
-      match = !recursive && Regex.run(~r/^<([-\w]+?)(?:\s.*)?>/, line) ->
+      match = !recursive && Regex.run(~r/\A < ([-\w]+?) (?:\s.*)? >/x, line) ->
         [_, tag] = match
         %Line.HtmlOpenTag{tag: tag, content: line, indent: 0, line: line}
 
@@ -294,7 +266,7 @@ defmodule EarmarkParser.LineScanner do
   defp _with_lookahead([line_lnb | lines], options, recursive) do
     case type_of(line_lnb, options, recursive) do
       %Line.Fence{delimiter: delimiter, indent: 0} = fence when recursive ->
-        stop = ~r/\A(#{delimiter})\s*([^`\s]*)\s*\z/u
+        stop = ~r/\A (?: #{delimiter} ) \s* ([^`\s]*) \s* \z/xu
         [fence | _lookahead_until_match(lines, stop, options, recursive)]
 
       %Line.HtmlComment{complete: false} = html_comment ->

@@ -5,6 +5,9 @@ defmodule HelpersTest do
   doctest EarmarkParser.Helpers, import: true
 
   describe "expand_tabs" do
+    test "expand_tab spaces only(1)" do
+      assert expand_tabs(" ") == " "
+    end
     test "expand_tab spaces only" do
       assert expand_tabs("   ") == "   "
     end
@@ -13,8 +16,14 @@ defmodule HelpersTest do
       assert expand_tabs("\t\t") == "        "
     end
 
-    test "expand_tab mixed" do
+    test "expand_tab mixed, 1 space" do
       assert expand_tabs(" \t ") == "     "
+    end
+    test "expand_tab mixed, 2 spaces" do
+      assert expand_tabs("  \t ") == "     "
+    end
+    test "expand_tab mixed, 3 spaces" do
+      assert expand_tabs("   \t ") == "     "
     end
   end
 

@@ -99,8 +99,7 @@ defmodule Test.Acceptance.Ast.Lists.ComplexHeadTest do
        > d
       """
       expected = [
-        ul(li(["a", blockquote("b\nc")])),
-        blockquote("d")]
+        ul(li(["a", blockquote("b\nc\nd")]))]
       assert ast_from_md(markdown) == expected
     end
     test "headline with negative indent stop the list/item definitely, but we need to aligne correctly" do
@@ -168,7 +167,7 @@ defmodule Test.Acceptance.Ast.Lists.ComplexHeadTest do
       - a
       > b
       """
-      expected = [ ul("a"), blockquote("b")]
+      expected = [ ul(li(["a", blockquote("b")]))]
       assert ast_from_md(markdown) == expected
     end
     test "header element negatively indexed ends the list" do

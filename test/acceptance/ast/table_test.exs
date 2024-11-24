@@ -2,6 +2,7 @@ defmodule Acceptance.Ast.TableTest do
   use ExUnit.Case, async: true
   import Support.Helpers, only: [as_ast: 1, as_ast: 2, parse_html: 1]
   import EarmarkAstDsl
+  import Support.TableHelpers
 
   describe "complex rendering inside tables:" do
     test "simple table" do
@@ -16,6 +17,23 @@ defmodule Acceptance.Ast.TableTest do
       assert as_ast(markdown) == {:ok, ast, messages}
     end
 
+    test "simple table, explicit left alignment" do
+      markdown = """
+      |a|b|
+      |:-|:-|
+      |c|d|
+      """
+
+      ast = [
+        tag("table", [
+          thead([th("a"), th("b")]),
+          tbody([td("c"), td("d")])
+        ])
+      ]
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
 
     test "table with link with inline ial, no errors" do
       markdown = "|a|b|c|\n|d|e|[link](url){:target=blank}|"

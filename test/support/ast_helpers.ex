@@ -1,6 +1,6 @@
 defmodule Support.AstHelpers do
 
-  def ast_from_md(md) do
+   def ast_from_md(md) do
     with {:ok, ast, []} <- EarmarkParser.as_ast(md), do: ast
   end
 
@@ -33,3 +33,4 @@ defmodule Support.AstHelpers do
   defp _content(c), do: c
 
 end
+# SPDX-License-Identifier: Apache-2.0

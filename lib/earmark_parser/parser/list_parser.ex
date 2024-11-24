@@ -1,273 +1,181 @@
 defmodule EarmarkParser.Parser.ListParser do
-  alias EarmarkParser.{Block, Enum.Ext, Line, LineScanner, Options}
+  alias EarmarkParser.{Block, Line, Options}
+  alias EarmarkParser.Parser.ListInfo
 
   import EarmarkParser.Helpers.StringHelpers, only: [behead: 2]
-  import EarmarkParser.Parser.Helper
+  import EarmarkParser.Helpers.LookaheadHelpers, only: [opens_inline_code: 1, still_inline_code: 2]
   import EarmarkParser.Message, only: [add_message: 2]
+  import ListInfo
 
   @moduledoc false
 
-  def parse_list(
-        [%Line.ListItem{} = li | rest],
-        result,
-        options \\ %Options{},
-        continue_list \\ nil
-      ) do
-    {rest1, header_block, has_body?, list, options1} =
-      _parse_list_header(rest, li, continue_list, options)
+  @not_pending {nil, 0}
 
-    {rest2, list1, body_lines, options2} =
-      if has_body? do
-        parse_up_to({rest1, list, [], options1}, &_parse_body/1, &_end_of_body?/1)
+  def parse_list(lines, result, options \\ %Options{}) do
+    {items, rest, options1} = _parse_list_items_init(lines, [], options)
+    list                    = _make_list(items, _empty_list(items) )
+    {[list|result], rest, options1}
+  end
+
+  defp _parse_list_items_init([item|rest], list_items, options) do
+    options1 = %{options|line: item.lnb}
+    _parse_list_items_start(rest, _make_and_prepend_list_item(item, list_items), new(item, options1))
+  end
+
+  defp _parse_list_items_spaced(input, items, list_info)
+  defp _parse_list_items_spaced(input, items, %{pending: @not_pending}=list_info) do
+    _parse_list_items_spaced_np(input, items, list_info)
+  end
+  defp _parse_list_items_spaced(input, items, list_info) do
+    _parse_list_items_spaced_pdg(input, items, list_info)
+  end
+
+  defp _parse_list_items_spaced_np([%Line.Blank{}|rest], items, list_info) do
+    list_info1 = %{list_info|lines: [""|list_info.lines], options: %{list_info.options|line: list_info.options.line + 1}}
+    _parse_list_items_spaced_np(rest, items, list_info1)
+  end
+  defp _parse_list_items_spaced_np([%Line.Ruler{}|_]=lines, items, list_info) do
+    _finish_list_items(lines, items, false, list_info)
+  end
+  defp _parse_list_items_spaced_np([%Line.ListItem{indent: ii}=item|_]=input, list_items, %{width: w}=list_info)
+    when ii < w do
+      if _starts_list?(item, list_items) do
+        _finish_list_items(input, list_items, false, list_info)
       else
-        {rest1, list, [], options1}
+        {items1, options1} = _finish_list_item(list_items, false, _loose(list_info))
+        _parse_list_items_init(input, items1, options1)
       end
-
-    {continues_list?, list2, options3} =
-      _parse_list_body(rest2, body_lines, header_block, has_body?, li, list1, options2)
-
-    if continues_list? do
-      parse_list(rest2, result, options3, list2)
-    else
-      {[_reverse_list_items(list2) | result], rest2, options3}
-    end
+  end
+  defp _parse_list_items_spaced_np([%Line.Indent{indent: ii}=item|rest], list_items, %{width: w}=list_info)
+    when ii >= w do
+      indented = _behead_spaces(item.line, w)
+      _parse_list_items_spaced(rest, list_items, update_list_info(list_info, indented, item, true))
+  end
+  defp _parse_list_items_spaced_np([%Line.ListItem{}=line|rest], items, list_info) do
+    indented = _behead_spaces(line.line, list_info.width)
+    _parse_list_items_start(rest, items, update_list_info(list_info, indented, line))
+  end
+  # BUG: Still do not know how much to indent here???
+  defp _parse_list_items_spaced_np([%{indent: indent, line: str_line}=line|rest], items, %{width: width}=list_info) when
+    indent >= width
+  do
+    _parse_list_items_spaced(rest, items, update_list_info(list_info, behead(str_line, width), line, true))
+  end
+  defp _parse_list_items_spaced_np(input, items, list_info) do
+    _finish_list_items(input ,items, false, list_info)
   end
 
-  # Helper Parsers {{{
-  # {{{{
-  defp _parse_list_header(rest, li, continue_list, options) do
-    list = continue_list || Block.List.new(li)
-
-    {rest1, has_body?, header_content, options1} =
-      parse_up_to(
-        {rest, Block.List.update_pending_state(list, li), [li.content], options},
-        &_parse_header/1,
-        &_end_of_header?/1
-      )
-
-    {header_block, _, _, _options} = EarmarkParser.Parser.parse(header_content, options1, :list)
-    {rest1, header_block, has_body?, list, options1}
+  defp _parse_list_items_spaced_pdg(input, items, list_info)
+  defp _parse_list_items_spaced_pdg([], items, %{pending: {pending, lnb}}=list_info) do
+    options1 =
+      add_message(list_info.options, {:warning, lnb, "Closing unclosed backquotes #{pending} at end of input"})
+    _finish_list_items([], items, false, %{list_info| options: options1})
+  end
+  defp _parse_list_items_spaced_pdg([line|rest], items, list_info) do
+    indented = _behead_spaces(line.line, list_info.width)
+    _parse_list_items_spaced(rest, items, update_list_info(list_info, indented, line, true))
   end
 
-  # }}}}
 
-  # {{{{
-  defp _parse_list_body(rest, body_lines, header_block, has_body?, li, list, options) do
-    {body_blocks, _, _, options1} = EarmarkParser.Parser.parse_lines(body_lines, options, :list)
-
-    continues_list? = _continues_list?(li, rest)
-    loose? = has_body? && (!Enum.empty?(body_lines) || continues_list?)
-    list_item = Block.ListItem.new(list, header_block ++ body_blocks)
-
-    list1 = %{list | blocks: [list_item | list.blocks], loose?: list.loose? || loose?}
-    {continues_list?, list1, options1}
+  defp _parse_list_items_start(input, list_items, list_info)
+  defp _parse_list_items_start(input, list_items, %{pending: @not_pending}=list_info) do
+    _parse_list_items_start_np(input, list_items, list_info)
+  end
+  defp _parse_list_items_start(input, list_items, list_info) do
+    _parse_list_items_start_pdg(input, list_items, list_info)
   end
 
-  # }}}}
-  # }}}
-
-  # Continues List? {{{
-  # {{{{
-  defp _continues_list?(list, lines)
-  defp _continues_list?(%Line.ListItem{}, []), do: false
-
-  defp _continues_list?(%Line.ListItem{} = li_before, [%Line.ListItem{} = li | _]),
-    do: _continues_list_li?(li_before, li)
-
-  defp _continues_list?(%Line.ListItem{}, _), do: false
-  # }}}}
-
-  # {{{{
-  defp _continues_list_li?(list, li)
-
-  defp _continues_list_li?(%{indent: before_indent}, %{indent: item_indent})
-       when before_indent > item_indent,
-       do: false
-
-  @numbered_bullet_rgx ~r{\A0*(\d+)[\.)]}
-  defp _continues_list_li?(%{bullet: before_bullet}, %{bullet: item_bullet}) do
-    if Regex.match?(@numbered_bullet_rgx, before_bullet) do
-      Regex.match?(@numbered_bullet_rgx, item_bullet)
-    else
-      before_bullet == item_bullet
-    end
+  defp _parse_list_items_start_np(input, list_items, list_info)
+  defp _parse_list_items_start_np([%Line.Blank{}|input], items, list_info) do
+    _parse_list_items_spaced(input, items, prepend_line(list_info, ""))
   end
-
-  # }}}}
-  # }}}
-
-  # Parsing body {{{
-  # {{{{
-  defp _end_of_body?(state)
-
-  defp _end_of_body?({input, %{pending: {pending, lnb}} = list, result, options} = state)
-       when pending != nil do
-    case input do
-      [] ->
-        _finish_body({
-          [],
-          list,
-          result,
-          add_message(
-            options,
-            {:warning, lnb, "Closing unclosed backquotes #{pending} at end of input"}
-          )
-        })
-
-      _ ->
-        {:continue, state}
-    end
+  defp _parse_list_items_start_np([], list_items, list_info) do
+    _finish_list_items([], list_items, true, list_info)
   end
-
-  defp _end_of_body?({[], _, _, _} = state) do
-    _finish_body(state)
+  defp _parse_list_items_start_np([%Line.Ruler{}|_]=input, list_items, list_info) do
+    _finish_list_items(input, list_items, true, list_info)
   end
-
-  defp _end_of_body?({[%Line.Blank{} | _], _list, _result, _options} = state) do
-    {:continue, state}
+  defp _parse_list_items_start_np([%Line.Heading{}|_]=input, list_items, list_info) do
+    _finish_list_items(input, list_items, true, list_info)
   end
-
-  defp _end_of_body?({[%Line.Heading{} | _], _list, _result, _options} = state) do
-    _finish_body(state)
-  end
-
-  defp _end_of_body?(
-         {[%{indent: current_indent} | _], %Block.List{indent: list_indent}, _result, _options} =
-           state
-       )
-       when current_indent < list_indent do
-    _finish_body(state)
-  end
-
-  defp _end_of_body?(state) do
-    {:continue, state}
-  end
-
-  # }}}}
-  # {{{{
-  defp _finish_body({rest, list, result, options}) do
-    {:halt, {rest, list, Enum.reverse(result) |> Enum.drop_while(&Line.blank?/1), options}}
-  end
-
-  # }}}}
-  # {{{{
-  defp _parse_body({[line | rest], list, result, options}) do
-    text = behead(line.line, list.indent)
-    line1 = EarmarkParser.LineScanner.type_of({text, line.lnb}, false)
-    {rest, list, [line1 | result], options}
-  end
-
-  # }}}}
-  # }}}
-
-  # _end_of_header? {{{{
-  defp _end_of_header?(state)
-
-  defp _end_of_header?({input, %{pending: {pending, lnb}} = list, result, options} = state)
-       when pending != nil do
-    case input do
-      [] ->
-        _finish_header(
-          [],
-          false,
-          list.indent,
-          result,
-          add_message(
-            options,
-            {:warning, lnb, "Closing unclosed backquotes #{pending} at end of input"}
-          )
-        )
-
-      _ ->
-        {:continue, state}
-    end
-  end
-
-  defp _end_of_header?({[], list, result, options}) do
-    _finish_header([], false, list.indent, result, options)
-  end
-
-  defp _end_of_header?({[%Line.Blank{} | rest], list, result, options}) do
-    _finish_header(rest, true, list.indent, result, options)
-  end
-
-  defp _end_of_header?({[%{indent: current_indent} | _], %{indent: list_indent}, _, _} = state)
-       when current_indent >= list_indent do
-    {:continue, state}
-  end
-
-  defp _end_of_header?({[%Line.BlockQuote{} | _] = rest, list, result, options}) do
-    _finish_header(rest, false, list.indent, result, options)
-  end
-
-  defp _end_of_header?({[%Line.Heading{} | _] = rest, list, result, options}) do
-    _finish_header(rest, false, list.indent, result, options)
-  end
-
-  defp _end_of_header?({[%Line.Ruler{} | _] = rest, list, result, options}) do
-    _finish_header(rest, false, list.indent, result, options)
-  end
-
-  defp _end_of_header?({[%Line.ListItem{} | _] = rest, list, result, options}) do
-    _finish_header(rest, false, list.indent, result, options)
-  end
-
-  defp _end_of_header?(state) do
-    {:continue, state}
-  end
-
-  # }}}}
-
-  defp _finish_header(rest, has_body?, indent, result, options) do
-    {result_, _} = Ext.reverse_map_reduce(result, nil, &_maybe_indent(&1, &2, indent))
-    {:halt, {rest, has_body?, result_, options}}
-  end
-
-  defp _maybe_indent(line, fence_delimiter, indent) do
-    if fence_delimiter do
-      # check if we have matching delimiter  -> {beheaded, nil}
-      if LineScanner.fence_delimiter(line) == fence_delimiter do
-        {_behead_spaces(line, indent), nil}
+  defp _parse_list_items_start_np([%Line.ListItem{indent: ii}=item|_]=input, list_items, %{width: w}=list_info)
+    when ii < w do
+      if _starts_list?(item, list_items) do
+        _finish_list_items(input, list_items, true, list_info)
       else
-        {line, fence_delimiter}
+        {items1, options1} = _finish_list_item(list_items, true, list_info)
+        _parse_list_items_init(input, items1, options1)
       end
-    else
-      case LineScanner.fence_delimiter(line) do
-        nil -> {_behead_spaces(line, indent), nil}
-        fence_delimiter -> {_behead_spaces(line, indent), fence_delimiter}
-      end
+  end
+  # Slurp in everything else before a first blank line
+  defp _parse_list_items_start_np([%{line: str_line}=line|rest], items, list_info) do
+    indented = _behead_spaces(str_line, list_info.width)
+    _parse_list_items_start(rest, items, update_list_info(list_info, indented, line))
+  end
+
+  defp _parse_list_items_start_pdg(input, items, list_info)
+  defp _parse_list_items_start_pdg([], items, list_info) do
+    _finish_list_items([], items, true, list_info)
+  end
+  defp _parse_list_items_start_pdg([line|rest], items, list_info) do
+    _parse_list_items_start(rest, items, update_list_info(list_info, line.line, line))
+  end
+
+  defp _behead_spaces(str, len) do
+    Regex.replace(~r/\A\s{1,#{len}}/, str, "")
+  end
+
+  # INLINE CANDIDATE
+  defp _empty_list([%Block.ListItem{loose?: loose?, type: type}|_]) do
+    %Block.List{loose?: loose?, type: type}
+  end
+
+  @start_number_rgx ~r{\A0*(\d+)\.}
+  defp _extract_start(%{bullet: bullet}) do
+    case Regex.run(@start_number_rgx, bullet) do
+      nil -> ""
+      [_, "1"] -> ""
+      [_, start] -> ~s{ start="#{start}"}
     end
   end
 
-  # _parse_header {{{{
-  defp _parse_header({[line | rest], list, result, options}) do
-    new_result = [line.line | result]
-    {rest, Block.List.update_pending_state(list, line), new_result, options}
+  defp _finish_list_item([%Block.ListItem{}=item|items], _at_start?, list_info) do
+    {blocks, _, _, options1} = list_info.lines
+                            |> Enum.reverse
+                            |> EarmarkParser.Parser.parse(%{list_info.options|line: item.lnb}, :list)
+    loose1? = _already_loose?(items) || list_info.loose?
+    {[%{item | blocks: blocks, loose?: loose1?}|items], options1}
   end
 
-  # }}}}
-  # }}}
-
-  # Helpers {{{
-  defp _behead_spaces(str, n)
-  defp _behead_spaces(" " <> rst, n) when n > 0, do: _behead_spaces(rst, n - 1)
-  defp _behead_spaces(str, _n), do: str
-
-  defp _reverse_list_items(%Block.List{blocks: list_items} = list) do
-    %{list | blocks: _reverse_list_items_and_losen(list_items, [], list.loose?)}
+  defp _finish_list_items(input, items, at_start?, list_info) do
+    {items1, options1} = _finish_list_item(items, at_start?, list_info)
+    {items1, input, options1}
   end
 
-  # _reverse_list_items_and_losen
-  defp _reverse_list_items_and_losen(list_items, result, list_loose?)
-  defp _reverse_list_items_and_losen([], result, _list_loose?), do: result
-
-  defp _reverse_list_items_and_losen([li | rest], result, list_loose?) do
-    _reverse_list_items_and_losen(
-      rest,
-      [%{li | loose?: li.loose? || list_loose?} | result],
-      list_loose?
-    )
+  defp _make_and_prepend_list_item(%Line.ListItem{bullet: bullet, lnb: lnb, type: type}, list_items) do
+    [%Block.ListItem{bullet: bullet, lnb: lnb, spaced?: false, type: type}|list_items]
   end
+
+  defp _make_list(items, list)
+  defp _make_list([%Block.ListItem{bullet: bullet, lnb: lnb}=item], %Block.List{loose?: loose?}=list) do
+    %{list | blocks: [%{item | loose?: loose?}|list.blocks],
+      bullet: bullet,
+      lnb: lnb,
+      start: _extract_start(item)}
+  end
+  defp _make_list([%Block.ListItem{}=item|rest], %Block.List{loose?: loose?}=list) do
+   _make_list(rest, %{list | blocks: [%{item | loose?: loose?}|list.blocks]})
+  end
+
+  defp _already_loose?(items)
+  defp _already_loose?([]), do: false
+  defp _already_loose?([%{loose?: loose?}|_]), do: loose?
+
+  defp _loose(list_info), do: %{list_info|loose?: true}
+
+  defp _starts_list?(%{bullet: bullet1}, [%Block.ListItem{bullet: bullet2}|_]) do
+    String.last(bullet1) != String.last(bullet2)
+  end
+
 end
-
-#  SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: Apache-2.0

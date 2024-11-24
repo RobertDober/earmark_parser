@@ -13,21 +13,5 @@ defmodule EarmarkParser.Helpers.StringHelpers do
     behead(str, String.length(leading_string))
   end
 
-  @doc """
-    Returns a tuple with the prefix and the beheaded string
-
-        iex> behead_tuple("prefixpostfix", "prefix")
-        {"prefix", "postfix"}
-  """
-  def behead_tuple(str, lead) do
-    {lead, behead(str, lead)}
-  end
-
-  def betail(str, length)
-  def betail(str, length) do
-    str
-    |> String.slice(0, max(0,String.length(str) - length))
-  end
 end
-
 # SPDX-License-Identifier: Apache-2.0

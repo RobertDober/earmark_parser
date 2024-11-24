@@ -94,32 +94,5 @@ defmodule Text  do
     @moduledoc false
     defstruct(annotation: nil, lnb: 0, line: "", indent: -1, content: "")
   end
-
-
-  @type t ::
-          %Blank{}
-          | %Ruler{}
-          | %Heading{}
-          | %BlockQuote{}
-          | %Indent{}
-          | %Fence{}
-          | %HtmlOpenTag{}
-          | %HtmlCloseTag{}
-          | %HtmlComment{}
-          | %HtmlOneLine{}
-          | %IdDef{}
-          | %FnDef{}
-          | %ListItem{}
-          | %SetextUnderlineHeading{}
-          | %TableLine{}
-          | %Ial{}
-          | %Text{}
-
-  @type ts :: list(t)
-
-  def blank?(line)
-  def blank?(%__MODULE__.Blank{}), do: true
-  def blank?(_), do: false
 end
-
 # SPDX-License-Identifier: Apache-2.0

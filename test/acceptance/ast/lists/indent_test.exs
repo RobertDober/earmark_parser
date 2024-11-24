@@ -4,8 +4,39 @@ defmodule Test.Acceptance.Ast.Lists.IndentTest do
   import EarmarkAstDsl
 
   describe "Code Blocks near List Items (#9) https://github.com/RobertDober/earmark_parser/issues/9" do
-    test "use case" do
+    test "simple imbrication, unspaced" do
+      markdown = """
+      * One
 
+        Text1
+          * Inner
+
+        Text2
+      """
+      expected = [
+        ul(
+          li([p("One"), p("Text1"), ul("Inner"), p("Text2")]))
+      ]
+      assert ast_from_md(markdown) == expected
+    end
+    test "simple imbrication, spaced" do
+      markdown = """
+      * One
+
+        Text1
+
+          * Inner
+
+        Text2
+      """
+      expected = [
+        ul(
+          li([p("One"), p("Text1"), ul("Inner"), p("Text2")]))
+      ]
+      assert ast_from_md(markdown) == expected
+    end
+
+    test "use case" do
       markdown = """
       * Header
 
@@ -47,6 +78,48 @@ defmodule Test.Acceptance.Ast.Lists.IndentTest do
         ul(li([p("Outer"), p("Outer Content"), ul("Inner"), p("Still Outer")]))
       ]
       assert ast_from_md(markdown) == expected
+    end
+
+    test "min problem with spaced sublist" do
+      markdown = """
+      * Outer
+
+        * Inner
+
+        Outer Para
+      """
+      expected = [
+        ul(li([p("Outer"), ul("Inner"), p("Outer Para")]))
+      ]
+      assert ast_from_md(markdown) == expected
+    end
+
+    test "min problem with unspaced sublist" do
+      markdown = """
+      * Outer
+        * Inner
+
+        Outer Para
+      """
+      expected = [
+        ul(li([p("Outer"), ul("Inner"), p("Outer Para")]))
+      ]
+      assert ast_from_md(markdown) == expected
+    end
+
+    test "mixed level correct pop up" do
+      markdown = """
+      - 1
+        - 1.1
+            - 1.1.1
+        - 1.2
+      """
+      ast = [
+        ul(li(["1", ul([li(["1.1", ul(li("1.1.1"))]), li("1.2")])]))
+      ]
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "loose example" do

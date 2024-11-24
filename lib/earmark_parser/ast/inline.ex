@@ -1,8 +1,9 @@
 defmodule EarmarkParser.Ast.Inline do
   @moduledoc false
 
-  alias EarmarkParser.{Context, Message}
-  alias EarmarkParser.Helpers.{LinkParser, PureLinkHelpers}
+  alias EarmarkParser.{Context, Message, Parser}
+  alias EarmarkParser.Helpers.PureLinkHelpers
+  alias Parser.LinkParser
 
   import EarmarkParser.Ast.Emitter
   import EarmarkParser.Ast.Renderer.AstWalker
@@ -48,7 +49,6 @@ defmodule EarmarkParser.Ast.Inline do
       converter_for_escape: &converter_for_escape/1,
       converter_for_autolink: &converter_for_autolink/1,
       converter_for_link_and_image: &converter_for_link_and_image/1,
-      converter_for_only_image: &converter_for_only_image/1,
       converter_for_reflink: &converter_for_reflink/1,
       converter_for_footnote: &converter_for_footnote/1,
       converter_for_nolink: &converter_for_nolink/1,
@@ -130,17 +130,6 @@ defmodule EarmarkParser.Ast.Inline do
       if out do
         {behead(src, match1), lnb, prepend(context, out), use_linky?}
       end
-    end
-  end
-
-  defp converter_for_only_image({src, lnb, context, use_linky?}) do
-    case LinkParser.parse_link(src, lnb) do
-      {match1, text, href, title, :image} ->
-        out = render_image(text, href, title)
-        {behead(src, match1), lnb, prepend(context, out), use_linky?}
-
-      _ ->
-        nil
     end
   end
 

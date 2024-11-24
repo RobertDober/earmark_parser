@@ -1,6 +1,7 @@
 defmodule Acceptance.Ast.LineBreaksTest do
   use ExUnit.Case, async: true
   import Support.Helpers, only: [as_ast: 1, parse_html: 1]
+  import EarmarkAstDsl
 
   describe "Forced Line Breaks" do
     test "with two spaces" do
@@ -31,6 +32,15 @@ defmodule Acceptance.Ast.LineBreaksTest do
       markdown = "* The  \nquick"
       html     = "<ul>\n<li>The<br />quick</li>\n</ul>\n"
       ast      = parse_html(html)
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
+    test "only one line" do
+      markdown = "* The lonly  "
+      ast      = [
+        ul(li("The lonly  "))
+      ]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}

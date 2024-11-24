@@ -29,8 +29,23 @@ defmodule Acceptance.Ast.CommentTest do
     end
 
     test "what about the fenced closing" do
-      markdown = "<!-- Hello\n```elixir\n World -->garbish"
+      markdown = """
+      <!-- Hello
+      ```elixir
+       World --> garbish
+      """
       ast      = {:comment, [], [" Hello", "```elixir", " World "], %{comment: true}}
+      messages = []
+
+      assert as_ast(markdown) == {:ok, [ast], messages}
+    end
+
+    test "fence at the end" do
+      markdown = """
+      <!-- Hello
+      ```elixir
+      """
+      ast      = {:comment, [], [" Hello", "```elixir"], %{comment: true}}
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}

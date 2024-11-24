@@ -14,6 +14,7 @@ defmodule EarmarkParser.Helpers.LookaheadHelpers do
   Otherwise `{nil, 0}` is returned
   """
   def opens_inline_code(%{line: line, lnb: lnb}) do
+    # case tokenize(line, with: :string_lexer) |> IO.inspect()  |> has_still_opening_backtix(nil) do
     case tokenize(line, with: :string_lexer) |> has_still_opening_backtix(nil) do
       nil -> {nil, 0}
       {_, btx} -> {btx, lnb}
@@ -33,16 +34,6 @@ defmodule EarmarkParser.Helpers.LookaheadHelpers do
       nil -> {nil, 0}
       {:new, btx} -> {btx, lnb}
       {:old, _} -> old
-    end
-  end
-
-  @doc """
-  calls either `still_inline_code` or `opens_inline_code` depening on `old_state`
-  """
-  def update_inline_code(old_state, line) do
-    case old_state do
-      {nil, 0} -> opens_inline_code(line)
-      _        -> still_inline_code(line, old_state)
     end
   end
 

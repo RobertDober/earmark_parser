@@ -31,19 +31,6 @@ defmodule EarmarkParser.Options do
             smartypants: false,
             timeout: nil
 
-  @type t :: %__MODULE__{
-        breaks: boolean,
-        code_class_prefix: maybe(String.t),
-        footnotes: boolean,
-        footnote_offset: number,
-        gfm: boolean,
-        messages: MapSet.t,
-        pedantic: boolean,
-        pure_links: boolean,
-        smartypants: boolean,
-        wikilinks: boolean,
-        parse_inline: boolean
-  }
 
   @doc false
   def add_deprecations(options, messages)
@@ -78,9 +65,12 @@ defmodule EarmarkParser.Options do
   end
   def normalize(options), do: struct(__MODULE__, options) |> normalize()
 
-  @doc false
-  def plugin_for_prefix(options, plugin_name) do
-    Map.get(options.plugins, plugin_name, false)
+  defp _deprecate_old_messages(opitons)
+  defp _deprecate_old_messages(%__MODULE__{messages: %MapSet{}}=options), do: options
+  defp _deprecate_old_messages(%__MODULE__{}=options) do
+    %{ options |
+      messages:
+      MapSet.new([{:deprecated, 0, "messages is an internal option that is ignored and will be removed from the API in v1.5.1"}])}
   end
 
   defp _deprecate_old_messages(opitons)

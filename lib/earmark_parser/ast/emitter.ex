@@ -15,10 +15,15 @@ defmodule EarmarkParser.Ast.Emitter do
   defp _to_atts(atts) when is_map(atts) do
     atts
     |> Enum.into([])
-    |> Enum.map(fn {name, value} -> {to_string(name), to_string(value)} end)
+    |> Enum.map(fn {name, value} -> {to_string(name), _to_string(value)} end)
   end
   defp _to_atts(atts) do
     atts
-    |> Enum.map(fn {name, value} -> {to_string(name), to_string(value)} end)
+    |> Enum.map(fn {name, value} -> {to_string(name), _to_string(value)} end)
   end
+
+  defp _to_string(value)
+  defp _to_string(value) when is_list(value), do: Enum.join(value, " ")
+  defp _to_string(value), do: to_string(value)
 end
+# SPDX-License-Identifier: Apache-2.0

@@ -1,4 +1,5 @@
 defmodule EarmarkParser.Parser do
+
   @moduledoc false
   alias EarmarkParser.{Block, Line, LineScanner, Options}
 
@@ -19,7 +20,7 @@ defmodule EarmarkParser.Parser do
   The options are a `%EarmarkParser.Options{}` structure. See `as_html!`
   for more details.
   """
-  def parse_markdown(lines, options \\ %Options{})
+  def parse_markdown(lines, options)
 
   def parse_markdown(lines, options = %Options{}) when is_list(lines) do
     {blocks, links, footnotes, options1} = parse(lines, options, false)
@@ -39,8 +40,6 @@ defmodule EarmarkParser.Parser do
     |> parse_markdown(options)
   end
 
-  def parse(text_lines), do: parse(text_lines, %Options{}, false)
-
   def parse(text_lines, options = %Options{}, recursive) do
     ["" | text_lines ++ [""]]
     |> LineScanner.scan_lines(options, recursive)
@@ -56,6 +55,7 @@ defmodule EarmarkParser.Parser do
     {blocks, footnotes, options} =
       lines |> remove_trailing_blank_lines() |> lines_to_blocks(options, recursive)
 
+
     links = links_from_blocks(blocks)
     {blocks, links, footnotes, options}
   end
@@ -63,7 +63,7 @@ defmodule EarmarkParser.Parser do
   defp lines_to_blocks(lines, options, recursive) do
     {blocks, footnotes, options1} = _parse(lines, [], options, recursive)
 
-    {blocks |> assign_attributes_to_blocks([]) |> consolidate_list_items([]), footnotes, options1}
+    {blocks |> assign_attributes_to_blocks([]), footnotes, options1}
   end
 
   defp _parse(input, result, options, recursive)
@@ -264,7 +264,7 @@ defmodule EarmarkParser.Parser do
     {code_lines, rest} = Enum.split_while(list, &indent_or_blank?/1)
     code_lines = remove_trailing_blank_lines(code_lines)
     code = for line <- code_lines, do: properly_indent(line, 1)
-    _parse(rest, [%Block.Code{lines: code, lnb: lnb} | result], options, recursive)
+    _parse([%Line.Blank{}|rest], [%Block.Code{lines: code, lnb: lnb} | result], options, recursive)
   end
 
   ###############
@@ -380,38 +380,6 @@ defmodule EarmarkParser.Parser do
   # ID definition #
   #################
 
-  # the title may be on the line following the iddef
-  defp _parse(
-         [defn = %Line.IdDef{title: title, lnb: lnb}, maybe_title | rest],
-         result,
-         options,
-         recursive
-       )
-       when title == nil do
-    title =
-      case maybe_title do
-        %Line.Text{content: content} -> LineScanner.matches_id_title(content)
-        _ -> nil
-      end
-
-    if title do
-      _parse(
-        rest,
-        [%Block.IdDef{id: defn.id, url: defn.url, title: title, lnb: lnb} | result],
-        options,
-        recursive
-      )
-    else
-      _parse(
-        [maybe_title | rest],
-        [%Block.IdDef{id: defn.id, url: defn.url, lnb: lnb} | result],
-        options,
-        recursive
-      )
-    end
-  end
-
-  # or not
   defp _parse([defn = %Line.IdDef{lnb: lnb} | rest], result, options, recursive) do
     _parse(
       rest,
@@ -480,9 +448,7 @@ defmodule EarmarkParser.Parser do
   # Assign attributes that follow a block to that block #
   #######################################################
 
-  defp assign_attributes_to_blocks([], result) do
-    Enum.reverse(result)
-  end
+  defp assign_attributes_to_blocks([], result), do: result
 
   defp assign_attributes_to_blocks([%Block.Ial{attrs: attrs}, block | rest], result) do
     assign_attributes_to_blocks(rest, [%{block | attrs: attrs} | result])
@@ -521,54 +487,6 @@ defmodule EarmarkParser.Parser do
         {result, lines, @not_pending, annotation}
     end
   end
-
-  ##################################################
-  # Consolidate one or more list items into a list #
-  ##################################################
-
-  defp consolidate_list_items([], result) do
-    # no need to reverse
-    result |> Enum.map(&compute_list_spacing/1)
-  end
-
-  # We have a list, and the next element is an item of the same type
-  defp consolidate_list_items(
-         [
-           list = %Block.List{type: type, blocks: items},
-           item = %Block.ListItem{type: type} | rest
-         ],
-         result
-       ) do
-    start = extract_start(item)
-    # original list is reversed
-    items = [item | items]
-    consolidate_list_items([%{list | blocks: items, start: start} | rest], result)
-  end
-
-  # We have an item, but no open list
-  defp consolidate_list_items([item = %Block.ListItem{type: type} | rest], result) do
-    start = extract_start(item)
-    consolidate_list_items([%Block.List{type: type, blocks: [item], start: start} | rest], result)
-  end
-
-  # Nothing to see here, move on
-  defp consolidate_list_items([head | rest], result) do
-    consolidate_list_items(rest, [head | result])
-  end
-
-  defp compute_list_spacing(list = %Block.List{blocks: items}) do
-    with spaced? = any_spaced_items?(items),
-         unified_items = Enum.map(items, &%{&1 | spaced?: spaced?}) do
-      %{list | blocks: unified_items}
-    end
-  end
-
-  # nop
-  defp compute_list_spacing(anything_else), do: anything_else
-
-  defp any_spaced_items?([]), do: false
-  defp any_spaced_items?([%{spaced?: true} | _]), do: true
-  defp any_spaced_items?([_ | tail]), do: any_spaced_items?(tail)
 
   ##################################################
   # Read in a table (consecutive TableLines with
@@ -667,22 +585,24 @@ defmodule EarmarkParser.Parser do
   ###################################################################
 
   defp _html_match_to_closing(opener, rest, annotation),
-    do: _find_closing_tags([opener], rest, [String.trim_leading(opener.line)], annotation)
+    do: _find_closing_tags([opener], rest, [opener.line], [], annotation)
 
-  defp _find_closing_tags(needed, input, html_lines, annotation)
+  defp _find_closing_tags(needed, input, html_lines, text_lines, annotation)
+
   # No more open tags, happy case
-  defp _find_closing_tags([], rest, html_lines, annotation),
+  defp _find_closing_tags([], rest, html_lines, [], annotation),
     do: {html_lines, rest, [], annotation}
 
   # run out of input, unhappy case
-  defp _find_closing_tags(needed, [], html_lines, annotation),
-    do: {html_lines, [], needed, annotation}
+  defp _find_closing_tags(needed, [], html_lines, text_lines, annotation),
+    do: {_add_text_lines(html_lines, text_lines), [], needed, annotation}
 
   # still more lines, still needed closing
   defp _find_closing_tags(
          needed = [needed_hd | needed_tl],
          [rest_hd | rest_tl],
          html_lines,
+         text_lines,
          annotation
        ) do
     cond do
@@ -690,7 +610,8 @@ defmodule EarmarkParser.Parser do
         _find_closing_tags(
           needed_tl,
           rest_tl,
-          [String.trim_leading(rest_hd.line) | html_lines],
+          [rest_hd.line | _add_text_lines(html_lines, text_lines)],
+          [],
           _override_annotation(annotation, rest_hd)
         )
 
@@ -698,14 +619,21 @@ defmodule EarmarkParser.Parser do
         _find_closing_tags(
           [rest_hd | needed],
           rest_tl,
-          [String.trim_leading(rest_hd.line) | html_lines],
+          [rest_hd.line | _add_text_lines(html_lines, text_lines)],
+          [],
           annotation
         )
 
       true ->
-        _find_closing_tags(needed, rest_tl, [rest_hd.line | html_lines], annotation)
+        _find_closing_tags(needed, rest_tl, html_lines, [rest_hd.line | text_lines], annotation)
     end
   end
+
+  defp _add_text_lines(html_lines, []),
+    do: html_lines
+
+  defp _add_text_lines(html_lines, text_lines),
+    do: [text_lines |> Enum.reverse() |> Enum.join("\n") | html_lines]
 
   ###########
   # Helpers #
@@ -740,15 +668,6 @@ defmodule EarmarkParser.Parser do
   end
 
   defp _override_annotation(annotation, line), do: annotation || line.annotation
-
-  @start_number_rgx ~r{\A0*(\d+)[.)]}
-  defp extract_start(%{bullet: bullet}) do
-    case Regex.run(@start_number_rgx, bullet) do
-      nil -> ""
-      [_, "1"] -> ""
-      [_, start] -> ~s{ start="#{start}"}
-    end
-  end
 
   defp remove_trailing_blank_lines(lines) do
     lines

@@ -69,9 +69,6 @@ defmodule EarmarkParser.Helpers.AstHelpers do
   end
 
   @doc false
-  def render_link(url_from_pure_link),
-    do: render_link(url_from_pure_link, url_from_pure_link)
-
   def render_link(url, text) do
     emit("a", text, href: _encode(url))
   end
@@ -108,7 +105,6 @@ defmodule EarmarkParser.Helpers.AstHelpers do
     |> Map.merge(new, &_value_merger/3)
     |> Enum.into([])
     |> Enum.map(&attrs_to_string_keys/1)
-
   end
 
   defp _value_merger(key, val1, val2)

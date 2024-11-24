@@ -53,7 +53,7 @@ defmodule Acceptance.Ast.ListTest do
     test "Numbered" do
       markdown = "1.  A paragraph\n    with two lines.\n\n        indented code\n\n    > A block quote.\n"
       ast      = [
-        ol(li([p("A paragraph\nwith two lines."), pre_code("indented code"), blockquote("A block quote.")]))
+        ol(li([p(" A paragraph\nwith two lines."), pre_code("indented code"), blockquote("A block quote.")]))
       ]
       messages = []
 
@@ -62,7 +62,7 @@ defmodule Acceptance.Ast.ListTest do
 
     test "More numbers" do
       markdown = "1.  space one\n\n1. space two"
-      ast      = [ol([p("space one"), p("space two")])]
+      ast      = [ol([p(" space one"), p("space two")])]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -99,6 +99,14 @@ defmodule Acceptance.Ast.ListTest do
       markdown = "2. one\n3. two"
       html = "<ol start=\"2\"><li>one</li><li>two</li></ol>"
       ast      = parse_html(html)
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
+
+    test "what about zero?" do
+      markdown = "0. zero"
+      ast = [ol(li("zero"), start: "0")]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}

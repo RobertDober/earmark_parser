@@ -1,14 +1,45 @@
 
-## 1.5.0 2022-02-08
+## 1.5.0 2022-??-??
 
 - [Depreacting message to be passed in as an array in options, and fixing it](https://github.com/robertdober/earmark_parser/issues/86)
 
-- [Fixing missing error messages for unclosed fenced code blocks (#23)](https://github.com/robertdober/earmark_parser/issues/23)
+## 1.4.23 2022-03-16
 
-- [Fixing many issues with lists and heavy refactoring](https://github.com/robertdober/earmark_parser/pull/81)
+Two more list regressions fixed
 
-  These changes are not all backwards compatible [c.f.](https://github.com/RobertDober/earmark_parser#lists)
+- multi line inline code was ignored in the body parts of lists
 
+- spaced lists with inline code in their bodies (single and multiline) were rendered tightly (no surrounding `<p>...</p>`
+
+## 1.4.22 2022-03-14
+
+Fixes all List Regressions introduced in 1.4.19
+
+GFM support for lists remain limited (spaced and tight lists are not 100% compliant) but is better than in 1.4.18
+
+## 1.4.21 2022-03-13
+
+- [Paragraph context lost after indented code blocks](https://github.com/robertdober/earmark_parser/issues/98)
+
+## 1.4.20 2022-02-21
+
+- [Preserve newlines inside HTML code](https://github.com/RobertDober/earmark_parser/pull/97)
+
+  Kudos to [José Valim](https://github.com/josevalim)
+
+- [Do not remove ial on blockquote inside triple quoted](https://github.com/RobertDober/earmark_parser/pull/96)
+
+  Kudos to [José Valim](https://github.com/josevalim)
+
+- Removed support for Elixir 1.10 (following `ex_doc`'s lead)
+
+- [Correct pure link regex to reject invalid characters](https://github.com/RobertDober/earmark_parser/pull/91)
+
+  Kudos to [Akash Hiremath](https://github.com/akash-akya)
+
+- [Intensive work to make pure links GFM Spec compliant](https://github.com/RobertDober/earmark_parser/pull/92)
+
+  Kudos to [Akash Hiremath](https://github.com/akash-akya)
 
 ## 1.4.19 2022-01-07
 
