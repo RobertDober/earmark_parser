@@ -1,14 +1,14 @@
 defmodule EarmarkParser.MixProject do
   use Mix.Project
 
-  @version "1.4.41"
+  @version "1.4.42"
   @url "https://github.com/RobertDober/earmark_parser"
 
   @deps [
     # {:credo, "~> 1.7.5", only: [:dev]},
-    {:dialyxir, "~> 1.4.3", only: [:dev], runtime: false},
+    {:dialyxir, "~> 1.4.5", only: [:dev], runtime: false},
     {:earmark_ast_dsl, "~> 0.3.7", only: [:test]},
-    {:excoveralls, "~> 0.14.4", only: [:test]},
+    {:excoveralls, "~> 0.18.3", only: [:test]},
     {:extractly, "~> 0.5.3", only: [:dev]},
     {:floki, "~> 0.36", only: [:dev, :test]}
   ]
