@@ -5,6 +5,14 @@
 
 - [Parsing HTML]
 
+## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.42 2024-12-11
+
+- Remove support for Elixir 1.13 as did ex_doc
+
+- Upgrade excoveralls and dialyxir
+
+- Fix deprecation warnings for Elixir 1.18
+
 ## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.41 2024-07-09
 
 - [Fixed bug #154 parser crashes on inline ial after escaped char](https://github.com/RobertDober/earmark_parser/issues/154) 
