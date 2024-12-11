@@ -62,17 +62,25 @@ defmodule EarmarkParser.Helpers.HtmlParser do
   @verbatim %{verbatim: true}
   defp _parse_rest(rest, tag_tpl, lines)
   defp _parse_rest([], tag_tpl, lines) do
-    tag_tpl |> Tuple.append(Enum.reverse(lines)) |> Tuple.append(@verbatim)
+    _tag_append(tag_tpl, lines)
   end
   defp _parse_rest([last_line], {tag, _}=tag_tpl, lines) do
     case Regex.run(~r{\A\s*</#{tag}>\s*(.*)}, last_line) do
-      nil         -> tag_tpl |> Tuple.append(Enum.reverse([last_line|lines])) |> Tuple.append(@verbatim)
-      [_, ""]     -> tag_tpl |> Tuple.append(Enum.reverse(lines)) |> Tuple.append(@verbatim)
-      [_, suffix] -> [tag_tpl |> Tuple.append(Enum.reverse(lines)) |> Tuple.append(@verbatim), suffix]
+      nil         -> _tag_append(tag_tpl, [last_line|lines])
+      [_, ""]     -> _tag_append(tag_tpl, lines)
+      [_, suffix] -> [_tag_append(tag_tpl, lines), suffix]
     end
   end
   defp _parse_rest([inner_line|rest], tag_tpl, lines) do
     _parse_rest(rest, tag_tpl, [inner_line|lines])
   end
 
+
+  defp _tag_append(tag_tpl, lines) do
+    tag_tpl
+    |> Tuple.insert_at(2, Enum.reverse(lines))
+    |> Tuple.insert_at(3, @verbatim)
+  end
+
 end
+# SPDX-License-Identifier: Apache-2.0

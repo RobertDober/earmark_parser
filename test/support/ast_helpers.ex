@@ -2,7 +2,7 @@ defmodule Support.AstHelpers do
 
    def assert_asts_are_equal(result, expected) do
      quote do
-      assert _delta_between(unquote(result), unquote(expected)) == []
+      assert _delta_between(unquote(Macro.escape(result)), unquote(Macro.escape(expected))) == []
      end
    end
 
