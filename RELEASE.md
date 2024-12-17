@@ -7,7 +7,8 @@
 
 ## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.42 2024-12-11
 
-- Optimize Line Scanner by precompilation of the rgxen used
+- Optimize Line Scanner by precompilation of the rgxen used, actually performance did not change
+  but this was also a conceptionally cleaner refactoring.
 
 - Remove support for Elixir 1.13 as did ex_doc
 
