@@ -7,11 +7,13 @@
 
 ## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.42 2024-12-11
 
+- Optimize Line Scanner by precompilation of the rgxen used
+
 - Remove support for Elixir 1.13 as did ex_doc
 
 - Upgrade excoveralls and dialyxir
 
-- Fix deprecation warnings for Elixir 1.18
+- [Fix deprecation warnings for Elixir 1.18 (#160)](https://github.com/RobertDober/earmark_parser/issues/160)
 
 ## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.41 2024-07-09
 
