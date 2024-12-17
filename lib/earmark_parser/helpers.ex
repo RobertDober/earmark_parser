@@ -2,7 +2,9 @@ defmodule EarmarkParser.Helpers do
 
   @moduledoc false
   @doc """
-  Expand tabs to multiples of 4 columns
+  Expand tabs to multiples of 4 columns.
+  **N.B.** This is not GFM/Common Mark compliant, which demands tabs to be expanded
+  only **before** the first non whitespace character.
   """
   def expand_tabs(line) do
     Regex.replace(~r{(.*?)\t}, line, &expander/2)
