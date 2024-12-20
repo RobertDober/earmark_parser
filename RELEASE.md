@@ -5,7 +5,9 @@
 
 - [Parsing HTML]
 
-## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.42 2024-12-11
+## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.42 2024-12-20
+
+- Added runners for 1.18 to the github CI workflows
 
 - Optimize Line Scanner by precompilation of the rgxen used, actually performance did not change
   but this was also a conceptionally cleaner refactoring.

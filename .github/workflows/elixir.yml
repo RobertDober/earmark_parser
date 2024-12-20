@@ -29,7 +29,11 @@ jobs:
             otp: 27
             os: ubuntu-latest
             warnings_as_errors: true
-          - elixir: 1.18.0-rc.0-otp-27
+          - elixir: 1.18.0-otp-25
+            otp: 25
+            os: ubuntu-latest
+            warnings_as_errors: true
+          - elixir: 1.18.0-otp-27
             otp: 27
             os: ubuntu-latest
             warnings_as_errors: true
