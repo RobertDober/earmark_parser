@@ -106,17 +106,19 @@ defmodule EarmarkParser.Parser.LinkParser do
   end
 
   # sic!!! Greedy and not context aware, matching '..." and "...' for backward comp
-  @title_rgx ~r{\A\s+(['"])(.*?)\1(?=\))}
   defp title(remaining_text) do
-    case Regex.run(@title_rgx, remaining_text) do
+    title_rgx = ~r{\A\s+(['"])(.*?)\1(?=\))}
+
+    case Regex.run(title_rgx, remaining_text) do
       nil -> nil
       [parsed, _, inner] -> {parsed, inner}
     end
   end
 
-  @wikilink_rgx ~r{\A\[\[([^\]\|]+)(?:\|([^\]]+))?\]\]\Z}
   defp make_result(nil, _, parsed_text, :link) do
-    case Regex.run(@wikilink_rgx, parsed_text) do
+    wikilink_rgx = ~r{\A\[\[([^\]\|]+)(?:\|([^\]]+))?\]\]\Z}
+
+    case Regex.run(wikilink_rgx, parsed_text) do
       nil -> nil
       [_, wikilink] -> make_wikilink(parsed_text, wikilink, wikilink)
       [_, wikilink, link_text] -> make_wikilink(parsed_text, wikilink, link_text)

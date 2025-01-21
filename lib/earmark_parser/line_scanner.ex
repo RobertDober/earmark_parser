@@ -265,18 +265,20 @@ defmodule EarmarkParser.LineScanner do
     end
   end
 
-  @column_rgx ~r{\A[\s|:-]+\z}
   defp _determine_if_header(columns) do
+    column_rgx = ~r{\A[\s|:-]+\z}
+
     columns
-    |> Enum.all?(fn col -> Regex.run(@column_rgx, col) end)
+    |> Enum.all?(fn col -> Regex.run(column_rgx, col) end)
   end
 
-  @col_sep_rgx ~r/\\\|/
   defp _split_table_columns(line) do
+    col_sep_rgx = ~r/\\\|/
+
     line
     |> String.split(~r{(?<!\\)\|})
     |> Enum.map(&String.trim/1)
-    |> Enum.map(fn col -> Regex.replace(@col_sep_rgx, col, "|") end)
+    |> Enum.map(fn col -> Regex.replace(col_sep_rgx, col, "|") end)
   end
 end
 
