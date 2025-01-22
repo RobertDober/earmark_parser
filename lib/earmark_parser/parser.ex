@@ -518,12 +518,12 @@ defmodule EarmarkParser.Parser do
 
   defp read_table(rest, col_count, rows) do
     rows = Enum.reverse(rows)
-    table = Block.Table.new_for_columns(col_count)
+    %Block.Table{} = table = Block.Table.new_for_columns(col_count)
 
     table =
       case look_for_alignments(rows) do
-        nil -> %Block.Table{table | rows: rows}
-        aligns -> %Block.Table{table | alignments: aligns, header: hd(rows), rows: tl(tl(rows))}
+        nil -> %{table | rows: rows}
+        aligns -> %{table | alignments: aligns, header: hd(rows), rows: tl(tl(rows))}
       end
 
     {table, [%Line.Blank{lnb: 0} | rest]}
