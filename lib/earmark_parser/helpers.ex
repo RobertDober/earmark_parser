@@ -1,5 +1,4 @@
 defmodule EarmarkParser.Helpers do
-
   @moduledoc false
   @doc """
   Expand tabs to multiples of 4 columns
@@ -8,7 +7,6 @@ defmodule EarmarkParser.Helpers do
     Regex.replace(~r{(.*?)\t}, line, &expander/2)
   end
 
-  @trailing_ial_rgx ~r< (?<!^)(?'ial'{: \s* [^}]+ \s* }) \s* \z >x
   @doc ~S"""
   Returns a tuple containing a potentially present IAL and the line w/o the IAL
 
@@ -24,8 +22,12 @@ defmodule EarmarkParser.Helpers do
       {nil, "{:.line-ial}"}
   """
   def extract_ial(line) do
-    case Regex.split(@trailing_ial_rgx, line, include_captures: true, parts: 2, on: [:ial]) do
-      [_] -> {nil, line}
+    trailing_ial_rgx = ~r< (?<!^)(?'ial'{: \s* [^}]+ \s* }) \s* \z >x
+
+    case Regex.split(trailing_ial_rgx, line, include_captures: true, parts: 2, on: [:ial]) do
+      [_] ->
+        {nil, line}
+
       [line_, "{:" <> ial, _] ->
         ial_ =
           ial
@@ -48,14 +50,16 @@ defmodule EarmarkParser.Helpers do
   def remove_line_ending(line, nil) do
     _trim_line({line, nil})
   end
+
   def remove_line_ending(line, annotation) do
     case Regex.run(annotation, line) do
       nil -> _trim_line({line, nil})
-      match -> match |> tl() |> List.to_tuple |> _trim_line()
+      match -> match |> tl() |> List.to_tuple() |> _trim_line()
     end
   end
 
-  defp _trim_line({line, annot}), do: {line |> String.trim_trailing("\n") |> String.trim_trailing("\r"), annot}
+  defp _trim_line({line, annot}),
+    do: {line |> String.trim_trailing("\n") |> String.trim_trailing("\r"), annot}
 
   defp pad(1), do: " "
   defp pad(2), do: "  "
@@ -76,10 +80,7 @@ defmodule EarmarkParser.Helpers do
    convert non-entity ampersands.
   """
 
-  @amp_rgx ~r{&(?!#?\w+;)}
-
-  def escape(html), do: _escape(Regex.replace(@amp_rgx, html, "&amp;"))
-
+  def escape(html), do: _escape(Regex.replace(~r{&(?!#?\w+;)}, html, "&amp;"))
 
   defp _escape(html) do
     html

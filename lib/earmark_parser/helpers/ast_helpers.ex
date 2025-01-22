@@ -68,10 +68,9 @@ defmodule EarmarkParser.Helpers.AstHelpers do
     lines |> Enum.join("\n")
   end
 
-  @remove_escapes ~r{ \\ (?! \\ ) }x
   @doc false
   def render_image(text, href, title) do
-    alt = text |> escape() |> String.replace(@remove_escapes, "")
+    alt = text |> escape() |> String.replace(~r{ \\ (?! \\ ) }x, "")
 
     if title do
       emit("img", [], src: href, alt: alt, title: title)
@@ -90,11 +89,9 @@ defmodule EarmarkParser.Helpers.AstHelpers do
   # add attributes to the outer tag in a block #
   ##############################################
 
-
-  @verbatims ~r<%[\da-f]{2}>i
   defp _encode(url) do
     url
-    |> String.split(@verbatims, include_captures: true)
+    |> String.split(~r<%[\da-f]{2}>i, include_captures: true)
     |> Enum.chunk_every(2)
     |> Enum.map(&_encode_chunk/1)
     |> IO.chardata_to_string
