@@ -5,6 +5,11 @@
 
 - [Parsing HTML]
 
+## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.43 2025-01-24
+
+This one is needed for OTP-28, many thanx to [José Valim](https://github.com/josevalim)
+for providing the necessary PR: [Avoid regexes at compile-time as they may not be supported on OTP 28](https://github.com/RobertDober/earmark_parser/pull/162)
+
 ## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.42 2024-12-20
 
 - Added runners for 1.18 to the github CI workflows
