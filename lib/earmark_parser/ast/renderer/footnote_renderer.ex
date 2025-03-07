@@ -17,32 +17,35 @@ defmodule EarmarkParser.Ast.Renderer.FootnoteRenderer do
           emit("hr"),
           emit("ol", elements)
         ],
-        class: "footnotes"
+        class: "footnotes flex mt-5 flex-col list-decimal"
       )
 
     prepend(context, ast) |> Message.add_messages(errors)
   end
 
-  defp _render_footnote_def(%Block.FnDef{blocks: blocks, id: id}, {ast, errors, context}=acc) do
+  defp _render_footnote_def(%Block.FnDef{blocks: blocks, id: id}, {ast, errors, context} = acc) do
     if MapSet.member?(context.referenced_footnote_ids, id) do
       context1 = AstRenderer.render(blocks, clear_value(context))
       a_attrs = %{title: "return to article", class: "reversefootnote", href: "#fnref:#{id}"}
+
       footnote_li_ast =
-        emit("li", [emit("a", ["&#x21A9;"], a_attrs) | context1.value],
-         id: "fn:#{id}")
-      {[footnote_li_ast|ast], MapSet.union(errors, context1.options.messages), context}
+        emit("li", [emit("a", ["&#x21A9;"], a_attrs, %{verbatim: true}) | context1.value],
+          id: "fn:#{id}"
+        )
+
+      {[footnote_li_ast | ast], MapSet.union(errors, context1.options.messages), context}
     else
       acc
     end
   end
-
 
   defp render_footnote_blocks(footnotes, context) do
     {elements, errors, _} =
       footnotes
       |> Enum.reduce({[], @empty_set, context}, &_render_footnote_def/2)
 
-    {elements|>Enum.reverse, errors}
+    {elements |> Enum.reverse(), errors}
   end
 end
+
 #  SPDX-License-Identifier: Apache-2.0
