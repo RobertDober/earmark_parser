@@ -108,22 +108,6 @@ defmodule Acceptance.Ast.Footnotes.SingleFootnoteTest do
       [^1]: which [is a link](http://to.some.site)
       """
 
-      ast = [
-        p([
-          "here is my footnote",
-          footnote(1)
-        ]),
-        footnotes(
-          footnote_def(
-            1,
-            p([
-              "which ",
-              a("is a link", href: "http://to.some.site")
-            ])
-          )
-        )
-      ]
-
       {:ok, result_ast, []} = as_ast(markdown, footnotes: true, pure_links: true)
       has_verbatim?(result_ast)
     end

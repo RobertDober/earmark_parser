@@ -45,26 +45,6 @@ defmodule Test.Acceptance.Ast.Footnotes.FnInListsTest do
       - Footnote 2.2
       """
 
-      ast = [
-        ul(
-          li([
-            "A line with",
-            footnote(1),
-            " two references",
-            footnote(2)
-          ])
-        ),
-        footnotes([
-          footnote_def(1, p(["Footnote ", tag("strong", "one")])),
-          footnote_def(2, [
-            tag("ul", [
-              tag("li", "Footnote 2.1"),
-              tag("li", "Footnote 2.2")
-            ])
-          ])
-        ])
-      ]
-
       {:ok, result_ast, []} = as_ast(markdown, footnotes: true)
       has_verbatim?(result_ast)
     end
