@@ -28,7 +28,7 @@ defmodule EarmarkParser.Ast.Renderer.FootnoteRenderer do
       context1 = AstRenderer.render(blocks, clear_value(context))
       a_attrs = %{title: "return to article", class: "reversefootnote", href: "#fnref:#{id}"}
       footnote_li_ast =
-        emit("li", [emit("a", ["&#x21A9;"], a_attrs) | context1.value],
+        emit("li", [emit("a", ["&#x21A9;"], a_attrs, %{verbatim: true}) | context1.value],
          id: "fn:#{id}")
       {[footnote_li_ast|ast], MapSet.union(errors, context1.options.messages), context}
     else
