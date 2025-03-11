@@ -8,9 +8,11 @@ defmodule Support.FootnoteHelpers do
   end
 
   def footnote_def(number, content)
+
   def footnote_def(number, content) when is_tuple(content) do
     footnote_def(number, [content])
   end
+
   def footnote_def(number, content) do
     tag("li", [reverse_footnote(number) | content], id: "fn:#{number}")
   end
@@ -34,6 +36,30 @@ defmodule Support.FootnoteHelpers do
       href: "#fnref:#{number}",
       title: "return to article"
     )
+  end
+
+  def has_verbatim?(ast) do
+    case ast do
+      [
+        _,
+        {"div", [{"class", "footnotes"}],
+         [
+           _,
+           {"ol", [],
+            [
+              {"li", [_],
+               [
+                 {"a", [_, _, {"href", _}], ["&#x21A9;"], %{verbatim: true}},
+                 _
+               ], %{}}
+            ], %{}}
+         ], %{}}
+      ] ->
+        true
+
+      _ ->
+        false
+    end
   end
 end
 

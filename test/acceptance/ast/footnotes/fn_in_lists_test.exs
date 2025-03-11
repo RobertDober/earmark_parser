@@ -36,6 +36,19 @@ defmodule Test.Acceptance.Ast.Footnotes.FnInListsTest do
       assert_asts_are_equal(result_ast, ast)
     end
 
+    test "footer list has verbatim" do
+      markdown = """
+      - A line with[^1] two references[^2]
+
+      [^1]: Footnote **one**
+      [^2]: - Footnote 2.1
+      - Footnote 2.2
+      """
+
+      {:ok, result_ast, []} = as_ast(markdown, footnotes: true)
+      has_verbatim?(result_ast)
+    end
+
     test "list body, first is not referenced" do
       markdown = """
       - N.B.
