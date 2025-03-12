@@ -8,15 +8,16 @@ defmodule Acceptance.Ast.Paragraphs.AnnotatedParagraphsTest do
   describe "Paragraphs" do
     test "a para -- non-regression" do
       markdown = "aaa\n\nbbb\n"
-      html     = "<p>aaa</p>\n<p>bbb</p>\n"
-      ast      = parse_html(html)
+      html = "<p>aaa</p>\n<p>bbb</p>\n"
+      ast = parse_html(html)
       messages = []
 
       assert as_ast(markdown, annotations: @annotation) == {:ok, ast, messages}
     end
+
     test "a para" do
       markdown = "aaa-- a\n\nbbb-- b\n"
-      ast      = [p_annotated("aaa", "-- a"), p_annotated("bbb", "-- b")]
+      ast = [p_annotated("aaa", "-- a"), p_annotated("bbb", "-- b")]
       messages = []
 
       assert as_ast(markdown, annotations: @annotation) == {:ok, ast, messages}
@@ -24,8 +25,8 @@ defmodule Acceptance.Ast.Paragraphs.AnnotatedParagraphsTest do
 
     test "and another one" do
       markdown = "aaa\n\n\nbbb\n"
-      html     = "<p>aaa</p>\n<p>bbb</p>\n"
-      ast      = parse_html(html)
+      html = "<p>aaa</p>\n<p>bbb</p>\n"
+      ast = parse_html(html)
       messages = []
 
       assert EarmarkParser.as_ast(markdown) == {:ok, ast, messages}
@@ -33,8 +34,8 @@ defmodule Acceptance.Ast.Paragraphs.AnnotatedParagraphsTest do
 
     test "strong" do
       markdown = "**inside**"
-      html     = "<p><strong>inside</strong></p>"
-      ast      = parse_html(html)
+      html = "<p><strong>inside</strong></p>"
+      ast = parse_html(html)
       messages = []
 
       assert EarmarkParser.as_ast(markdown) == {:ok, ast, messages}
@@ -42,8 +43,8 @@ defmodule Acceptance.Ast.Paragraphs.AnnotatedParagraphsTest do
 
     test "striketrhough" do
       markdown = "~~or maybe not?~~"
-      html     = "<p><del>or maybe not?</del></p>\n"
-      ast      = parse_html(html)
+      html = "<p><del>or maybe not?</del></p>\n"
+      ast = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -51,7 +52,7 @@ defmodule Acceptance.Ast.Paragraphs.AnnotatedParagraphsTest do
 
     test "keeps paragraph source as AST content when :parse_inline is false" do
       markdown = "this *should* stay [unchanged]()"
-      ast      = [p([markdown])]
+      ast = [p([markdown])]
       messages = []
 
       assert as_ast(markdown, parse_inline: false) == {:ok, ast, messages}
@@ -61,7 +62,7 @@ defmodule Acceptance.Ast.Paragraphs.AnnotatedParagraphsTest do
   describe "WS Separation (issue #10)" do
     test "simplest case" do
       markdown = "_primo_ _secondo_"
-      ast      = [ p([tag("em", "primo"), " ", tag("em", "secondo")])]
+      ast = [p([tag("em", "primo"), " ", tag("em", "secondo")])]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -69,7 +70,7 @@ defmodule Acceptance.Ast.Paragraphs.AnnotatedParagraphsTest do
 
     test "what about two links" do
       markdown = "[link one](aaa) [link two](bbb)"
-      ast      = [ p([tag("a", "link one", href: "aaa"), " ", tag("a", "link two", href: "bbb")])]
+      ast = [p([tag("a", "link one", href: "aaa"), " ", tag("a", "link two", href: "bbb")])]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -77,7 +78,7 @@ defmodule Acceptance.Ast.Paragraphs.AnnotatedParagraphsTest do
 
     test "before a link" do
       markdown = "hi [link](http://example.com)"
-      ast      = [p(["hi ", tag("a", "link", href: "http://example.com")])]
+      ast = [p(["hi ", tag("a", "link", href: "http://example.com")])]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -85,7 +86,7 @@ defmodule Acceptance.Ast.Paragraphs.AnnotatedParagraphsTest do
 
     test "still before a link" do
       markdown = "**hi** [link](http://example.com)"
-      ast      = [p([tag("strong", "hi"), " ", tag("a", "link", href: "http://example.com")])]
+      ast = [p([tag("strong", "hi"), " ", tag("a", "link", href: "http://example.com")])]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -94,7 +95,7 @@ defmodule Acceptance.Ast.Paragraphs.AnnotatedParagraphsTest do
     test "after an image" do
       markdown = "![look](http://an_image) hello"
       messages = []
-      ast      = [p([void_tag("img", src: "http://an_image", alt: "look"), " hello"])]
+      ast = [p([void_tag("img", src: "http://an_image", alt: "look"), " hello"])]
 
       assert as_ast(markdown) == {:ok, ast, messages}
     end
@@ -102,7 +103,7 @@ defmodule Acceptance.Ast.Paragraphs.AnnotatedParagraphsTest do
     test "still after an image" do
       markdown = "![look](http://an_image) _hello_"
       messages = []
-      ast      = [p([void_tag("img", src: "http://an_image", alt: "look"), " ", tag("em", "hello")])]
+      ast = [p([void_tag("img", src: "http://an_image", alt: "look"), " ", tag("em", "hello")])]
 
       assert as_ast(markdown) == {:ok, ast, messages}
     end
@@ -110,7 +111,7 @@ defmodule Acceptance.Ast.Paragraphs.AnnotatedParagraphsTest do
     test "still after a link" do
       markdown = "[look](http://a_link) _hello_"
       messages = []
-      ast      = [p([tag("a", "look", href: "http://a_link"), " ", tag("em", "hello")])]
+      ast = [p([tag("a", "look", href: "http://a_link"), " ", tag("em", "hello")])]
 
       assert as_ast(markdown) == {:ok, ast, messages}
     end
@@ -118,7 +119,7 @@ defmodule Acceptance.Ast.Paragraphs.AnnotatedParagraphsTest do
     test "there must not be one" do
       markdown = "[look](http://a_link)_hello_"
       messages = []
-      ast      = [p([tag("a", "look", href: "http://a_link"), tag("em", "hello")])]
+      ast = [p([tag("a", "look", href: "http://a_link"), tag("em", "hello")])]
 
       assert as_ast(markdown) == {:ok, ast, messages}
     end

@@ -11,12 +11,14 @@ defmodule Test.Acceptance.Ast.Lists.IndentTest do
 
         Text2
       """
+
       expected = [
-        ul(
-          li([p("One"), p("Text1"), ul("Inner"), p("Text2")]))
+        ul(li([p("One"), p("Text1"), ul("Inner"), p("Text2")]))
       ]
+
       assert ast_from_md(markdown) == expected
     end
+
     test "simple imbrication, spaced" do
       markdown = """
       * One
@@ -27,10 +29,11 @@ defmodule Test.Acceptance.Ast.Lists.IndentTest do
 
         Text2
       """
+
       expected = [
-        ul(
-          li([p("One"), p("Text1"), ul("Inner"), p("Text2")]))
+        ul(li([p("One"), p("Text1"), ul("Inner"), p("Text2")]))
       ]
+
       assert ast_from_md(markdown) == expected
     end
 
@@ -46,6 +49,7 @@ defmodule Test.Acceptance.Ast.Lists.IndentTest do
 
         https://mydomain.org/user_or_team/repo_name/blob/master/%{path}#L%{line}
       """
+
       expected = [
         ul(
           li([
@@ -53,11 +57,19 @@ defmodule Test.Acceptance.Ast.Lists.IndentTest do
             p("Text1"),
             ul(
               li([
-                "Inner"])),
+                "Inner"
+              ])
+            ),
             p("Text2"),
-            p(a("https://mydomain.org/user_or_team/repo_name/blob/master/%{path}#L%{line}",
-              href: "https://mydomain.org/user_or_team/repo_name/blob/master/%25%7Bpath%7D#L%25%7Bline%7D"))
-            ]))]
+            p(
+              a("https://mydomain.org/user_or_team/repo_name/blob/master/%{path}#L%{line}",
+                href: "https://mydomain.org/user_or_team/repo_name/blob/master/%25%7Bpath%7D#L%25%7Bline%7D"
+              )
+            )
+          ])
+        )
+      ]
+
       # IO.inspect as_ast(markdown)
       assert ast_from_md(markdown) == expected
     end
@@ -72,9 +84,11 @@ defmodule Test.Acceptance.Ast.Lists.IndentTest do
 
         Still Outer
       """
+
       expected = [
         ul(li([p("Outer"), p("Outer Content"), ul("Inner"), p("Still Outer")]))
       ]
+
       assert ast_from_md(markdown) == expected
     end
 
@@ -86,9 +100,11 @@ defmodule Test.Acceptance.Ast.Lists.IndentTest do
 
         Outer Para
       """
+
       expected = [
         ul(li([p("Outer"), ul("Inner"), p("Outer Para")]))
       ]
+
       assert ast_from_md(markdown) == expected
     end
 
@@ -99,9 +115,11 @@ defmodule Test.Acceptance.Ast.Lists.IndentTest do
 
         Outer Para
       """
+
       expected = [
         ul(li([p("Outer"), ul("Inner"), p("Outer Para")]))
       ]
+
       assert ast_from_md(markdown) == expected
     end
 
@@ -112,9 +130,11 @@ defmodule Test.Acceptance.Ast.Lists.IndentTest do
             - 1.1.1
         - 1.2
       """
+
       ast = [
         ul(li(["1", ul([li(["1.1", ul(li("1.1.1"))]), li("1.2")])]))
       ]
+
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -126,9 +146,11 @@ defmodule Test.Acceptance.Ast.Lists.IndentTest do
 
       - Two
       """
+
       expected = [
         ul([li(p("One")), li(p("Two"))])
       ]
+
       assert ast_from_md(markdown) == expected
     end
 
@@ -137,22 +159,28 @@ defmodule Test.Acceptance.Ast.Lists.IndentTest do
       - One
       - Two
       """
+
       expected = [
         ul([li("One"), li("Two")])
       ]
+
       assert ast_from_md(markdown) == expected
     end
+
     test "debugging" do
       markdown = """
       * Head
 
         Content
       """
+
       expected = [
         ul(li([p("Head"), p("Content")]))
       ]
+
       assert ast_from_md(markdown) == expected
     end
   end
 end
+
 # SPDX-License-Identifier: Apache-2.0

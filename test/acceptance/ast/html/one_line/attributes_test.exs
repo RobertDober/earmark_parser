@@ -6,7 +6,7 @@ defmodule Acceptance.Ast.Html.Oneline.AttributesTest do
   describe "strict tags syntax (non regression)" do
     test "really simple" do
       markdown = ~s{<p class="one" data-x="1" />}
-      ast      = [vtag("p", [], class: "one", "data-x": 1)]
+      ast = [vtag("p", [], class: "one", "data-x": 1)]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -16,7 +16,7 @@ defmodule Acceptance.Ast.Html.Oneline.AttributesTest do
   describe "spaces around =" do
     test "still quite simple" do
       markdown = ~s{<p class ="one" data-x = "1" />}
-      ast      = [vtag("p", [], class: "one", "data-x": 1)]
+      ast = [vtag("p", [], class: "one", "data-x": 1)]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -26,7 +26,7 @@ defmodule Acceptance.Ast.Html.Oneline.AttributesTest do
   describe "unquoted attribute values" do
     test "no special characters inside the value" do
       markdown = ~s{<p class=one data-x=1 />}
-      ast      = [vtag("p", [], class: "one", "data-x": 1)]
+      ast = [vtag("p", [], class: "one", "data-x": 1)]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -34,7 +34,7 @@ defmodule Acceptance.Ast.Html.Oneline.AttributesTest do
 
     test "and accepts spaces around the =" do
       markdown = ~s{<p class = one data-x= 1 />}
-      ast      = [vtag("p", [], class: "one", "data-x": 1)]
+      ast = [vtag("p", [], class: "one", "data-x": 1)]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -60,11 +60,12 @@ defmodule Acceptance.Ast.Html.Oneline.AttributesTest do
   describe "valueless attributes" do
     test "gets its name as a value" do
       markdown = ~s{<p class  data-x />}
-      ast      = [vtag("p", [], class: "class", "data-x": "data-x")]
+      ast = [vtag("p", [], class: "class", "data-x": "data-x")]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
     end
   end
 end
+
 # SPDX-License-Identifier: Apache-2.0

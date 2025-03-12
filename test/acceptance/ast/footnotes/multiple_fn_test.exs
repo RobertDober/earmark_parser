@@ -50,20 +50,19 @@ defmodule Test.Acceptance.Ast.Footnotes.MultipleFnTest do
           footnote(2)
         ]),
         footnotes(
-        footnote_def(
-        2,
-        tag("ul", [
-          tag("li", "Footnote 2.1"),
-          tag("li", "Footnote 2.2")
-        ])
-        )
+          footnote_def(
+            2,
+            tag("ul", [
+              tag("li", "Footnote 2.1"),
+              tag("li", "Footnote 2.2")
+            ])
+          )
         )
       ]
 
       {:ok, result_ast, []} = as_ast(markdown, footnotes: true)
       assert_asts_are_equal(result_ast, ast)
     end
-
   end
 
   describe "three footnotes" do

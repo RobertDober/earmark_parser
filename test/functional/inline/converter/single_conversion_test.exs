@@ -3,8 +3,9 @@ defmodule Test.Functional.Inline.Converter.SingleConversionTest do
 
   describe "autolinks:" do
     test "autolink, http" do
-      assert convert("<http:/mysite>") == [{"a", [{"href", "http:/mysite"}], ["http:/mysite"], %{}}] 
+      assert convert("<http:/mysite>") == [{"a", [{"href", "http:/mysite"}], ["http:/mysite"], %{}}]
     end
+
     test "autolink, mailto" do
       assert convert("<http@mysite>") == [{"a", [{"href", "mailto:http@mysite"}], ["http@mysite"], %{}}]
     end
@@ -12,13 +13,15 @@ defmodule Test.Functional.Inline.Converter.SingleConversionTest do
 
   describe "escape:" do
     test "escape" do
-      assert convert("a\\_b") == ~W[a_b] 
+      assert convert("a\\_b") == ~W[a_b]
     end
+
     test "escape at beginning" do
-      assert convert("\\_b") == ~W[_b] 
+      assert convert("\\_b") == ~W[_b]
     end
+
     test "escape an escape" do
-      assert convert("a\\\\_b") == ~W[a\_b] 
+      assert convert("a\\\\_b") == ~W[a\_b]
     end
   end
 
@@ -26,10 +29,11 @@ defmodule Test.Functional.Inline.Converter.SingleConversionTest do
     test "strikethrough" do
       assert convert("~~alpha~~") == [{"del", [], ["alpha"], %{}}]
     end
+
     test "no strikethrough" do
       assert convert("~~ alpha~~") == ["~~ alpha~~"]
     end
   end
-
 end
+
 # SPDX-License-Identifier: Apache-2.0

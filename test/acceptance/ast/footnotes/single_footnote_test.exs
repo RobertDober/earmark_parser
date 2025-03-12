@@ -56,7 +56,6 @@ defmodule Acceptance.Ast.Footnotes.SingleFootnoteTest do
         ])
       ]
 
-
       {:ok, result_ast, []} = as_ast(markdown, footnotes: true)
       assert_asts_are_equal(result_ast, ast)
     end
@@ -68,7 +67,6 @@ defmodule Acceptance.Ast.Footnotes.SingleFootnoteTest do
         p("foo[^1] again"),
         p("[^1]: bar baz\ngoo")
       ]
-
 
       {:ok, result_ast, []} = as_ast(markdown, footnotes: true)
       assert_asts_are_equal(result_ast, ast)

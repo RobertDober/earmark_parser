@@ -6,15 +6,18 @@ defmodule Acceptance.Ast.EscapeTest do
   describe "Escapes" do
     test "dizzy rhs?" do
       markdown = "\\\\!\\\\\""
-      ast      = p("\\!\\\"")
-      messages = [{:deprecated, 0, "The smartypants option has no effect anymore and will be removed in EarmarkParser 1.5"}]
+      ast = p("\\!\\\"")
+
+      messages = [
+        {:deprecated, 0, "The smartypants option has no effect anymore and will be removed in EarmarkParser 1.5"}
+      ]
 
       assert as_ast(markdown, smartypants: true) == {:ok, [ast], messages}
     end
 
     test "dizzy? lhs" do
       markdown = "\\\\!\\\\\""
-      ast      = p("\\!\\\"")
+      ast = p("\\!\\\"")
       messages = []
 
       assert as_ast(markdown, smartypants: false) == {:ok, [ast], messages}
@@ -22,7 +25,7 @@ defmodule Acceptance.Ast.EscapeTest do
 
     test "obviously" do
       markdown = "\\`no code"
-      ast      = p("`no code")
+      ast = p("`no code")
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -30,7 +33,7 @@ defmodule Acceptance.Ast.EscapeTest do
 
     test "less obviously - escpe the escapes" do
       markdown = "\\\\` code`"
-      ast      = p(["\\", tag("code", "code", [class: "inline"], %{line: 1})])
+      ast = p(["\\", tag("code", "code", [class: "inline"], %{line: 1})])
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -38,23 +41,29 @@ defmodule Acceptance.Ast.EscapeTest do
 
     test "don't ask me" do
       markdown = "\\\\ \\"
-      ast      = p("\\ \\")
+      ast = p("\\ \\")
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
     end
 
     test "a plenty of nots" do
-      markdown = "\\*not emphasized\\*\n\\[not a link](/foo)\n\\`not code`\n1\\. not a list\n\\* not a list\n\\# not a header\n\\[foo]: /url \"not a reference\"\n"
-      ast      = p(["*not emphasized*\n[not a link](/foo)\n`not code`\n1. not a list\n* not a list\n# not a header\n[foo]: /url \"not a reference\""])
-      messages = [{:warning, 3, "Closing unclosed backquotes ` at end of input" }]
+      markdown =
+        "\\*not emphasized\\*\n\\[not a link](/foo)\n\\`not code`\n1\\. not a list\n\\* not a list\n\\# not a header\n\\[foo]: /url \"not a reference\"\n"
+
+      ast =
+        p([
+          "*not emphasized*\n[not a link](/foo)\n`not code`\n1. not a list\n* not a list\n# not a header\n[foo]: /url \"not a reference\""
+        ])
+
+      messages = [{:warning, 3, "Closing unclosed backquotes ` at end of input"}]
 
       assert as_ast(markdown, smartypants: false) == {:error, [ast], messages}
     end
 
     test "let us escape (again)" do
       markdown = "\\\\*emphasis*\n"
-      ast      = p(["\\", tag("em", "emphasis")])
+      ast = p(["\\", tag("em", "emphasis")])
       messages = []
       assert as_ast(markdown) == {:ok, [ast], messages}
     end

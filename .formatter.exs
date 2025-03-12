@@ -5,6 +5,7 @@
   migrate: true,
   migrate_bitstring_modifiers: true,
   migrate_charlists_as_sigils: true,
-  migrate_unless: false,
+  migrate_unless: false
 ]
+
 # SPDX-License-Identifier: Apache-2.0

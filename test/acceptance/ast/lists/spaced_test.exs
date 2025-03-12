@@ -8,10 +8,14 @@ defmodule Acceptance.Ast.Lists.SpacedPendingTest do
       This is `
       pending`
     """
+
     ast = [
-      ul(li([
-        p("Item 1"),
-        p(["This is ", inline_code("pending", [], %{line: 3})])]))
+      ul(
+        li([
+          p("Item 1"),
+          p(["This is ", inline_code("pending", [], %{line: 3})])
+        ])
+      )
     ]
 
     assert ast_from_md(markdown) == ast
@@ -24,10 +28,14 @@ defmodule Acceptance.Ast.Lists.SpacedPendingTest do
       This is `
       pending`
     """
+
     ast = [
-      ul(li([
-        p("Item 1"),
-        p(["This is ", inline_code("pending", [], %{line: 3})])]))
+      ul(
+        li([
+          p("Item 1"),
+          p(["This is ", inline_code("pending", [], %{line: 3})])
+        ])
+      )
     ]
 
     assert ast_from_md(markdown) == ast
@@ -40,6 +48,7 @@ defmodule Acceptance.Ast.Lists.SpacedPendingTest do
 
         Line 1
       """
+
       ast = [
         ul(li([p("Item 1"), p("Line 1")]))
       ]
@@ -54,6 +63,7 @@ defmodule Acceptance.Ast.Lists.SpacedPendingTest do
         `Line
         1`
       """
+
       ast = [
         ul(li([p("Item 1"), p(inline_code("Line 1", [], %{line: 3}))]))
       ]
@@ -69,6 +79,7 @@ defmodule Acceptance.Ast.Lists.SpacedPendingTest do
        Beta
     -------
     """
+
     ast = [
       ol(li(tags("p", ["Alpha", "Beta"]))),
       void_tag("hr", class: "thin")
@@ -84,6 +95,7 @@ defmodule Acceptance.Ast.Lists.SpacedPendingTest do
        Beta
     - Gamma
     """
+
     ast = [
       ol(li(tags("p", ["Alpha", "Beta"]))),
       ul(li("Gamma"))
@@ -98,4 +110,5 @@ defmodule Acceptance.Ast.Lists.SpacedPendingTest do
     {tag, attrs, content, Map.merge(meta, new_meta)}
   end
 end
+
 # SPDX-License-Identifier: Apache-2.0

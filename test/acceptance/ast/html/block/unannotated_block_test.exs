@@ -64,10 +64,12 @@ defmodule Acceptance.Ast.Html.Block.UnannotatedBlockTest do
     test "area" do
       markdown =
         "<area shape=\"rect\" coords=\"0,0,1,1\" href=\"xxx\" alt=\"yyy\">\n**emphasized** text"
+
       ast = [
         vtag("area", nil, shape: "rect", coords: "0,0,1,1", href: "xxx", alt: "yyy"),
         p([tag("strong", "emphasized"), " text"])
       ]
+
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -75,10 +77,12 @@ defmodule Acceptance.Ast.Html.Block.UnannotatedBlockTest do
 
     test "we are outside the void now (lucky us)" do
       markdown = "<br>\n**emphasized** text"
+
       ast = [
         vtag("br"),
         p([tag("strong", "emphasized"), " text"])
       ]
+
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -102,10 +106,12 @@ defmodule Acceptance.Ast.Html.Block.UnannotatedBlockTest do
 
     test "not everybody knows this one (hint: take a break)" do
       markdown = "<wbr>\n**emphasized** text"
+
       ast = [
         vtag("wbr"),
         p([tag("strong", "emphasized"), " text"])
       ]
+
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -147,11 +153,14 @@ defmodule Acceptance.Ast.Html.Block.UnannotatedBlockTest do
 
     test "self closing block elements close para, atts and spaces do not matter" do
       markdown = "alpha\n<div class=\"first\"   />beta\ngamma"
+
       ast = [
         p("alpha"),
         vtag("div", nil, class: "first"),
         "beta",
-        p("gamma")]
+        p("gamma")
+      ]
+
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -248,6 +257,7 @@ defmodule Acceptance.Ast.Html.Block.UnannotatedBlockTest do
     test "...nor is this" do
       markdown = "<div>\nline\n<hello></div>"
       ast = [vtag("div", ["line", "<hello></div>"])]
+
       messages = [
         {:warning, 1, "Failed to find closing <div>"},
         {:warning, 3, "Failed to find closing <hello>"}
