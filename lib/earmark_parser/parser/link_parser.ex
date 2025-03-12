@@ -43,18 +43,28 @@ defmodule EarmarkParser.Parser.LinkParser do
     end
   end
 
-  defp p_url([{:open_paren, _} | ts], lnb), do: url(ts, {[], [], nil}, [:close_paren], lnb)
-  defp p_url(_, _), do: nil
+  defp p_url([{:open_paren, _} | ts], lnb) do
+    url(ts, {[], [], nil}, [:close_paren], lnb)
+  end
+
+  defp p_url(_, _) do
+    nil
+  end
 
   # push one level
-  defp url([{:open_paren, text} | ts], result, needed, lnb),
-    do: url(ts, add(result, text), [:close_paren | needed], lnb)
+  defp url([{:open_paren, text} | ts], result, needed, lnb) do
+    url(ts, add(result, text), [:close_paren | needed], lnb)
+  end
 
   # pop last level
-  defp url([{:close_paren, _} | _], result, [:close_paren], _lnb), do: result
+  defp url([{:close_paren, _} | _], result, [:close_paren], _lnb) do
+    result
+  end
+
   # pop inner level
-  defp url([{:close_paren, text} | ts], result, [:close_paren | needed], lnb),
-    do: url(ts, add(result, text), needed, lnb)
+  defp url([{:close_paren, text} | ts], result, [:close_paren | needed], lnb) do
+    url(ts, add(result, text), needed, lnb)
+  end
 
   # A quote on level 0 -> bailing out if there is a matching quote
   defp url(ts_all = [{:open_title, text} | ts], result, [:close_paren], lnb) do
@@ -65,26 +75,34 @@ defmodule EarmarkParser.Parser.LinkParser do
   end
 
   # All these are just added to the url
-  defp url([{:open_bracket, text} | ts], result, needed, lnb),
-    do: url(ts, add(result, text), needed, lnb)
+  defp url([{:open_bracket, text} | ts], result, needed, lnb) do
+    url(ts, add(result, text), needed, lnb)
+  end
 
-  defp url([{:close_bracket, text} | ts], result, needed, lnb),
-    do: url(ts, add(result, text), needed, lnb)
+  defp url([{:close_bracket, text} | ts], result, needed, lnb) do
+    url(ts, add(result, text), needed, lnb)
+  end
 
-  defp url([{:any_quote, text} | ts], result, needed, lnb),
-    do: url(ts, add(result, text), needed, lnb)
+  defp url([{:any_quote, text} | ts], result, needed, lnb) do
+    url(ts, add(result, text), needed, lnb)
+  end
 
-  defp url([{:verbatim, text} | ts], result, needed, lnb),
-    do: url(ts, add(result, text), needed, lnb)
+  defp url([{:verbatim, text} | ts], result, needed, lnb) do
+    url(ts, add(result, text), needed, lnb)
+  end
 
-  defp url([{:ws, text} | ts], result, needed, lnb),
-    do: url(ts, add(result, text), needed, lnb)
+  defp url([{:ws, text} | ts], result, needed, lnb) do
+    url(ts, add(result, text), needed, lnb)
+  end
 
-  defp url([{:escaped, text} | ts], result, needed, lnb),
-    do: url(ts, add(result, text), needed, lnb)
+  defp url([{:escaped, text} | ts], result, needed, lnb) do
+    url(ts, add(result, text), needed, lnb)
+  end
 
   # That is not good, actually this is not a legal url part of a link
-  defp url(_, _, _, _), do: nil
+  defp url(_, _, _, _) do
+    nil
+  end
 
   defp bail_out_to_title(ts, result) do
     with remaining_text <- ts |> Enum.map_join(&text_of_token/1) do
@@ -99,7 +117,10 @@ defmodule EarmarkParser.Parser.LinkParser do
   end
 
   defp text_of_token(token)
-  defp text_of_token({:escaped, text}), do: "\\#{text}"
+
+  defp text_of_token({:escaped, text}) do
+    "\\#{text}"
+  end
 
   defp text_of_token({_, text}) do
     text
@@ -125,22 +146,29 @@ defmodule EarmarkParser.Parser.LinkParser do
     end
   end
 
-  defp make_result(nil, _, _, _), do: nil
+  defp make_result(nil, _, _, _) do
+    nil
+  end
 
   defp make_result({parsed, url, title}, link_text, parsed_text, link_or_img) do
     {"#{parsed_text}(#{list_to_text(parsed)})", link_text, list_to_text(url), title, link_or_img}
   end
 
-  defp add({parsed_text, url_text, nil}, text), do: {[text | parsed_text], [text | url_text], nil}
+  defp add({parsed_text, url_text, nil}, text) do
+    {[text | parsed_text], [text | url_text], nil}
+  end
 
-  defp add_title({parsed_text, url_text, _}, {parsed, inner}),
-    do: {[parsed | parsed_text], url_text, inner}
+  defp add_title({parsed_text, url_text, _}, {parsed, inner}) do
+    {[parsed | parsed_text], url_text, inner}
+  end
 
   defp make_wikilink(parsed_text, target, link_text) do
     {parsed_text, String.trim(link_text), String.trim(target), nil, :wikilink}
   end
 
-  defp list_to_text(lst), do: lst |> Enum.reverse() |> Enum.join("")
+  defp list_to_text(lst) do
+    lst |> Enum.reverse() |> Enum.join("")
+  end
 end
 
 # SPDX-License-Identifier: Apache-2.0

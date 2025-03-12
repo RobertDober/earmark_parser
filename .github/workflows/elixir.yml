@@ -4,6 +4,7 @@ on:
   pull_request:
   push:
     branches:
+      - i164-use-formatter
       - master
 
 jobs:
@@ -80,6 +81,11 @@ jobs:
           CXX: g++-10
       - run: mix test
         if: ${{! matrix.warnings_as_errors}}
+        env:
+          CC: gcc-10
+          CXX: g++-10
+      - run: mix format --check-formatted
+        if: matrix.warnings_as_errors
         env:
           CC: gcc-10
           CXX: g++-10

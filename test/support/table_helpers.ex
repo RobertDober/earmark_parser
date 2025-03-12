@@ -13,13 +13,13 @@ defmodule Support.TableHelpers do
     tag("thead", tag("tr", cells))
   end
 
-  def td(content, align \\ "left" ) do
+  def td(content, align \\ "left") do
     tag("td", [content], style: "text-align: #{align};")
   end
 
-  def th(content, align \\ "left" ) do
+  def th(content, align \\ "left") do
     tag("th", [content], style: "text-align: #{align};")
   end
-
 end
+
 # SPDX-License-Identifier: Apache-2.0

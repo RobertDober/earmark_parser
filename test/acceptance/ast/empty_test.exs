@@ -5,7 +5,7 @@ defmodule Acceptance.Ast.EmptyTest do
 
   test "empty" do
     markdown = ""
-    ast     = []
+    ast = []
     messages = []
 
     assert EarmarkParser.as_ast(markdown) == {:ok, ast, messages}
@@ -13,10 +13,9 @@ defmodule Acceptance.Ast.EmptyTest do
 
   test "almost empty" do
     markdown = "  "
-    ast     = []
+    ast = []
     messages = []
 
     assert EarmarkParser.as_ast(markdown) == {:ok, ast, messages}
   end
-  
 end

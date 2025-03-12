@@ -17,7 +17,10 @@ defmodule EarmarkParser.AstRenderer do
   end
 
   defp _render(blocks, context, loose?)
-  defp _render([], context, _loose?), do: context
+
+  defp _render([], context, _loose?) do
+    context
+  end
 
   defp _render([block | blocks], context, loose?) do
     context1 = render_block(block, clear_value(context), loose?)
@@ -139,9 +142,11 @@ defmodule EarmarkParser.AstRenderer do
          _loose?
        ) do
     classes =
-      if language && language != "",
-        do: [code_classes(language, options.code_class_prefix)],
-        else: []
+      if language && language != "" do
+        [code_classes(language, options.code_class_prefix)]
+      else
+        []
+      end
 
     lines = render_code(block)
 
@@ -232,7 +237,9 @@ defmodule EarmarkParser.AstRenderer do
   # IDDef is ignored #
   ####################
 
-  defp render_block(%Block.IdDef{}, context, _loose?), do: context
+  defp render_block(%Block.IdDef{}, context, _loose?) do
+    context
+  end
 
   # Helpers
   # -------

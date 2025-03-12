@@ -10,13 +10,27 @@ defmodule EarmarkParser.Ast.Renderer.HtmlRenderer do
 
   def render_html_block(lines, context, annotation) do
     [tag] = parse_html(lines)
-    tag_ = if annotation, do: annotate(tag, annotation), else: tag
+
+    tag_ =
+      if annotation do
+        annotate(tag, annotation)
+      else
+        tag
+      end
+
     prepend(context, tag_)
   end
 
   def render_html_oneline([line | _], context, annotation \\ []) do
     [tag | rest] = parse_html([line])
-    tag_ = if annotation, do: annotate(tag, annotation), else: tag
+
+    tag_ =
+      if annotation do
+        annotate(tag, annotation)
+      else
+        tag
+      end
+
     prepend(context, [tag_ | rest])
   end
 

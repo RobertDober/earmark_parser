@@ -6,7 +6,7 @@ defmodule Acceptance.Ast.Html.Oneline.UnannotatedOnelineTest do
   describe "oneline tags" do
     test "really simple" do
       markdown = "<h1>Headline</h1>"
-      ast      = [vtag("h1", "Headline")]
+      ast = [vtag("h1", "Headline")]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -14,7 +14,7 @@ defmodule Acceptance.Ast.Html.Oneline.UnannotatedOnelineTest do
 
     test "a little bit more complicated" do
       markdown = ~s{<p align="center"><img src="image.svg"/></p>}
-      ast      = [vtag("p", ["<img src=\"image.svg\"/>"], align: "center")]
+      ast = [vtag("p", ["<img src=\"image.svg\"/>"], align: "center")]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}

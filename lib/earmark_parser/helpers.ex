@@ -58,13 +58,25 @@ defmodule EarmarkParser.Helpers do
     end
   end
 
-  defp _trim_line({line, annot}),
-    do: {line |> String.trim_trailing("\n") |> String.trim_trailing("\r"), annot}
+  defp _trim_line({line, annot}) do
+    {line |> String.trim_trailing("\n") |> String.trim_trailing("\r"), annot}
+  end
 
-  defp pad(1), do: " "
-  defp pad(2), do: "  "
-  defp pad(3), do: "   "
-  defp pad(4), do: "    "
+  defp pad(1) do
+    " "
+  end
+
+  defp pad(2) do
+    "  "
+  end
+
+  defp pad(3) do
+    "   "
+  end
+
+  defp pad(4) do
+    "    "
+  end
 
   @doc """
   `Regex.replace` with the arguments in the correct order
@@ -80,7 +92,9 @@ defmodule EarmarkParser.Helpers do
    convert non-entity ampersands.
   """
 
-  def escape(html), do: _escape(Regex.replace(~r{&(?!#?\w+;)}, html, "&amp;"))
+  def escape(html) do
+    _escape(Regex.replace(~r{&(?!#?\w+;)}, html, "&amp;"))
+  end
 
   defp _escape(html) do
     html

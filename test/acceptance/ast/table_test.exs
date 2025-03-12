@@ -30,6 +30,7 @@ defmodule Acceptance.Ast.TableTest do
           tbody([td("c"), td("d")])
         ])
       ]
+
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -82,7 +83,6 @@ defmodule Acceptance.Ast.TableTest do
 
       assert as_ast(markdown) == {:ok, ast, messages}
     end
-
 
     test "table with header inside context" do
       markdown = "before\n\n|alpha|beta|\n|-|-:|\n|1|2|\nafter"

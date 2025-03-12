@@ -5,19 +5,19 @@ defmodule Test.Acceptance.Regressions.I154pArserCrashSymbolicInputTest do
   import EarmarkAstDsl
 
   test "this should not crash" do
-    ast = [ p("[{:}") ]
+    ast = [p("[{:}")]
     messages = []
     assert as_ast("\\[{:}") == {:ok, ast, messages}
   end
 
   test "this does not crash" do
-    ast = [ p("[{:") ]
+    ast = [p("[{:")]
     messages = []
     assert as_ast("\\[{:") == {:ok, ast, messages}
   end
 
   test "nor does this" do
-    ast = [ p("[{:}") ]
+    ast = [p("[{:}")]
     messages = []
     assert as_ast("[{:}") == {:ok, ast, messages}
   end
@@ -26,7 +26,7 @@ defmodule Test.Acceptance.Regressions.I154pArserCrashSymbolicInputTest do
     ast = [{"p", [], [{"em", [], ["a"], %{}}], %{}}]
     messages = []
     assert as_ast("*a*{:}") == {:ok, ast, messages}
-    
   end
 end
+
 # SPDX-License-Identifier: Apache-2.0

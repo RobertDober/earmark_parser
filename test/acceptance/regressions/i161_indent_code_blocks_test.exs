@@ -10,13 +10,16 @@ defmodule Test.Acceptance.Regressions.I161IndentCodeBlocksTest do
          def foo
          ```
       """
+
       expected = [
         ol(
           li([
             p("Test"),
             tag("pre", tag("code", "def foo", class: "elixir"))
-          ]))
+          ])
+        )
       ]
+
       assert ast_from_md(markdown) == expected
     end
 
@@ -29,15 +32,19 @@ defmodule Test.Acceptance.Regressions.I161IndentCodeBlocksTest do
           def foo
           ```
       """
+
       expected = [
         ol(
           li([
             p("Test"),
             tag("pre", tag("code", "def foo", class: "elixir"))
-          ]))
+          ])
+        )
       ]
+
       assert ast_from_md(markdown) == expected
     end
   end
 end
+
 # SPDX-License-Identifier: Apache-2.0

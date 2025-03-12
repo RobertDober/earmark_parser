@@ -55,15 +55,18 @@ defmodule EarmarkParserHelpersTests.LinkParserTest do
     end
 
     test "url part: complex imbrication" do
-      assert parse_link("[text](pre](in fix)suff)") == {~s<[text](pre](in fix)suff)>, ~s<text>, ~s<pre](in fix)suff>, nil, :link}
+      assert parse_link("[text](pre](in fix)suff)") ==
+               {~s<[text](pre](in fix)suff)>, ~s<text>, ~s<pre](in fix)suff>, nil, :link}
     end
 
     test "url part: deep imbrication" do
-      assert parse_link("[text](a(1)[((2) \\\\one)z)") == {~s<[text](a(1)[((2) \\one)z)>, ~s<text>, ~s<a(1)[((2) \\one)z>, nil, :link}
+      assert parse_link("[text](a(1)[((2) \\\\one)z)") ==
+               {~s<[text](a(1)[((2) \\one)z)>, ~s<text>, ~s<a(1)[((2) \\one)z>, nil, :link}
     end
 
     test "url part: simple, text part: escapes" do
-      assert parse_link("[hello \\*world\\*](url)") == {~s<[hello \\*world\\*](url)>, ~s<hello \\*world\\*>, ~s<url>, nil, :link}
+      assert parse_link("[hello \\*world\\*](url)") ==
+               {~s<[hello \\*world\\*](url)>, ~s<hello \\*world\\*>, ~s<url>, nil, :link}
     end
 
     test "url part: missing closing parens" do
@@ -138,10 +141,12 @@ defmodule EarmarkParserHelpersTests.LinkParserTest do
     test "finally!!!" do
       assert parse_link("![text](pre[\\()") == {~s<![text](pre[()>, ~s<text>, ~s<pre[(>, nil, :image}
     end
-    test "and with leading spaces" do 
+
+    test "and with leading spaces" do
       assert parse_link(" ![text](pre[\\()") == nil
     end
   end
+
   defp parse_link(markdown) do
     EarmarkParser.Parser.LinkParser.parse_link(markdown, 0)
   end

@@ -7,7 +7,6 @@ defmodule Functional.Scanner.LineTypeTest do
 
   @all_but_leading_ws ~r{\S.*}
 
-
   id1 = ~S{[ID1]: http://example.com  "The title"}
   id2 = ~S{[ID2]: http://example.com  'The title'}
   id3 = ~S{[ID3]: http://example.com  (The title)}
@@ -22,7 +21,7 @@ defmodule Functional.Scanner.LineTypeTest do
   id11 = ~S{[ID11]: http://example.com "Title with trailing whitespace" }
   id12 = ~S{[ID12]: ]hello}
 
- # Leave Blanks at the beginning, they will be dropped for IAL tests
+  # Leave Blanks at the beginning, they will be dropped for IAL tests
   test_cases =
     [
       {"", %Line.Blank{}, nil},
@@ -169,8 +168,10 @@ defmodule Functional.Scanner.LineTypeTest do
       {"<wbr class='a'>", %Line.HtmlOneLine{tag: "wbr", content: "<wbr class='a'>"}, "annotated"},
       {"<h2>Headline</h2>", %Line.HtmlOneLine{tag: "h2", content: "<h2>Headline</h2>"}, nil},
       {"<h2>Headline</h2>", %Line.HtmlOneLine{tag: "h2", content: "<h2>Headline</h2>"}, "annotated"},
-      {"<h2 id='headline'>Headline</h2>", %Line.HtmlOneLine{tag: "h2", content: "<h2 id='headline'>Headline</h2>"}, nil},
-      {"<h2 id='headline'>Headline</h2>", %Line.HtmlOneLine{tag: "h2", content: "<h2 id='headline'>Headline</h2>"}, "annotated"},
+      {"<h2 id='headline'>Headline</h2>", %Line.HtmlOneLine{tag: "h2", content: "<h2 id='headline'>Headline</h2>"},
+       nil},
+      {"<h2 id='headline'>Headline</h2>", %Line.HtmlOneLine{tag: "h2", content: "<h2 id='headline'>Headline</h2>"},
+       "annotated"},
       {"<h3>Headline", %Line.HtmlOpenTag{tag: "h3", content: "<h3>Headline"}, nil},
       {"<h3>Headline", %Line.HtmlOpenTag{tag: "h3", content: "<h3>Headline"}, "annotated"},
       {id1, %Line.IdDef{id: "ID1", url: "http://example.com", title: "The title"}, nil},
@@ -189,8 +190,18 @@ defmodule Functional.Scanner.LineTypeTest do
       {id7, %Line.IdDef{id: "ID7", url: "http://example.com", title: "The title"}, "annotated"},
       {id8, %Line.IdDef{id: "ID8", url: "http://example.com", title: "The title"}, nil},
       {id8, %Line.IdDef{id: "ID8", url: "http://example.com", title: "The title"}, "annotated"},
-      {id9, %Line.Indent{ content: "[ID9]: http://example.com  \"The title\"", level: 1, line: "    [ID9]: http://example.com  \"The title\"" }, nil},
-      {id9, %Line.Indent{ content: "[ID9]: http://example.com  \"The title\"", level: 1, line: "    [ID9]: http://example.com  \"The title\"" }, "annotated"},
+      {id9,
+       %Line.Indent{
+         content: "[ID9]: http://example.com  \"The title\"",
+         level: 1,
+         line: "    [ID9]: http://example.com  \"The title\""
+       }, nil},
+      {id9,
+       %Line.Indent{
+         content: "[ID9]: http://example.com  \"The title\"",
+         level: 1,
+         line: "    [ID9]: http://example.com  \"The title\""
+       }, "annotated"},
       {id10, %Line.IdDef{id: "ID10", url: "/url/", title: "Title with \"quotes\" inside"}, nil},
       {id11, %Line.IdDef{id: "ID11", url: "http://example.com", title: "Title with trailing whitespace"}, nil},
       {id11, %Line.IdDef{id: "ID11", url: "http://example.com", title: "Title with trailing whitespace"}, "annotated"},
@@ -209,9 +220,11 @@ defmodule Functional.Scanner.LineTypeTest do
       {"1. ol1", %Line.ListItem{type: :ol, bullet: "1.", content: "ol1", list_indent: 3}, nil},
       {"1. ol1", %Line.ListItem{type: :ol, bullet: "1.", content: "ol1", list_indent: 3}, "annotated"},
       {"12345.      ol2", %Line.ListItem{type: :ol, bullet: "12345.", content: "     ol2", list_indent: 7}, nil},
-      {"12345.      ol2", %Line.ListItem{type: :ol, bullet: "12345.", content: "     ol2", list_indent: 7}, "annotated"},
+      {"12345.      ol2", %Line.ListItem{type: :ol, bullet: "12345.", content: "     ol2", list_indent: 7},
+       "annotated"},
       {"12345)      ol3", %Line.ListItem{type: :ol, bullet: "12345)", content: "     ol3", list_indent: 7}, nil},
-      {"12345)      ol3", %Line.ListItem{type: :ol, bullet: "12345)", content: "     ol3", list_indent: 7}, "annotated"},
+      {"12345)      ol3", %Line.ListItem{type: :ol, bullet: "12345)", content: "     ol3", list_indent: 7},
+       "annotated"},
       {"1234567890. ol4", %Line.Text{content: "1234567890. ol4"}, nil},
       {"1234567890. ol4", %Line.Text{content: "1234567890. ol4"}, "annotated"},
       {"1.ol5", %Line.Text{content: "1.ol5"}, nil},
@@ -253,20 +266,27 @@ defmodule Functional.Scanner.LineTypeTest do
          content: "[^1]: bar baz",
          line: "[^1]: bar baz",
          lnb: 42
-       }, "annotated"},
+       }, "annotated"}
     ]
-    |> Enum.with_index
+    |> Enum.with_index()
 
   @annotation "%%"
   describe "scan with annotations" do
     test_cases
     |> Enum.map(fn {{input, token, annotation}, test_nb} ->
       tag = "ann_#{test_nb}" |> String.to_atom()
-      annotation_ = if annotation, do: Enum.join([@annotation, annotation])
+
+      annotation_ =
+        if annotation do
+          Enum.join([@annotation, annotation])
+        end
+
       input_ = "#{input}#{annotation_}"
       name = "test: #{test_nb} (#{input_})"
+
       result =
         EarmarkParser.LineScanner.type_of({input_, 1729}, normalize(annotations: @annotation), false)
+
       indent = input |> String.replace(@all_but_leading_ws, "") |> String.length()
       expected = struct(token, annotation: annotation_, line: input, indent: indent, lnb: 1729)
 
@@ -283,8 +303,10 @@ defmodule Functional.Scanner.LineTypeTest do
     |> Enum.map(fn {{input, token, _nil}, test_nb} ->
       tag = "noann_#{test_nb}" |> String.to_atom()
       name = "test: #{test_nb} (#{input})"
+
       result =
         EarmarkParser.LineScanner.type_of({input, 1731}, false)
+
       indent = input |> String.replace(@all_but_leading_ws, "") |> String.length()
       expected = struct(token, line: input, indent: indent, lnb: 1731)
 
@@ -296,30 +318,32 @@ defmodule Functional.Scanner.LineTypeTest do
   end
 
   ial_test_cases = [
-      {"# H1", %Line.Heading{level: 1, content: "H1"}, nil},
-      {"# H1", %Line.Heading{level: 1, content: "H1"}, "H1"},
-      {"## H2", %Line.Heading{level: 2, content: "H2"}, nil},
-      {"## H2", %Line.Heading{level: 2, content: "H2"}, "H2"},
-      {"### H3", %Line.Heading{level: 3, content: "H3"}, nil},
-      {"### H3", %Line.Heading{level: 3, content: "H3"}, "H3"},
-      {"#### H4", %Line.Heading{level: 4, content: "H4"}, nil},
-      {"#### H4", %Line.Heading{level: 4, content: "H4"}, "H4"},
-      {"##### H5", %Line.Heading{level: 5, content: "H5"}, nil},
-      {"##### H5", %Line.Heading{level: 5, content: "H5"}, "H5"},
-      {"###### H6", %Line.Heading{level: 6, content: "H6"}, nil},
-      {"###### H6", %Line.Heading{level: 6, content: "H6"}, "H6"},
-    ]
+    {"# H1", %Line.Heading{level: 1, content: "H1"}, nil},
+    {"# H1", %Line.Heading{level: 1, content: "H1"}, "H1"},
+    {"## H2", %Line.Heading{level: 2, content: "H2"}, nil},
+    {"## H2", %Line.Heading{level: 2, content: "H2"}, "H2"},
+    {"### H3", %Line.Heading{level: 3, content: "H3"}, nil},
+    {"### H3", %Line.Heading{level: 3, content: "H3"}, "H3"},
+    {"#### H4", %Line.Heading{level: 4, content: "H4"}, nil},
+    {"#### H4", %Line.Heading{level: 4, content: "H4"}, "H4"},
+    {"##### H5", %Line.Heading{level: 5, content: "H5"}, nil},
+    {"##### H5", %Line.Heading{level: 5, content: "H5"}, "H5"},
+    {"###### H6", %Line.Heading{level: 6, content: "H6"}, nil},
+    {"###### H6", %Line.Heading{level: 6, content: "H6"}, "H6"}
+  ]
 
   @ial "{:.ial_class}"
   describe "scan with IAL" do
     ial_test_cases
-    |> Enum.with_index
+    |> Enum.with_index()
     |> Enum.map(fn {{input, token, _nil}, test_nb} ->
       tag = "ial_#{test_nb}" |> String.to_atom()
       name = "test: #{test_nb} (#{input})"
       input = "#{input}#{@ial}"
+
       result =
         EarmarkParser.LineScanner.type_of({input, 1774}, false)
+
       indent = input |> String.replace(@all_but_leading_ws, "") |> String.length()
       expected = struct(token, ial: ".ial_class", line: input, indent: indent, lnb: 1774)
 
@@ -331,23 +355,28 @@ defmodule Functional.Scanner.LineTypeTest do
   end
 
   block_ial_test_cases = [
-      {"> quote", %Line.BlockQuote{content: "quote"}},
-      {">    quote", %Line.BlockQuote{content: "   quote"}},
-      {">quote", %Line.BlockQuote{content: "quote"}},
-      {" >  quote", %Line.BlockQuote{content: " quote"}},
-      {" >", %Line.BlockQuote{content: ""}},
-      ]
+    {"> quote", %Line.BlockQuote{content: "quote"}},
+    {">    quote", %Line.BlockQuote{content: "   quote"}},
+    {">quote", %Line.BlockQuote{content: "quote"}},
+    {" >  quote", %Line.BlockQuote{content: " quote"}},
+    {" >", %Line.BlockQuote{content: ""}}
+  ]
+
   describe "IAL needs to be passed through content" do
     block_ial_test_cases
-    |> Enum.with_index
+    |> Enum.with_index()
     |> Enum.map(fn {{input, token}, test_nb} ->
       tag = "block_ial_#{test_nb}" |> String.to_atom()
       name = "test: #{test_nb} (#{input})"
       input = "#{input}#{@ial}"
+
       result =
         EarmarkParser.LineScanner.type_of({input, 1774}, false)
+
       indent = input |> String.replace(@all_but_leading_ws, "") |> String.length()
-      expected = struct(token, content: token.content <> @ial, ial: ".ial_class", line: input, indent: indent, lnb: 1774)
+
+      expected =
+        struct(token, content: token.content <> @ial, ial: ".ial_class", line: input, indent: indent, lnb: 1774)
 
       @tag tag
       test name do
@@ -357,31 +386,34 @@ defmodule Functional.Scanner.LineTypeTest do
   end
 
   not_ial_test_cases =
-  [
-    {"--", %Line.Text{annotation: nil, indent: 0, line: "--{:.not-ial}", lnb: 1905, content: "--{:.not-ial}"}},
-    {"* * *", %Line.ListItem{
-              annotation: nil,
-              ial: nil,
-              indent: 0,
-              line: "* * *{:.not-ial}",
-              lnb: 1905,
-              type: :ul,
-              bullet: "*",
-              content: "* *{:.not-ial}",
-              initial_indent: 0,
-              list_indent: 2
-            }},
-  ]
+    [
+      {"--", %Line.Text{annotation: nil, indent: 0, line: "--{:.not-ial}", lnb: 1905, content: "--{:.not-ial}"}},
+      {"* * *",
+       %Line.ListItem{
+         annotation: nil,
+         ial: nil,
+         indent: 0,
+         line: "* * *{:.not-ial}",
+         lnb: 1905,
+         type: :ul,
+         bullet: "*",
+         content: "* *{:.not-ial}",
+         initial_indent: 0,
+         list_indent: 2
+       }}
+    ]
 
   describe "not IAL" do
     not_ial_test_cases
-    |> Enum.with_index
+    |> Enum.with_index()
     |> Enum.map(fn {{input, token}, test_nb} ->
       tag = "not_ial_#{test_nb + 1}" |> String.to_atom()
       name = "test: #{test_nb + 1} (#{input})"
       input_ = "#{input}{:.not-ial}"
+
       result =
         EarmarkParser.LineScanner.type_of({input_, 1905}, false)
+
       indent = input |> String.replace(@all_but_leading_ws, "") |> String.length()
       expected = struct(token, line: input_, indent: indent, lnb: 1905)
 

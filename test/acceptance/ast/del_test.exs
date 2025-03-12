@@ -56,12 +56,23 @@ defmodule Acceptance.Ast.DelTest do
 
     test "full of tildes" do
       markdown = "~Not ~~yes~~ ~~a trap~ this one~~ what ~else~?  ~~!~~"
-      ast = [p([
-        "~Not ", tag("del", "yes"), " ", tag("del", "a trap~ this one"), " what ~else~?  ", tag("del", "!")])]
+
+      ast = [
+        p([
+          "~Not ",
+          tag("del", "yes"),
+          " ",
+          tag("del", "a trap~ this one"),
+          " what ~else~?  ",
+          tag("del", "!")
+        ])
+      ]
+
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
     end
   end
 end
+
 # SPDX-License-Identifier: Apache-2.0

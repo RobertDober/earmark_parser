@@ -20,9 +20,7 @@ defmodule Test.Functional.Inline.Converter.ComplexConversionTest do
 
       expected = [
         " again",
-        {"a",
-         [{"href", "#fn:1"}, {"id", "fnref:1"}, {"class", "footnote"}, {"title", "see footnote"}],
-         ["1"], %{}},
+        {"a", [{"href", "#fn:1"}, {"id", "fnref:1"}, {"class", "footnote"}, {"title", "see footnote"}], ["1"], %{}},
         " foo"
       ]
 
@@ -44,8 +42,7 @@ defmodule Test.Functional.Inline.Converter.ComplexConversionTest do
 
       expected = [
         ")",
-        {"a", [{"href", "http://www.google.com/search?q=business"}],
-         ["http://www.google.com/search?q=business"], %{}},
+        {"a", [{"href", "http://www.google.com/search?q=business"}], ["http://www.google.com/search?q=business"], %{}},
         "("
       ]
 
@@ -54,8 +51,7 @@ defmodule Test.Functional.Inline.Converter.ComplexConversionTest do
 
     test " a link" do
       expected = [
-        {"a", [{"href", "http://www.google.com/search?q=business"}],
-         ["http://www.google.com/search?q=business"], %{}}
+        {"a", [{"href", "http://www.google.com/search?q=business"}], ["http://www.google.com/search?q=business"], %{}}
       ]
 
       assert convert(@link) == expected

@@ -8,6 +8,7 @@ defmodule HelpersTest do
     test "expand_tab spaces only(1)" do
       assert expand_tabs(" ") == " "
     end
+
     test "expand_tab spaces only" do
       assert expand_tabs("   ") == "   "
     end
@@ -19,9 +20,11 @@ defmodule HelpersTest do
     test "expand_tab mixed, 1 space" do
       assert expand_tabs(" \t ") == "     "
     end
+
     test "expand_tab mixed, 2 spaces" do
       assert expand_tabs("  \t ") == "     "
     end
+
     test "expand_tab mixed, 3 spaces" do
       assert expand_tabs("   \t ") == "     "
     end
@@ -39,6 +42,6 @@ defmodule HelpersTest do
       assert extract_ial("#{input}{:#{ial}}") == {ial, input}
     end
   end
-
 end
+
 # SPDX-License-Identifier: Apache-2.0
