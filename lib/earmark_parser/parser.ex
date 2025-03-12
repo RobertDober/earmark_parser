@@ -69,7 +69,10 @@ defmodule EarmarkParser.Parser do
   end
 
   defp _parse(input, result, options, recursive)
-  defp _parse([], result, options, _recursive), do: {result, %{}, options}
+
+  defp _parse([], result, options, _recursive) do
+    {result, %{}, options}
+  end
 
   ###################
   # setext headings #
@@ -153,7 +156,12 @@ defmodule EarmarkParser.Parser do
   # split and parse
   defp _parse(lines = [%Line.BlockQuote{lnb: lnb} | _], result, options, recursive) do
     {quote_lines, rest} = Enum.split_while(lines, &blockquote_or_text?/1)
-    lines = for line <- quote_lines, do: line.content
+
+    lines =
+      for line <- quote_lines do
+        line.content
+      end
+
     {blocks, _, _, options1} = parse(lines, %{options | line: lnb}, true)
     _parse(rest, [%Block.BlockQuote{blocks: blocks, lnb: lnb} | result], options1, recursive)
   end
@@ -204,7 +212,12 @@ defmodule EarmarkParser.Parser do
   # split and add verbatim
   defp _parse(lines = [%Line.TableLine{lnb: lnb} | _], result, options, recursive) do
     {para_lines, rest} = Enum.split_while(lines, &text?/1)
-    line_text = for line <- para_lines, do: line.line
+
+    line_text =
+      for line <- para_lines do
+        line.line
+      end
+
     _parse(rest, [%Block.Para{lines: line_text, lnb: lnb + 1} | result], options, recursive)
   end
 
@@ -224,7 +237,10 @@ defmodule EarmarkParser.Parser do
           )
       end
 
-    line_text = for line <- reversed_para_lines |> Enum.reverse(), do: line.line
+    line_text =
+      for line <- reversed_para_lines |> Enum.reverse() do
+        line.line
+      end
 
     if recursive == :list do
       _parse(rest, [%Block.Text{line: line_text, lnb: lnb} | result], options1, recursive)
@@ -265,7 +281,11 @@ defmodule EarmarkParser.Parser do
   defp _parse(list = [%Line.Indent{lnb: lnb} | _], result, options, recursive) do
     {code_lines, rest} = Enum.split_while(list, &indent_or_blank?/1)
     code_lines = remove_trailing_blank_lines(code_lines)
-    code = for line <- code_lines, do: properly_indent(line, 1)
+
+    code =
+      for line <- code_lines do
+        properly_indent(line, 1)
+      end
 
     _parse(
       [%Line.Blank{} | rest],
@@ -291,7 +311,11 @@ defmodule EarmarkParser.Parser do
       end)
 
     {rest1, options1} = _check_closing_fence(rest, lnb, delimiter, options)
-    code = for line <- code_lines, do: line.line
+
+    code =
+      for line <- code_lines do
+        line.line
+      end
 
     _parse(
       rest1,
@@ -380,7 +404,11 @@ defmodule EarmarkParser.Parser do
         {html_lines ++ [hd(rest)], tl(rest)}
       end
 
-    html = for line <- html_lines, do: line.line
+    html =
+      for line <- html_lines do
+        line.line
+      end
+
     _parse(rest, [%Block.HtmlComment{lines: html, lnb: lnb} | result], options, recursive)
   end
 
@@ -455,7 +483,9 @@ defmodule EarmarkParser.Parser do
   # Assign attributes that follow a block to that block #
   #######################################################
 
-  defp assign_attributes_to_blocks([], result), do: result
+  defp assign_attributes_to_blocks([], result) do
+    result
+  end
 
   defp assign_attributes_to_blocks([%Block.Ial{attrs: attrs}, block | rest], result) do
     assign_attributes_to_blocks(rest, [%{block | attrs: attrs} | result])
@@ -485,7 +515,9 @@ defmodule EarmarkParser.Parser do
   @not_pending {nil, 0}
   # ([#{},...]) -> {[#{}],[#{}],{'nil' | binary(),number()}}
   # @spec consolidate_para( ts ) :: { ts, ts, {nil | String.t, number} }
-  defp consolidate_para(lines), do: _consolidate_para(lines, [], @not_pending, nil)
+  defp consolidate_para(lines) do
+    _consolidate_para(lines, [], @not_pending, nil)
+  end
 
   defp _consolidate_para([], result, pending, annotation) do
     {result, [], pending, annotation}
@@ -559,13 +591,17 @@ defmodule EarmarkParser.Parser do
     Map.put(result, String.downcase(id), item)
   end
 
-  defp link_extractor(_, result), do: result
+  defp link_extractor(_, result) do
+    result
+  end
 
   ##################################
   # Visitor pattern for each block #
   ##################################
 
-  defp visit([], result, _func), do: result
+  defp visit([], result, _func) do
+    result
+  end
 
   # Structural node BlockQuote -> descend
   defp visit([item = %Block.BlockQuote{blocks: blocks} | rest], result, func) do
@@ -598,18 +634,21 @@ defmodule EarmarkParser.Parser do
   # Consume HTML, taking care of nesting. Assumes one tag per line. #
   ###################################################################
 
-  defp _html_match_to_closing(opener, rest, annotation),
-    do: _find_closing_tags([opener], rest, [opener.line], [], annotation)
+  defp _html_match_to_closing(opener, rest, annotation) do
+    _find_closing_tags([opener], rest, [opener.line], [], annotation)
+  end
 
   defp _find_closing_tags(needed, input, html_lines, text_lines, annotation)
 
   # No more open tags, happy case
-  defp _find_closing_tags([], rest, html_lines, [], annotation),
-    do: {html_lines, rest, [], annotation}
+  defp _find_closing_tags([], rest, html_lines, [], annotation) do
+    {html_lines, rest, [], annotation}
+  end
 
   # run out of input, unhappy case
-  defp _find_closing_tags(needed, [], html_lines, text_lines, annotation),
-    do: {_add_text_lines(html_lines, text_lines), [], needed, annotation}
+  defp _find_closing_tags(needed, [], html_lines, text_lines, annotation) do
+    {_add_text_lines(html_lines, text_lines), [], needed, annotation}
+  end
 
   # still more lines, still needed closing
   defp _find_closing_tags(
@@ -643,11 +682,13 @@ defmodule EarmarkParser.Parser do
     end
   end
 
-  defp _add_text_lines(html_lines, []),
-    do: html_lines
+  defp _add_text_lines(html_lines, []) do
+    html_lines
+  end
 
-  defp _add_text_lines(html_lines, text_lines),
-    do: [text_lines |> Enum.reverse() |> Enum.join("\n") | html_lines]
+  defp _add_text_lines(html_lines, text_lines) do
+    [text_lines |> Enum.reverse() |> Enum.join("\n") | html_lines]
+  end
 
   ###########
   # Helpers #
@@ -657,10 +698,17 @@ defmodule EarmarkParser.Parser do
     ctag == otag
   end
 
-  defp _closes_tag?(_, _), do: false
+  defp _closes_tag?(_, _) do
+    false
+  end
 
-  defp _opens_tag?(%Line.HtmlOpenTag{}), do: true
-  defp _opens_tag?(_), do: false
+  defp _opens_tag?(%Line.HtmlOpenTag{}) do
+    true
+  end
+
+  defp _opens_tag?(_) do
+    false
+  end
 
   defp _inline_or_text?(line, pending)
 
@@ -674,14 +722,18 @@ defmodule EarmarkParser.Parser do
     %{pending: pending, continue: true}
   end
 
-  defp _inline_or_text?(_line, @not_pending), do: %{pending: @not_pending, continue: false}
+  defp _inline_or_text?(_line, @not_pending) do
+    %{pending: @not_pending, continue: false}
+  end
 
   defp _inline_or_text?(line, pending) do
     pending = still_inline_code(line, pending)
     %{pending: pending, continue: true}
   end
 
-  defp _override_annotation(annotation, line), do: annotation || line.annotation
+  defp _override_annotation(annotation, line) do
+    annotation || line.annotation
+  end
 
   defp remove_trailing_blank_lines(lines) do
     lines
@@ -691,7 +743,10 @@ defmodule EarmarkParser.Parser do
   end
 
   def prepend_ial(context, maybeatts, lnb, result)
-  def prepend_ial(context, nil, _lnb, result), do: {context, result}
+
+  def prepend_ial(context, nil, _lnb, result) do
+    {context, result}
+  end
 
   def prepend_ial(context, ial, lnb, result) do
     {context1, attributes} = parse_attrs(context, ial, lnb)

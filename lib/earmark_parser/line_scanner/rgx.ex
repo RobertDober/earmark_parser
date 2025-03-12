@@ -32,42 +32,66 @@ defmodule EarmarkParser.LineScanner.Rgx do
             void_tag_matches: 1,
             void_tag_rgx: 0}
 
-  def block_quote_matches(content), do: Regex.run(~r/\A > \s? (.*)/x, content)
+  def block_quote_matches(content) do
+    Regex.run(~r/\A > \s? (.*)/x, content)
+  end
 
-  def bullet_list_item_matches(content), do: Regex.run(~r/\A ([-*+]) \s (\s*) (.*)/x, content)
+  def bullet_list_item_matches(content) do
+    Regex.run(~r/\A ([-*+]) \s (\s*) (.*)/x, content)
+  end
 
-  def dash_ruler_matches(content), do: Regex.run(~r/\A (?:-\s?){3,} \z/x, content)
+  def dash_ruler_matches(content) do
+    Regex.run(~r/\A (?:-\s?){3,} \z/x, content)
+  end
 
-  def fence_matches(content),
-    do: Regex.run(~r/\A (\s*) (`{3,} | ~{3,}) \s* ([^`\s]*) \s* \z/ux, content)
+  def fence_matches(content) do
+    Regex.run(~r/\A (\s*) (`{3,} | ~{3,}) \s* ([^`\s]*) \s* \z/ux, content)
+  end
 
-  def footnote_def_matches(content), do: Regex.run(~r/\A \[\^([^\s\]]+)\] : \s+ (.*)/x, content)
+  def footnote_def_matches(content) do
+    Regex.run(~r/\A \[\^([^\s\]]+)\] : \s+ (.*)/x, content)
+  end
 
   # @heading ~r/\A
   # (\#{1,6}) \s+
   #   (?|(.*?) \s* #* \s* \z
   #   |
   #   (.*))/ux
-  def heading_matches(content),
-    do: Regex.run(~r/\A(\#{1,6})\s+(?|(.*?)\s*#*\s*\z|(.*))/u, content)
+  def heading_matches(content) do
+    Regex.run(~r/\A(\#{1,6})\s+(?|(.*?)\s*#*\s*\z|(.*))/u, content)
+  end
 
-  def html_close_tag_matches(content), do: Regex.run(~r/\A < \/ ([-\w]+?) >/x, content)
+  def html_close_tag_matches(content) do
+    Regex.run(~r/\A < \/ ([-\w]+?) >/x, content)
+  end
 
-  def html_comment_start_matches(content), do: Regex.run(~r/\A <!-- .*? \z/x, content)
+  def html_comment_start_matches(content) do
+    Regex.run(~r/\A <!-- .*? \z/x, content)
+  end
 
-  def html_comment_matches(content), do: Regex.run(~r/\A <! (?: -- .*? -- \s* )+ > \z/x, content)
+  def html_comment_matches(content) do
+    Regex.run(~r/\A <! (?: -- .*? -- \s* )+ > \z/x, content)
+  end
 
-  def html_one_line_matches(content),
-    do: Regex.run(~r/\A < ([-\w]+?) (?:\s.*)? > .* <\/\1>/x, content)
+  def html_one_line_matches(content) do
+    Regex.run(~r/\A < ([-\w]+?) (?:\s.*)? > .* <\/\1>/x, content)
+  end
 
-  def html_open_tag_matches(content), do: Regex.run(~r/\A < ([-\w]+?) (?:\s.*)? >/x, content)
+  def html_open_tag_matches(content) do
+    Regex.run(~r/\A < ([-\w]+?) (?:\s.*)? >/x, content)
+  end
 
-  def html_self_closing_matches(content),
-    do: Regex.run(~r/\A < ([-\w]+?) (?:\s.*)? \/> .*/x, content)
+  def html_self_closing_matches(content) do
+    Regex.run(~r/\A < ([-\w]+?) (?:\s.*)? \/> .*/x, content)
+  end
 
-  def set_ext_underline_matches(content), do: Regex.run(~r/\A (=|-)+ \s* \z/x, content)
+  def set_ext_underline_matches(content) do
+    Regex.run(~r/\A (=|-)+ \s* \z/x, content)
+  end
 
-  def ial_matches(content), do: Regex.run(~r/\A {: (\s*[^}]+) } \s* \z/x, content)
+  def ial_matches(content) do
+    Regex.run(~r/\A {: (\s*[^}]+) } \s* \z/x, content)
+  end
 
   @id_title_part ~S"""
         (?|
@@ -107,20 +131,33 @@ defmodule EarmarkParser.LineScanner.Rgx do
     )
   end
 
-  def numbered_list_item_matches(content),
-    do: Regex.run(~r/\A (\d{1,9} [.)] ) \s (\s*) (.*)/x, content)
+  def numbered_list_item_matches(content) do
+    Regex.run(~r/\A (\d{1,9} [.)] ) \s (\s*) (.*)/x, content)
+  end
 
-  def star_ruler_matches(content), do: Regex.run(~r/\A (?:\*\s?){3,} \z/x, content)
+  def star_ruler_matches(content) do
+    Regex.run(~r/\A (?:\*\s?){3,} \z/x, content)
+  end
 
-  def table_column_rgx, do: ~r/\A (\s*) .* \| /x
+  def table_column_rgx do
+    ~r/\A (\s*) .* \| /x
+  end
 
-  def table_first_column_rgx, do: ~r/\A (\s*) .* \s \| \s /x
+  def table_first_column_rgx do
+    ~r/\A (\s*) .* \s \| \s /x
+  end
 
-  def table_header_rgx, do: ~r/\[\[ .*? \]\]/x
+  def table_header_rgx do
+    ~r/\[\[ .*? \]\]/x
+  end
 
-  def table_line_matches(content), do: Regex.run(~r/\A \| (?: [^|]+ \|)+ \s* \z/x, content)
+  def table_line_matches(content) do
+    Regex.run(~r/\A \| (?: [^|]+ \|)+ \s* \z/x, content)
+  end
 
-  def underline_ruler_matches(content), do: Regex.run(~r/\A (?:_\s?){3,} \z/x, content)
+  def underline_ruler_matches(content) do
+    Regex.run(~r/\A (?:_\s?){3,} \z/x, content)
+  end
 
   @void_tags ~w{area br hr img wbr}
   def void_tag_rgx do
@@ -131,7 +168,9 @@ defmodule EarmarkParser.LineScanner.Rgx do
     '''x
   end
 
-  def void_tag_matches(content), do: Regex.run(void_tag_rgx(), content)
+  def void_tag_matches(content) do
+    Regex.run(void_tag_rgx(), content)
+  end
 end
 
 # SPDX-License-Identifier: Apache-2.0

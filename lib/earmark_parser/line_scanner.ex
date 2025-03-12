@@ -7,7 +7,9 @@ defmodule EarmarkParser.LineScanner do
   # This is the re that matches the ridiculous "[id]: url title" syntax
 
   @doc false
-  def void_tag?(tag), do: Regex.match?(void_tag_rgx(), "<#{tag}>")
+  def void_tag?(tag) do
+    Regex.match?(void_tag_rgx(), "<#{tag}>")
+  end
 
   def scan_lines(lines, options, recursive) do
     _lines_with_count(lines, options.line - 1)
@@ -15,8 +17,9 @@ defmodule EarmarkParser.LineScanner do
   end
 
   def type_of(line, recursive)
-      when is_boolean(recursive),
-      do: type_of(line, %Options{}, recursive)
+      when is_boolean(recursive) do
+    type_of(line, %Options{}, recursive)
+  end
 
   def type_of({line, lnb}, options = %Options{annotations: annotations}, recursive)
       when is_binary(line) do
@@ -112,7 +115,14 @@ defmodule EarmarkParser.LineScanner do
 
       match = lt_four? && id_def_matches(content) ->
         [_, id, url | title] = match
-        title = if(Enum.empty?(title), do: "", else: hd(title))
+
+        title =
+          if(Enum.empty?(title)) do
+            ""
+          else
+            hd(title)
+          end
+
         %Line.IdDef{id: id, url: url, title: title, indent: indent, line: line}
 
       match = options.footnotes && footnote_def_matches(line) ->
@@ -153,7 +163,7 @@ defmodule EarmarkParser.LineScanner do
         }
 
       line
-      |> String.replace(table_header_rgx(),  "")
+      |> String.replace(table_header_rgx(), "")
       |> String.match?(table_first_column_rgx()) ->
         columns = _split_table_columns(line)
 
@@ -180,7 +190,14 @@ defmodule EarmarkParser.LineScanner do
 
       match = set_ext_underline_matches(line) ->
         [_, type] = match
-        level = if(String.starts_with?(type, "="), do: 1, else: 2)
+
+        level =
+          if(String.starts_with?(type, "=")) do
+            1
+          else
+            2
+          end
+
         %Line.SetextUnderlineHeading{level: level, indent: 0, line: line}
 
       match = lt_four? && ial_matches(content) ->
@@ -192,17 +209,24 @@ defmodule EarmarkParser.LineScanner do
     end
   end
 
-  defp _attribute_escape(string),
-    do:
-      string
-      |> String.replace("&", "&amp;")
-      |> String.replace("<", "&lt;")
+  defp _attribute_escape(string) do
+    string
+    |> String.replace("&", "&amp;")
+    |> String.replace("<", "&lt;")
+  end
 
   defp _create_list_item(match, indent, line)
 
   defp _create_list_item([_, bullet, spaces, text], indent, line) do
     sl = byte_size(spaces)
-    sl1 = if sl > 3, do: 1, else: sl + 1
+
+    sl1 =
+      if sl > 3 do
+        1
+      else
+        sl + 1
+      end
+
     sl2 = sl1 + byte_size(bullet)
 
     %Line.ListItem{
@@ -220,17 +244,21 @@ defmodule EarmarkParser.LineScanner do
     _create_text(line, content, indent)
   end
 
-  defp _create_text(line, "", indent),
-    do: %Line.Blank{indent: indent, line: line}
+  defp _create_text(line, "", indent) do
+    %Line.Blank{indent: indent, line: line}
+  end
 
-  defp _create_text(line, content, indent),
-    do: %Line.Text{content: content, indent: indent, line: line}
+  defp _create_text(line, content, indent) do
+    %Line.Text{content: content, indent: indent, line: line}
+  end
 
-  defp _count_indent(<<space, rest::binary>>, indent) when space in [?\s, ?\t],
-    do: _count_indent(rest, indent + 1)
+  defp _count_indent(<<space, rest::binary>>, indent) when space in [?\s, ?\t] do
+    _count_indent(rest, indent + 1)
+  end
 
-  defp _count_indent(rest, indent),
-    do: {rest, indent}
+  defp _count_indent(rest, indent) do
+    {rest, indent}
+  end
 
   defp _lines_with_count(lines, offset) do
     Enum.zip(lines, offset..(offset + Enum.count(lines)))
@@ -250,9 +278,13 @@ defmodule EarmarkParser.LineScanner do
     end
   end
 
-  defp _with_lookahead([], _options, _recursive), do: []
+  defp _with_lookahead([], _options, _recursive) do
+    []
+  end
 
-  defp _lookahead_until_match([], _, _, _), do: []
+  defp _lookahead_until_match([], _, _, _) do
+    []
+  end
 
   defp _lookahead_until_match([{line, lnb} | lines], regex, options, recursive) do
     if line =~ regex do

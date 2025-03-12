@@ -9,4 +9,5 @@ defmodule EarmarkParser.Block.ListItem do
             spaced?: true,
             type: :ul
 end
+
 #  SPDX-License-Identifier: Apache-2.0

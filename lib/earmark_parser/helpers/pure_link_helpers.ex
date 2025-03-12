@@ -56,9 +56,13 @@ defmodule EarmarkParser.Helpers.PureLinkHelpers do
   # balance parens and return unbalanced *trailing* paren count
   defp balance_parens(reverse_text, trailing_count, non_trailing_count \\ 0)
 
-  defp balance_parens(<<>>, trailing_paren_count, _non_trailing_count), do: trailing_paren_count
+  defp balance_parens(<<>>, trailing_paren_count, _non_trailing_count) do
+    trailing_paren_count
+  end
 
-  defp balance_parens(_reverse_text, 0, _non_trailing_count), do: 0
+  defp balance_parens(_reverse_text, 0, _non_trailing_count) do
+    0
+  end
 
   defp balance_parens(")" <> rest, trailing_paren_count, non_trailing_count) do
     balance_parens(rest, trailing_paren_count, non_trailing_count + 1)
@@ -73,7 +77,7 @@ defmodule EarmarkParser.Helpers.PureLinkHelpers do
     end
   end
 
-  defp balance_parens(<<_::utf8,rest::binary>>, trailing_paren_count, non_trailing_count) do
+  defp balance_parens(<<_::utf8, rest::binary>>, trailing_paren_count, non_trailing_count) do
     balance_parens(rest, trailing_paren_count, non_trailing_count)
   end
 end
