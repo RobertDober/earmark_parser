@@ -32,7 +32,9 @@ defmodule EarmarkParser.Ast.Inline do
     prepend(context, src)
   end
 
-  defp _convert("", _, context, _), do: context
+  defp _convert("", _, context, _) do
+    context
+  end
 
   defp _convert(src, current_lnb, context, use_linky?) do
     {src1, lnb1, context1, use_linky1?} = _convert_next(src, current_lnb, context, use_linky?)
@@ -218,7 +220,9 @@ defmodule EarmarkParser.Ast.Inline do
     end
   end
 
-  def converter_for_sub(_), do: nil
+  def converter_for_sub(_) do
+    nil
+  end
 
   def converter_for_sup({src, _, %{options: %{sub_sup: true}}, _} = conv_tuple) do
     sup_rgx = ~r{\A\^(?=\S)(.*?\S)\^}
@@ -228,7 +232,9 @@ defmodule EarmarkParser.Ast.Inline do
     end
   end
 
-  def converter_for_sup(_), do: nil
+  def converter_for_sup(_) do
+    nil
+  end
 
   def converter_for_math_inline({src, lnb, %{options: %{math: true}} = context, use_linky?}) do
     math_inline_rgx = ~r{\A\$(?=[^\s$])([\s\S]*?[^\s\\])\$}
@@ -241,7 +247,9 @@ defmodule EarmarkParser.Ast.Inline do
     end
   end
 
-  def converter_for_math_inline(_), do: nil
+  def converter_for_math_inline(_) do
+    nil
+  end
 
   def converter_for_math_display({src, lnb, %{options: %{math: true}} = context, use_linky?}) do
     math_display_rgx = ~r{\A\$\$([\s\S]+?)\$\$}
@@ -254,7 +262,9 @@ defmodule EarmarkParser.Ast.Inline do
     end
   end
 
-  def converter_for_math_display(_), do: nil
+  def converter_for_math_display(_) do
+    nil
+  end
 
   def converter_for_code({src, lnb, context, use_linky?}) do
     code = ~r{^
@@ -326,8 +336,7 @@ defmodule EarmarkParser.Ast.Inline do
 
     context1 = _convert(content, lnb, set_value(context, []), use_linky?)
 
-    {behead(src, match1), lnb, prepend(context, emit(for_tag, context1.value |> Enum.reverse())),
-     use_linky?}
+    {behead(src, match1), lnb, prepend(context, emit(for_tag, context1.value |> Enum.reverse())), use_linky?}
   end
 
   defp _prepend_footnote(context, out, id) do
@@ -339,7 +348,13 @@ defmodule EarmarkParser.Ast.Inline do
   defp convert_autolink(link, separator)
 
   defp convert_autolink(link, _separator = "@") do
-    link = if String.at(link, 6) == ":", do: behead(link, 7), else: link
+    link =
+      if String.at(link, 6) == ":" do
+        behead(link, 7)
+      else
+        link
+      end
+
     text = link
     href = "mailto:" <> text
     {href, text}
@@ -359,8 +374,14 @@ defmodule EarmarkParser.Ast.Inline do
   end
 
   defp hard_line_breaks(text, gfm)
-  defp hard_line_breaks(text, false), do: text
-  defp hard_line_breaks(text, nil), do: text
+
+  defp hard_line_breaks(text, false) do
+    text
+  end
+
+  defp hard_line_breaks(text, nil) do
+    text
+  end
 
   defp hard_line_breaks(text, _) do
     text
@@ -460,8 +481,14 @@ defmodule EarmarkParser.Ast.Inline do
   end
 
   defp _remove_leading_empty(list)
-  defp _remove_leading_empty(["" | rest]), do: rest
-  defp _remove_leading_empty(list), do: list
+
+  defp _remove_leading_empty(["" | rest]) do
+    rest
+  end
+
+  defp _remove_leading_empty(list) do
+    list
+  end
 end
 
 # SPDX-License-Identifier: Apache-2.0

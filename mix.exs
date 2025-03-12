@@ -59,9 +59,17 @@ defmodule EarmarkParser.MixProject do
     ]
   end
 
-  defp elixirc_paths(:test), do: ["lib", "test/support", "dev"]
-  defp elixirc_paths(:dev), do: ["lib", "bench", "dev"]
-  defp elixirc_paths(_), do: ["lib"]
+  defp elixirc_paths(:test) do
+    ["lib", "test/support", "dev"]
+  end
+
+  defp elixirc_paths(:dev) do
+    ["lib", "bench", "dev"]
+  end
+
+  defp elixirc_paths(_) do
+    ["lib"]
+  end
 
   @module "EarmarkParser"
   defp build_docs(_) do
