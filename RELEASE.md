@@ -5,6 +5,20 @@
 
 - [Parsing HTML]
 
+## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.43 2025-03-12
+
+- [PR #165](https://github.com/RobertDober/earmark_parser/pull/165) which formatted the code according to the newly created `.formatter.exs` **finally**
+as Brad convinced me to do this. I do not particulary like all the formatter does but it is good for fututre collaboration.
+
+**N.B. Collaborators**  `mix format --check-formatted` is part of the GHA CI checks, so please check it locally before making PRs, as duely noted in the
+docs.
+
+Maybe a commit hook would be better, I am open to suggestions.
+
+- [PR #163](https://github.com/RobertDober/earmark_parser/pull/163) fixing [elixir-lang/ex_doc#1452](https://github.com/elixir-lang/ex_doc/issues/1452) which
+was flying under my Radar waaaay to long.
+    Kudos to [Brad Hanks](https://github.com/bradhanks)
+
 ## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.43 2025-01-24
 
 This one is needed for OTP-28, many thanx to [José Valim](https://github.com/josevalim)
