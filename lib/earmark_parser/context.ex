@@ -3,14 +3,14 @@ defmodule EarmarkParser.Context do
   alias EarmarkParser.Options
 
   @type t :: %__MODULE__{
-          options: EarmarkParser.Options.t(),
+          options: Options.t(),
           links: map(),
           footnotes: map(),
           referenced_footnote_ids: MapSet.t(String.t()),
           value: String.t() | [String.t()]
         }
 
-  defstruct options: %EarmarkParser.Options{},
+  defstruct options: %Options{},
             links: Map.new(),
             rules: nil,
             footnotes: Map.new(),
@@ -23,8 +23,8 @@ defmodule EarmarkParser.Context do
 
   @doc false
   def modify_value(%__MODULE__{value: value} = context, fun) do
-    nv = fun.(value)
-    %{context | value: nv}
+    new_value = fun.(value)
+    %{context | value: new_value}
   end
 
   @doc false
