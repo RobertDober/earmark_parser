@@ -357,7 +357,7 @@ defmodule EarmarkParser do
 
   #### Lists
 
-  Lists are pretty much GFM compliant, but some behaviors concerning the interpreation of the markdown inside a List Item's first
+  Lists are pretty much GFM compliant, but some behaviors concerning the interpretation of the markdown inside a List Item's first
   paragraph seem not worth to be interpreted, examples are blockquote in a tight [list item](ttps://babelmark.github.io/?text=*+aa%0A++%3E+Second)
   which we can only have in a [loose one](https://babelmark.github.io/?text=*+aa%0A++%0A++%3E+Second)
 
@@ -615,7 +615,7 @@ defmodule EarmarkParser do
 
   The AST is exposed in the spirit of [Floki's](https://hex.pm/packages/floki).
   """
-  @spec as_ast(binary()|list(binary()), any()) :: t()
+  @spec as_ast(binary() | list(binary()), any()) :: t()
   def as_ast(lines, options \\ %Options{})
 
   def as_ast(lines, %Options{} = options) do
@@ -644,7 +644,7 @@ defmodule EarmarkParser do
   end
 
   def as_ast(_, options) do
-    raise ArgumentError, "#{inspect options} not a legal options map or keyword list"
+    raise ArgumentError, "#{inspect(options)} not a legal options map or keyword list"
   end
 
   defp _as_ast(lines, options) do
@@ -657,8 +657,9 @@ defmodule EarmarkParser do
     `iex` usage.
   """
   def version() do
-    with {:ok, version} = :application.get_key(:earmark_parser, :vsn),
-      do: to_string(version)
+    with {:ok, version} <- :application.get_key(:earmark_parser, :vsn) do
+      to_string(version)
+    end
   end
 end
 

@@ -56,7 +56,6 @@ defmodule Acceptance.Ast.Footnotes.SingleFootnoteTest do
         ])
       ]
 
-
       {:ok, result_ast, []} = as_ast(markdown, footnotes: true)
       assert_asts_are_equal(result_ast, ast)
     end
@@ -68,7 +67,6 @@ defmodule Acceptance.Ast.Footnotes.SingleFootnoteTest do
         p("foo[^1] again"),
         p("[^1]: bar baz\ngoo")
       ]
-
 
       {:ok, result_ast, []} = as_ast(markdown, footnotes: true)
       assert_asts_are_equal(result_ast, ast)
@@ -99,6 +97,17 @@ defmodule Acceptance.Ast.Footnotes.SingleFootnoteTest do
 
       {:ok, result_ast, []} = as_ast(markdown, footnotes: true, pure_links: true)
       assert_asts_are_equal(result_ast, ast)
+    end
+
+    test "footnote has verbatim" do
+      markdown = """
+      here is my footnote[^1]
+
+      [^1]: which [is a link](http://to.some.site)
+      """
+
+      {:ok, result_ast, []} = as_ast(markdown, footnotes: true, pure_links: true)
+      has_verbatim?(result_ast)
     end
 
     test "A two line footnote" do

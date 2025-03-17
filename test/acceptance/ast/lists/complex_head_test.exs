@@ -8,27 +8,33 @@ defmodule Test.Acceptance.Ast.Lists.ComplexHeadTest do
       * First
                 Second
       """
+
       expected = [ul(li(["First", pre_code("    Second")]))]
       assert ast_from_md(markdown) == expected
     end
+
     test "before end of list" do
       markdown = """
       * Primo
                 Secondo
       # Ciao
       """
+
       expected = [ul(li(["Primo", pre_code("    Secondo")])), tag("h1", "Ciao")]
       assert ast_from_md(markdown) == expected
     end
+
     test "before and of list item" do
       markdown = """
       * первый
                 второй
       * Привет
       """
+
       expected = [ul([li(["первый", pre_code("    второй")]), li("Привет")])]
       assert ast_from_md(markdown) == expected
     end
+
     test "before body" do
       markdown = """
       * uma
@@ -36,6 +42,7 @@ defmodule Test.Acceptance.Ast.Lists.ComplexHeadTest do
 
         Olá
       """
+
       expected = [ul(li([p("uma\n   duas"), p("Olá")]))]
       assert ast_from_md(markdown) == expected
     end
@@ -46,14 +53,17 @@ defmodule Test.Acceptance.Ast.Lists.ComplexHeadTest do
       markdown = """
       * > σπουδαίος
       """
+
       expected = [ul(blockquote("σπουδαίος"))]
       assert ast_from_md(markdown) == expected
     end
+
     test "blockquote in the middle" do
       markdown = """
       * banale
         > important
       """
+
       expected = [ul(li(["banale", blockquote("important")]))]
       assert ast_from_md(markdown) == expected
     end
@@ -66,6 +76,7 @@ defmodule Test.Acceptance.Ast.Lists.ComplexHeadTest do
 
       Text
       """
+
       expected = [ul(["Rien à voir, circulez"]), p("Text")]
       assert ast_from_md(markdown) == expected
     end
@@ -78,19 +89,23 @@ defmodule Test.Acceptance.Ast.Lists.ComplexHeadTest do
             > b
         > c
       """
+
       expected = [ul(li(["a", pre_code("> b"), blockquote("c")]))]
 
       assert ast_from_md(markdown) == expected
     end
+
     test "parse headlines in headers if they are indented _correctly_" do
       markdown = """
       - a
             # b
         # c
       """
+
       expected = [ul(li(["a", pre_code("# b"), tag("h1", "c")]))]
       assert ast_from_md(markdown) == expected
     end
+
     test "blocks with negative indent stop the list/item, but text does not" do
       markdown = """
       - a
@@ -98,21 +113,29 @@ defmodule Test.Acceptance.Ast.Lists.ComplexHeadTest do
       c
        > d
       """
+
       expected = [
-        ul(li(["a", blockquote("b\nc\nd")]))]
+        ul(li(["a", blockquote("b\nc\nd")]))
+      ]
+
       assert ast_from_md(markdown) == expected
     end
-    test "headline with negative indent stop the list/item definitely, but we need to aligne correctly" do
+
+    test "headline with negative indent stop the list/item definitely, but we need to align correctly" do
       markdown = """
       - a
           ## b
       c
        # d
       """
+
       expected = [
-        ul(li(["a\n  ## b\nc", tag("h1", "d")]))]
+        ul(li(["a\n  ## b\nc", tag("h1", "d")]))
+      ]
+
       assert ast_from_md(markdown) == expected
     end
+
     test "headline with negative indent stop the list/item definitely, if aligned correctly" do
       markdown = """
       - a
@@ -120,64 +143,87 @@ defmodule Test.Acceptance.Ast.Lists.ComplexHeadTest do
       c
       # d
       """
+
       expected = [
-        ul("a\n  ## b\nc"), tag("h1", "d")]
+        ul("a\n  ## b\nc"),
+        tag("h1", "d")
+      ]
+
       assert ast_from_md(markdown) == expected
     end
+
     test "negatively indexed outside of a block element is still part of the item" do
       markdown = """
       - a
       c
       """
+
       expected = [
-        ul(li("a\nc"))]
+        ul(li("a\nc"))
+      ]
+
       assert ast_from_md(markdown) == expected
     end
+
     test "negatively indexed outside of a block element is not part of the item after a header" do
       markdown = """
       - a
         # b
       c
       """
+
       expected = [
-        ul(li(["a", tag("h1", "b"), "c"]))]
+        ul(li(["a", tag("h1", "b"), "c"]))
+      ]
+
       assert ast_from_md(markdown) == expected
     end
+
     test "negatively indexed outside of a block element is not part of the item after text" do
       markdown = """
       - a
         # b
       c
       """
+
       expected = [
-        ul(li(["a", tag("h1", "b"), "c"]))]
+        ul(li(["a", tag("h1", "b"), "c"]))
+      ]
+
       assert ast_from_md(markdown) == expected
     end
+
     test "negatively indexed outside of a block element is again part of the item after an indented header" do
       markdown = """
       - a
             # b
       c
       """
+
       expected = [ul(li(["a", pre_code("# b"), "c"]))]
       assert ast_from_md(markdown) == expected
     end
+
     test "block element negatively indexed ends the list" do
       markdown = """
       - a
       > b
       """
-      expected = [ ul(li(["a", blockquote("b")]))]
+
+      expected = [ul(li(["a", blockquote("b")]))]
       assert ast_from_md(markdown) == expected
     end
+
     test "header element negatively indexed ends the list" do
       markdown = """
       - a
       # b
       """
-      expected = [ ul("a"), tag("h1", "b")]
+
+      expected = [ul("a"), tag("h1", "b")]
       assert ast_from_md(markdown) == expected
     end
+
     test "code element negatively indexed ends the list, but not for us" do
       markdown = """
       - a
@@ -185,7 +231,8 @@ defmodule Test.Acceptance.Ast.Lists.ComplexHeadTest do
       b
       ```
       """
-      expected = [ ul(li(["a", pre_code("b")])) ]
+
+      expected = [ul(li(["a", pre_code("b")]))]
       assert ast_from_md(markdown) == expected
     end
   end
@@ -195,9 +242,11 @@ defmodule Test.Acceptance.Ast.Lists.ComplexHeadTest do
       markdown = """
       - a `
       """
-      expected = {[ul("a `")],[{:warning, 1, "Closing unclosed backquotes ` at end of input"}]}
+
+      expected = {[ul("a `")], [{:warning, 1, "Closing unclosed backquotes ` at end of input"}]}
       assert ast_with_errors(markdown) == expected
     end
   end
 end
+
 #  SPDX-License-Identifier: Apache-2.0

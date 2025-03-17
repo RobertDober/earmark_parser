@@ -18,13 +18,14 @@ defmodule Acceptance.Ast.Lists.ListAndencedCodeTest do
             innerer
           ```
       """
+
       level2_list =
         ul(li([p("Inner List"), pre_code("  innerer")]))
+
       ast = [
         code("  before", class: "elixir"),
-        ul(li([p("Header 1"),
-          code("   inner", class: "erlang"),
-          level2_list]))]
+        ul(li([p("Header 1"), code("   inner", class: "erlang"), level2_list]))
+      ]
 
       assert ast_from_md(markdown) == ast
     end
@@ -35,4 +36,5 @@ defmodule Acceptance.Ast.Lists.ListAndencedCodeTest do
     tag("pre", [tag("code", content, class: class)])
   end
 end
+
 # SPDX-License-Identifier: Apache-2.0

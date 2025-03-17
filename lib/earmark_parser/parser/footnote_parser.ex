@@ -12,7 +12,7 @@ defmodule EarmarkParser.Parser.FootnoteParser do
 
   defp _parse_fn_def_reduce(ele_or_end, acc)
 
-  defp _parse_fn_def_reduce({:element, %Line.FnDef{content: content}=fn_def}, acc) do
+  defp _parse_fn_def_reduce({:element, %Line.FnDef{content: content} = fn_def}, acc) do
     {result1, footnotes, options1} = _complete_fn_def_block(acc, fn_def)
     {[content], result1, footnotes, options1}
   end
@@ -53,6 +53,6 @@ defmodule EarmarkParser.Parser.FootnoteParser do
 
     {[%Block.FnList{blocks: fn_blocks} | rest], footnotes1, options1}
   end
-
 end
+
 #  SPDX-License-Identifier: Apache-2.0

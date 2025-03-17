@@ -5,7 +5,7 @@ defmodule Acceptance.ErrorHandling.BadArgumentsTest do
 
   describe "monary as_ast" do
     test "raise Argument error for keyword input" do
-      assert_raise(ArgumentError, "line number 1 {:hello, \"world\"} is not a binary", fn -> as_ast([hello: "world"]) end)
+      assert_raise(ArgumentError, "line number 1 {:hello, \"world\"} is not a binary", fn -> as_ast(hello: "world") end)
     end
 
     test "raise ArgumentError for a map" do
@@ -29,4 +29,5 @@ defmodule Acceptance.ErrorHandling.BadArgumentsTest do
     end
   end
 end
+
 # SPDX-License-Identifier: Apache-2.0

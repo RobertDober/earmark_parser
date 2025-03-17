@@ -2,7 +2,8 @@ defmodule Acceptance.Regressions.I002AcceptAnyStructAsOptionTest do
   use ExUnit.Case
 
   import EarmarkParser, only: [as_ast: 2]
-defmodule MyStruct do
+
+  defmodule MyStruct do
     defstruct pure_links: false
   end
 
@@ -16,7 +17,7 @@ defmodule MyStruct do
 
     test "or activated" do
       ast =
-        [{"p", '', ["see ", {"a", [{"href", "https://my.site.com"}], ["https://my.site.com"], %{}}], %{}}]
+        [{"p", ~c"", ["see ", {"a", [{"href", "https://my.site.com"}], ["https://my.site.com"], %{}}], %{}}]
 
       assert as_ast(@markdown, %MyStruct{pure_links: true}) == {:ok, ast, []}
     end

@@ -3,18 +3,18 @@ defmodule EarmarkParser.Helpers.PureLinkHelpers do
 
   import EarmarkParser.Helpers.AstHelpers, only: [render_link: 2]
 
-  @pure_link_rgx ~r{
-    \A
-    (\s*)
-    (
-      (?:https?://|www\.)
-      [^\s<>]*
-      [^\s<>?!.,:*_~]
-    )
-  }ux
-
   def convert_pure_link(src) do
-    case Regex.run(@pure_link_rgx, src) do
+    pure_link_rgx = ~r{
+      \A
+      (\s*)
+      (
+        (?:https?://|www\.)
+        [^\s<>]*
+        [^\s<>?!.,:*_~]
+      )
+    }ux
+
+    case Regex.run(pure_link_rgx, src) do
       [_match, spaces, link_text] ->
         if String.ends_with?(link_text, ")") do
           remove_trailing_closing_parens(spaces, link_text)
@@ -27,9 +27,8 @@ defmodule EarmarkParser.Helpers.PureLinkHelpers do
     end
   end
 
-  @split_at_ending_parens ~r{ (.*?) (\)*) \z}x
   defp remove_trailing_closing_parens(leading_spaces, link_text) do
-    [_, link_text, trailing_parens] = Regex.run(@split_at_ending_parens, link_text)
+    [_, link_text, trailing_parens] = Regex.run(~r{ (.*?) (\)*) \z}x, link_text)
     trailing_paren_count = String.length(trailing_parens)
 
     # try to balance parens from the rhs
@@ -57,9 +56,13 @@ defmodule EarmarkParser.Helpers.PureLinkHelpers do
   # balance parens and return unbalanced *trailing* paren count
   defp balance_parens(reverse_text, trailing_count, non_trailing_count \\ 0)
 
-  defp balance_parens(<<>>, trailing_paren_count, _non_trailing_count), do: trailing_paren_count
+  defp balance_parens(<<>>, trailing_paren_count, _non_trailing_count) do
+    trailing_paren_count
+  end
 
-  defp balance_parens(_reverse_text, 0, _non_trailing_count), do: 0
+  defp balance_parens(_reverse_text, 0, _non_trailing_count) do
+    0
+  end
 
   defp balance_parens(")" <> rest, trailing_paren_count, non_trailing_count) do
     balance_parens(rest, trailing_paren_count, non_trailing_count + 1)
@@ -74,7 +77,7 @@ defmodule EarmarkParser.Helpers.PureLinkHelpers do
     end
   end
 
-  defp balance_parens(<<_::utf8,rest::binary>>, trailing_paren_count, non_trailing_count) do
+  defp balance_parens(<<_::utf8, rest::binary>>, trailing_paren_count, non_trailing_count) do
     balance_parens(rest, trailing_paren_count, non_trailing_count)
   end
 end

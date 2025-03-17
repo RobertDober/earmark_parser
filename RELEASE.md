@@ -5,6 +5,72 @@
 
 - [Parsing HTML]
 
+## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.44 2025-03-12
+
+- [PR #165](https://github.com/RobertDober/earmark_parser/pull/165) which formatted the code according to the newly created `.formatter.exs` **finally**
+as Brad convinced me to do this. I do not particulary like all the formatter does but it is good for fututre collaboration.
+
+**N.B. Collaborators**  `mix format --check-formatted` is part of the GHA CI checks, so please check it locally before making PRs, as duely noted in the
+docs.
+
+Maybe a commit hook would be better, I am open to suggestions.
+
+- [PR #163](https://github.com/RobertDober/earmark_parser/pull/163) fixing [elixir-lang/ex_doc#1452](https://github.com/elixir-lang/ex_doc/issues/1452) which
+was flying under my Radar waaaay to long.
+    Kudos to [Brad Hanks](https://github.com/bradhanks)
+
+## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.43 2025-01-24
+
+This one is needed for OTP-28, many thanx to [José Valim](https://github.com/josevalim)
+for providing the necessary PR: [Avoid regexes at compile-time as they may not be supported on OTP 28](https://github.com/RobertDober/earmark_parser/pull/162)
+
+## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.42 2024-12-20
+
+- Added runners for 1.18 to the github CI workflows
+
+- Optimize Line Scanner by precompilation of the rgxen used, actually performance did not change
+  but this was also a conceptionally cleaner refactoring.
+
+- Remove support for Elixir 1.13 as did ex_doc
+
+- Upgrade excoveralls and dialyxir
+
+- [Fix deprecation warnings for Elixir 1.18 (#160)](https://github.com/RobertDober/earmark_parser/issues/160)
+
+## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.41 2024-07-09
+
+- [Fixed bug #154 parser crashes on inline ial after escaped char](https://github.com/RobertDober/earmark_parser/issues/154) 
+
+- [Fixed GHA to catch warnings in tests](https://github.com/RobertDober/earmark_parser/pull/153)
+    Kudos to [Kian-Meng Ang](https://github.com/kianmeng)
+
+- [Fixed warnings in tests](https://github.com/RobertDober/earmark_parser/pull/152)
+    Kudos to [Kian-Meng Ang](https://github.com/kianmeng)
+
+- [Fortunately there are folks who can spell **and** type](https://github.com/RobertDober/earmark_parser/pull/151)
+    Kudos to [Kian-Meng Ang](https://github.com/kianmeng)
+
+## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.40 2024-07-02
+
+- **Gladly** following [`ex_doc`](https://github.com/elixir-lang/ex_doc/blob/main/mix.exs) to drop support for
+  Elixir versions < 1.13
+
+- More Github actions with fail-on-warning to avoid the need for fixes like the one below :blush:
+
+- [Fixed warning because of bad config of using dialxir](https://github.com/RobertDober/earmark_parser/pull/150)
+    Kudos to [Jan Pieper](https://github.com/janpieper)
+
+- [More typespecs and nicer formatting](https://github.com/RobertDober/earmark_parser/pull/146)
+    Kudos to [Brad Hanks](https://github.com/bradhanks)
+
+- [Pattern matching related refactoring](https://github.com/RobertDober/earmark_parser/pull/145)
+    Kudos to [Brad Hanks](https://github.com/bradhanks)
+
+## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.39 2023-11-25
+
+- [Optional Support for Math Syntax](https://github.com/RobertDober/earmark_parser/pull/142)
+    Kudos to [Jonatan Kłosko](https://github.com/jonatanklosko)
+
 ## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.38 2023-11-10
 
 - [Add metadata line to inline code spans](https://github.com/RobertDober/earmark_parser/pull/140)

@@ -4,11 +4,10 @@ defmodule Acceptance.Ast.HorizontalRulesTest do
   import EarmarkAstDsl
 
   describe "Horizontal rules" do
-
     test "thick, thin & medium" do
       markdown = "***\n---\n___\n"
-      html     = "<hr class=\"thick\"/>\n<hr class=\"thin\"/>\n<hr class=\"medium\"/>\n"
-      ast      = parse_html(html)
+      html = "<hr class=\"thick\"/>\n<hr class=\"thin\"/>\n<hr class=\"medium\"/>\n"
+      ast = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -16,8 +15,8 @@ defmodule Acceptance.Ast.HorizontalRulesTest do
 
     test "not a rule" do
       markdown = "+++\n"
-      html     = "<p>+++</p>\n"
-      ast      = parse_html(html)
+      html = "<p>+++</p>\n"
+      ast = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -25,8 +24,8 @@ defmodule Acceptance.Ast.HorizontalRulesTest do
 
     test "a dash is just text" do
       markdown = "-\nTest"
-      html     = "<p>-\nTest</p>"
-      ast      = parse_html(html)
+      html = "<p>-\nTest</p>"
+      ast = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -34,8 +33,8 @@ defmodule Acceptance.Ast.HorizontalRulesTest do
 
     test "two dashes are just text" do
       markdown = "--\nTest"
-      html     = "<p>--\nTest</p>"
-      ast      = parse_html(html)
+      html = "<p>--\nTest</p>"
+      ast = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -43,8 +42,8 @@ defmodule Acceptance.Ast.HorizontalRulesTest do
 
     test "not in code" do
       markdown = "    ***\n    \n     a"
-      html     = "<pre><code>***\n\n a</code></pre>\n"
-      ast      = parse_html(html)
+      html = "<pre><code>***\n\n a</code></pre>\n"
+      ast = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -52,8 +51,8 @@ defmodule Acceptance.Ast.HorizontalRulesTest do
 
     test "not in code, second line" do
       markdown = "Foo\n    ***\n"
-      html     = "<p>Foo</p>\n<pre><code>***</code></pre>\n"
-      ast      = parse_html(html)
+      html = "<p>Foo</p>\n<pre><code>***</code></pre>\n"
+      ast = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -61,8 +60,8 @@ defmodule Acceptance.Ast.HorizontalRulesTest do
 
     test "medium, long" do
       markdown = "_____________________________________\n"
-      html     = "<hr class=\"medium\"/>\n"
-      ast      = parse_html(html)
+      html = "<hr class=\"medium\"/>\n"
+      ast = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -70,7 +69,7 @@ defmodule Acceptance.Ast.HorizontalRulesTest do
 
     test "emmed, so to speak" do
       markdown = " *-*\n"
-      ast      = [p([" ", tag("em", "-")])]
+      ast = [p([" ", tag("em", "-")])]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -79,7 +78,7 @@ defmodule Acceptance.Ast.HorizontalRulesTest do
     @tag :wip
     test "subindex" do
       markdown = "This is H~2~O, only water"
-      ast      = [p(["This is H", tag("sub", "2"), "O, only water"])]
+      ast = [p(["This is H", tag("sub", "2"), "O, only water"])]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -88,7 +87,7 @@ defmodule Acceptance.Ast.HorizontalRulesTest do
     @tag :wip
     test "superindex" do
       markdown = "we get O(n^2^)"
-      ast      = [p(["we get O(n", tag("sup", "2"), ")"])]
+      ast = [p(["we get O(n", tag("sup", "2"), ")"])]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -96,8 +95,8 @@ defmodule Acceptance.Ast.HorizontalRulesTest do
 
     test "in lists" do
       markdown = "- foo\n***\n- bar\n"
-      html     = "<ul>\n<li>foo</li>\n</ul>\n<hr class=\"thick\"/>\n<ul>\n<li>bar</li>\n</ul>\n"
-      ast      = parse_html(html)
+      html = "<ul>\n<li>foo</li>\n</ul>\n<hr class=\"thick\"/>\n<ul>\n<li>bar</li>\n</ul>\n"
+      ast = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -105,8 +104,8 @@ defmodule Acceptance.Ast.HorizontalRulesTest do
 
     test "setext rules over rules (why am I soo witty?)" do
       markdown = "Foo\n---\nbar\n"
-      html     = "<h2>Foo</h2>\n<p>bar</p>\n"
-      ast      = parse_html(html)
+      html = "<h2>Foo</h2>\n<p>bar</p>\n"
+      ast = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -115,7 +114,7 @@ defmodule Acceptance.Ast.HorizontalRulesTest do
     test "in lists, thick this time (why am I soo good to you?)" do
       markdown = "* Foo\n* * *\n* Bar\n"
       html = "<ul>\n<li>Foo</li>\n</ul>\n<hr class=\"thick\"/>\n<ul>\n<li>Bar</li>\n</ul>\n"
-      ast      = parse_html(html)
+      ast = parse_html(html)
       messages = []
       assert as_ast(markdown) == {:ok, ast, messages}
     end
@@ -124,12 +123,14 @@ defmodule Acceptance.Ast.HorizontalRulesTest do
   describe "Horizontal Rules and IAL" do
     test "add a class and an id" do
       markdown = "***\n{: .custom}\n---\n{: .klass #id42}\n___\n{: hello=world}\n"
-      html     = "<hr class=\"custom thick\" />\n<hr class=\"klass thin\" id=\"id42\" />\n<hr class=\"medium\" hello=\"world\" />\n"
-      ast      = parse_html(html)
+
+      html =
+        "<hr class=\"custom thick\" />\n<hr class=\"klass thin\" id=\"id42\" />\n<hr class=\"medium\" hello=\"world\" />\n"
+
+      ast = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
-
     end
   end
 end

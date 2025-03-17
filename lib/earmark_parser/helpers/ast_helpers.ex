@@ -1,5 +1,4 @@
 defmodule EarmarkParser.Helpers.AstHelpers do
-
   @moduledoc false
 
   import EarmarkParser.Ast.Emitter
@@ -9,28 +8,43 @@ defmodule EarmarkParser.Helpers.AstHelpers do
 
   @doc false
   def annotate(node, from_block)
-  def annotate(node, %{annotation: nil}), do: node
-  def annotate({tag, atts, children, meta}, %{annotation: annotation}),
-    do: {tag, atts, children, Map.put(meta, :annotation, annotation)}
-  def annotate({tag, atts, children, meta}, annotation),
-    do: {tag, atts, children, Map.put(meta, :annotation, annotation)}
+
+  def annotate(node, %{annotation: nil}) do
+    node
+  end
+
+  def annotate({tag, atts, children, meta}, %{annotation: annotation}) do
+    {tag, atts, children, Map.put(meta, :annotation, annotation)}
+  end
+
+  def annotate({tag, atts, children, meta}, annotation) do
+    {tag, atts, children, Map.put(meta, :annotation, annotation)}
+  end
 
   @doc false
   def attrs_to_string_keys(key_value_pair)
+
   def attrs_to_string_keys({k, vs}) when is_list(vs) do
     {to_string(k), Enum.join(vs, " ")}
   end
+
   def attrs_to_string_keys({k, vs}) do
-    {to_string(k),to_string(vs)}
+    {to_string(k), to_string(vs)}
   end
 
   @doc false
-  def augment_tag_with_ial(tags, ial)
-  def augment_tag_with_ial([{t, a, c, m}|tags], atts) do
-    [{t, merge_attrs(a, atts), c, m}|tags]
+  def augment_tag_with_ial(tags, ial, src)
+
+  def augment_tag_with_ial([{t, a, c, m} | tags], atts, _src) do
+    [{t, merge_attrs(a, atts), c, m} | tags]
   end
-  def augment_tag_with_ial([], _atts) do
+
+  def augment_tag_with_ial([], _atts, _src) do
     []
+  end
+
+  def augment_tag_with_ial([any], _atts, src) do
+    [any <> src]
   end
 
   @doc false
@@ -38,7 +52,8 @@ defmodule EarmarkParser.Helpers.AstHelpers do
     classes =
       ["" | String.split(prefix || "")]
       |> Enum.map(fn pfx -> "#{pfx}#{language}" end)
-      {"class", classes |> Enum.join(" ")}
+
+    {"class", classes |> Enum.join(" ")}
   end
 
   @doc false
@@ -65,10 +80,9 @@ defmodule EarmarkParser.Helpers.AstHelpers do
     lines |> Enum.join("\n")
   end
 
-  @remove_escapes ~r{ \\ (?! \\ ) }x
   @doc false
   def render_image(text, href, title) do
-    alt = text |> escape() |> String.replace(@remove_escapes, "")
+    alt = text |> escape() |> String.replace(~r{ \\ (?! \\ ) }x, "")
 
     if title do
       emit("img", [], src: href, alt: alt, title: title)
@@ -82,27 +96,33 @@ defmodule EarmarkParser.Helpers.AstHelpers do
     emit("a", text, href: _encode(url))
   end
 
-
   ##############################################
   # add attributes to the outer tag in a block #
   ##############################################
 
-
-  @verbatims ~r<%[\da-f]{2}>i
   defp _encode(url) do
     url
-    |> String.split(@verbatims, include_captures: true)
+    |> String.split(~r<%[\da-f]{2}>i, include_captures: true)
     |> Enum.chunk_every(2)
     |> Enum.map(&_encode_chunk/1)
-    |> IO.chardata_to_string
+    |> IO.chardata_to_string()
   end
 
-  defp _encode_chunk([encodable, verbatim]), do: [URI.encode(encodable), verbatim]
-  defp _encode_chunk([encodable]), do: URI.encode(encodable)
+  defp _encode_chunk([encodable, verbatim]) do
+    [URI.encode(encodable), verbatim]
+  end
+
+  defp _encode_chunk([encodable]) do
+    URI.encode(encodable)
+  end
 
   @doc false
   def merge_attrs(maybe_atts, new_atts)
-  def merge_attrs(nil, new_atts), do: new_atts
+
+  def merge_attrs(nil, new_atts) do
+    new_atts
+  end
+
   def merge_attrs(atts, new) when is_list(atts) do
     atts
     |> Enum.into(%{})
@@ -117,13 +137,14 @@ defmodule EarmarkParser.Helpers.AstHelpers do
   end
 
   defp _value_merger(key, val1, val2)
+
   defp _value_merger(_, val1, val2) when is_list(val1) do
     val1 ++ [val2]
   end
+
   defp _value_merger(_, val1, val2) do
     [val1, val2]
   end
-
-
 end
+
 # SPDX-License-Identifier: Apache-2.0

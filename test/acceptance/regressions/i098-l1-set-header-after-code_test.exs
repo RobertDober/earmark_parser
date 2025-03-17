@@ -42,6 +42,6 @@ defmodule Test.Acceptance.Regressions.I098L1SetHeaderAfterCodeTest do
 
     assert as_ast(@h2_case) == {:ok, ast, messages}
   end
-
 end
+
 # SPDX-License-Identifier: Apache-2.0

@@ -17,10 +17,12 @@ defmodule EarmarkParser.Ast.Inline do
   def convert(src, lnb, context)
 
   def convert(list, lnb, context) when is_list(list) do
+    # IO.inspect(context.rules)
     _convert(Enum.join(list, "\n"), lnb, context, true)
   end
 
   def convert(src, lnb, context) do
+    # IO.inspect(context.rules)
     _convert(src, lnb, context, true)
   end
 
@@ -30,7 +32,9 @@ defmodule EarmarkParser.Ast.Inline do
     prepend(context, src)
   end
 
-  defp _convert("", _, context, _), do: context
+  defp _convert("", _, context, _) do
+    context
+  end
 
   defp _convert(src, current_lnb, context, use_linky?) do
     {src1, lnb1, context1, use_linky1?} = _convert_next(src, current_lnb, context, use_linky?)
@@ -81,17 +85,20 @@ defmodule EarmarkParser.Ast.Inline do
   #  Converters
   #
   ######################
-  @escape_rule ~r{^\\([\\`*\{\}\[\]()\#+\-.!_>$])}
+
   def converter_for_escape({src, lnb, context, use_linky?}) do
-    if match = Regex.run(@escape_rule, src) do
+    escape_rule = ~r{^\\([\\`*\{\}\[\]()\#+\-.!_>$])}
+
+    if match = Regex.run(escape_rule, src) do
       [match, escaped] = match
       {behead(src, match), lnb, prepend(context, escaped), use_linky?}
     end
   end
 
-  @autolink_rgx ~r{^<([^ >]+(@|:\/)[^ >]+)>}
   def converter_for_autolink({src, lnb, context, use_linky?}) do
-    if match = Regex.run(@autolink_rgx, src) do
+    autolink_rgx = ~r{^<([^ >]+(@|:\/)[^ >]+)>}
+
+    if match = Regex.run(autolink_rgx, src) do
       [match, link, protocol] = match
       {href, text} = convert_autolink(link, protocol)
       out = render_link(href, text)
@@ -130,10 +137,12 @@ defmodule EarmarkParser.Ast.Inline do
   end
 
   @link_text ~S{(?:\[[^]]*\]|[^][]|\])*}
-  @reflink ~r{^!?\[(#{@link_text})\]\s*\[([^]]*)\]}x
+
   def converter_for_reflink({src, lnb, context, use_linky?}) do
     if use_linky? do
-      if match = Regex.run(@reflink, src) do
+      reflink = ~r{^!?\[(#{@link_text})\]\s*\[([^]]*)\]}x
+
+      if match = Regex.run(reflink, src) do
         {match_, alt_text, id} =
           case match do
             [match__, id, ""] -> {match__, id, id}
@@ -149,33 +158,21 @@ defmodule EarmarkParser.Ast.Inline do
   end
 
   def converter_for_footnote({src, lnb, context, use_linky?}) do
-    if use_linky? do
-      case Regex.run(context.rules.footnote, src) do
-        [match, id] ->
-          case footnote_link(context, match, id) do
-            {:ok, out} ->
-              {behead(src, match), lnb, _prepend_footnote(context, out, id), use_linky?}
+    if use_linky? && context.options.footnotes do
+      link_text = ~S{(?:\[[^]]*\]|[^][]|\])*}
 
-            _ ->
-              converter_for_text(
-                {src, lnb,
-                 Message.add_message(
-                   context,
-                   {:error, lnb, "footnote #{id} undefined, reference to it ignored"}
-                 ), use_linky?}
-              )
-          end
-
-        _ ->
-          nil
+      case Regex.run(~r{^\[\^(#{link_text})\]}, src) do
+        [match, id] -> convert_footnote(match, id, src, lnb, context, use_linky?)
+        _ -> nil
       end
     end
   end
 
-  @nolink ~r{^!?\[((?:\[[^]]*\]|[^][])*)\]}
   def converter_for_nolink({src, lnb, context, use_linky?}) do
     if use_linky? do
-      case Regex.run(@nolink, src) do
+      nolink = ~r{^!?\[((?:\[[^]]*\]|[^][])*)\]}
+
+      case Regex.run(nolink, src) do
         [match, id] ->
           case reference_link(context, match, id, id, lnb) do
             {:ok, out} -> {behead(src, match), lnb, prepend(context, out), use_linky?}
@@ -191,48 +188,58 @@ defmodule EarmarkParser.Ast.Inline do
   ################################
   # Simple Tags: em, strong, del #
   ################################
-  @strikethrough_rgx ~r{\A~~(?=\S)([\s\S]*?\S)~~}
   def converter_for_strikethrough_gfm({src, _, _, _} = conv_tuple) do
-    if match = Regex.run(@strikethrough_rgx, src) do
+    strikethrough_rgx = ~r{\A~~(?=\S)([\s\S]*?\S)~~}
+
+    if match = Regex.run(strikethrough_rgx, src) do
       _converter_for_simple_tag(conv_tuple, match, "del")
     end
   end
 
-  @strong_rgx ~r{\A__([\s\S]+?)__(?!_)|^\*\*([\s\S]+?)\*\*(?!\*)}
   def converter_for_strong({src, _, _, _} = conv_tuple) do
-    if match = Regex.run(@strong_rgx, src) do
+    strong_rgx = ~r{\A__([\s\S]+?)__(?!_)|^\*\*([\s\S]+?)\*\*(?!\*)}
+
+    if match = Regex.run(strong_rgx, src) do
       _converter_for_simple_tag(conv_tuple, match, "strong")
     end
   end
 
-  @emphasis_rgx ~r{\A\b_((?:__|[\s\S])+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)}
   def converter_for_em({src, _, _, _} = conv_tuple) do
-    if match = Regex.run(@emphasis_rgx, src) do
+    emphasis_rgx = ~r{\A\b_((?:__|[\s\S])+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)}
+
+    if match = Regex.run(emphasis_rgx, src) do
       _converter_for_simple_tag(conv_tuple, match, "em")
     end
   end
 
-  @sub_rgx ~r{\A~(?=\S)(.*?\S)~}
   def converter_for_sub({src, _, %{options: %{sub_sup: true}}, _} = conv_tuple) do
-    if match = Regex.run(@sub_rgx, src) do
+    sub_rgx = ~r{\A~(?=\S)(.*?\S)~}
+
+    if match = Regex.run(sub_rgx, src) do
       _converter_for_simple_tag(conv_tuple, match, "sub")
     end
   end
 
-  def converter_for_sub(_), do: nil
+  def converter_for_sub(_) do
+    nil
+  end
 
-  @sup_rgx ~r{\A\^(?=\S)(.*?\S)\^}
   def converter_for_sup({src, _, %{options: %{sub_sup: true}}, _} = conv_tuple) do
-    if match = Regex.run(@sup_rgx, src) do
+    sup_rgx = ~r{\A\^(?=\S)(.*?\S)\^}
+
+    if match = Regex.run(sup_rgx, src) do
       _converter_for_simple_tag(conv_tuple, match, "sup")
     end
   end
 
-  def converter_for_sup(_), do: nil
+  def converter_for_sup(_) do
+    nil
+  end
 
-  @math_inline_rgx ~r{\A\$(?=[^\s$])([\s\S]*?[^\s\\])\$}
   def converter_for_math_inline({src, lnb, %{options: %{math: true}} = context, use_linky?}) do
-    if match = Regex.run(@math_inline_rgx, src) do
+    math_inline_rgx = ~r{\A\$(?=[^\s$])([\s\S]*?[^\s\\])\$}
+
+    if match = Regex.run(math_inline_rgx, src) do
       [match, content] = match
       content = String.trim(content)
       out = math_inline(content, lnb)
@@ -240,11 +247,14 @@ defmodule EarmarkParser.Ast.Inline do
     end
   end
 
-  def converter_for_math_inline(_), do: nil
+  def converter_for_math_inline(_) do
+    nil
+  end
 
-  @math_display_rgx ~r{\A\$\$([\s\S]+?)\$\$}
   def converter_for_math_display({src, lnb, %{options: %{math: true}} = context, use_linky?}) do
-    if match = Regex.run(@math_display_rgx, src) do
+    math_display_rgx = ~r{\A\$\$([\s\S]+?)\$\$}
+
+    if match = Regex.run(math_display_rgx, src) do
       [match, content] = match
       content = String.trim(content)
       out = math_display(content, lnb)
@@ -252,37 +262,39 @@ defmodule EarmarkParser.Ast.Inline do
     end
   end
 
-  def converter_for_math_display(_), do: nil
+  def converter_for_math_display(_) do
+    nil
+  end
 
-  @squash_ws ~r{\s+}
-  @code ~r{^
-  (`+)		# $1 = Opening run of `
-  (.+?)		# $2 = The code block
-  (?<!`)
-  \1			# Matching closer
-  (?!`)
-}xs
   def converter_for_code({src, lnb, context, use_linky?}) do
-    if match = Regex.run(@code, src) do
+    code = ~r{^
+    (`+)		# $1 = Opening run of `
+    (.+?)		# $2 = The code block
+    (?<!`)
+    \1			# Matching closer
+    (?!`)
+  }xs
+
+    if match = Regex.run(code, src) do
       [match, _, content] = match
       # Commonmark
       content1 =
         content
         |> String.trim()
-        |> String.replace(@squash_ws, " ")
+        |> String.replace(~r{\s+}, " ")
 
       out = codespan(content1, lnb)
       {behead(src, match), lnb, prepend(context, out), use_linky?}
     end
   end
 
-  @inline_ial ~r<^\s*\{:\s*(.*?)\s*}>
-
   def converter_for_inline_ial({src, lnb, context, use_linky?}) do
-    if match = Regex.run(@inline_ial, src) do
+    inline_ial = ~r<^\s*\{:\s*(.*?)\s*}>
+
+    if match = Regex.run(inline_ial, src) do
       [match, ial] = match
       {context1, ial_attrs} = parse_attrs(context, ial, lnb)
-      new_tags = augment_tag_with_ial(context.value, ial_attrs)
+      new_tags = augment_tag_with_ial(context.value, ial_attrs, match)
       {behead(src, match), lnb, set_value(context1, new_tags), use_linky?}
     end
   end
@@ -294,15 +306,16 @@ defmodule EarmarkParser.Ast.Inline do
     end
   end
 
-  @line_ending ~r{\r\n?|\n}
   @spec converter_for_text(conversion_data()) :: conversion_data()
   def converter_for_text({src, lnb, context, _}) do
+    line_ending = ~r{\r\n?|\n}
+
     matched =
       case Regex.run(context.rules.text, src) do
         [match] -> match
       end
 
-    line_count = matched |> String.split(@line_ending) |> Enum.count()
+    line_count = matched |> String.split(line_ending) |> Enum.count()
 
     ast = hard_line_breaks(matched, context.options.gfm)
     ast = walk_ast(ast, &gruber_line_breaks/1)
@@ -323,8 +336,7 @@ defmodule EarmarkParser.Ast.Inline do
 
     context1 = _convert(content, lnb, set_value(context, []), use_linky?)
 
-    {behead(src, match1), lnb, prepend(context, emit(for_tag, context1.value |> Enum.reverse())),
-     use_linky?}
+    {behead(src, match1), lnb, prepend(context, emit(for_tag, context1.value |> Enum.reverse())), use_linky?}
   end
 
   defp _prepend_footnote(context, out, id) do
@@ -336,7 +348,13 @@ defmodule EarmarkParser.Ast.Inline do
   defp convert_autolink(link, separator)
 
   defp convert_autolink(link, _separator = "@") do
-    link = if String.at(link, 6) == ":", do: behead(link, 7), else: link
+    link =
+      if String.at(link, 6) == ":" do
+        behead(link, 7)
+      else
+        link
+      end
+
     text = link
     href = "mailto:" <> text
     {href, text}
@@ -346,22 +364,28 @@ defmodule EarmarkParser.Ast.Inline do
     {link, link}
   end
 
-  @gruber_line_break Regex.compile!(" {2,}(?>\n)", "m")
   defp gruber_line_breaks(text) do
+    gruber_line_break = Regex.compile!(" {2,}(?>\n)", "m")
+
     text
-    |> String.split(@gruber_line_break)
+    |> String.split(gruber_line_break)
     |> Enum.intersperse(emit("br"))
     |> _remove_leading_empty()
   end
 
-  @gfm_hard_line_break ~r{\\\n}
   defp hard_line_breaks(text, gfm)
-  defp hard_line_breaks(text, false), do: text
-  defp hard_line_breaks(text, nil), do: text
+
+  defp hard_line_breaks(text, false) do
+    text
+  end
+
+  defp hard_line_breaks(text, nil) do
+    text
+  end
 
   defp hard_line_breaks(text, _) do
     text
-    |> String.split(@gfm_hard_line_break)
+    |> String.split(~r{\\\n})
     |> Enum.intersperse(emit("br"))
     |> _remove_leading_empty()
   end
@@ -407,6 +431,22 @@ defmodule EarmarkParser.Ast.Inline do
     end
   end
 
+  defp convert_footnote(match, id, src, lnb, context, use_linky?) do
+    case footnote_link(context, match, id) do
+      {:ok, out} ->
+        {behead(src, match), lnb, _prepend_footnote(context, out, id), use_linky?}
+
+      _ ->
+        converter_for_text(
+          {src, lnb,
+           Message.add_message(
+             context,
+             {:error, lnb, "footnote #{id} undefined, reference to it ignored"}
+           ), use_linky?}
+        )
+    end
+  end
+
   defp footnote_link(context, _match, id) do
     case Map.fetch(context.footnotes, id) do
       {:ok, _} ->
@@ -441,8 +481,14 @@ defmodule EarmarkParser.Ast.Inline do
   end
 
   defp _remove_leading_empty(list)
-  defp _remove_leading_empty(["" | rest]), do: rest
-  defp _remove_leading_empty(list), do: list
+
+  defp _remove_leading_empty(["" | rest]) do
+    rest
+  end
+
+  defp _remove_leading_empty(list) do
+    list
+  end
 end
 
 # SPDX-License-Identifier: Apache-2.0

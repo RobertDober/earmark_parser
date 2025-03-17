@@ -1,5 +1,4 @@
 defmodule Test.Acceptance.Regressions.I065BadLnbRefStyleTest do
-
   use ExUnit.Case
 
   @min_case """
@@ -57,4 +56,5 @@ defmodule Test.Acceptance.Regressions.I065BadLnbRefStyleTest do
     assert message == {:warning, 3, "Closing unclosed backquotes ` at end of input"}
   end
 end
+
 #  SPDX-License-Identifier: Apache-2.0

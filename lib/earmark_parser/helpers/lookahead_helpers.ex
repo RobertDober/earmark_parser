@@ -1,5 +1,4 @@
 defmodule EarmarkParser.Helpers.LookaheadHelpers do
-
   @moduledoc false
 
   import EarmarkParser.Helpers.LeexHelpers
@@ -7,7 +6,7 @@ defmodule EarmarkParser.Helpers.LookaheadHelpers do
   @doc """
   Indicates if the _numbered_line_ passed in leaves an inline code block open.
 
-  If so returns a tuple whre the first element is the opening sequence of backticks,
+  If so returns a tuple where the first element is the opening sequence of backticks,
   and the second the linenumber of the _numbered_line_
 
   Otherwise `{nil, 0}` is returned
@@ -41,22 +40,31 @@ defmodule EarmarkParser.Helpers.LookaheadHelpers do
   defp has_still_opening_backtix(tokens, opened_so_far)
 
   # Empty, done, but take care of tangeling escape (\)
-  defp has_still_opening_backtix([], :force_outside), do: nil
-  defp has_still_opening_backtix([], open), do: open
+  defp has_still_opening_backtix([], :force_outside) do
+    nil
+  end
+
+  defp has_still_opening_backtix([], open) do
+    open
+  end
 
   # Outside state, represented by nil
-  defp has_still_opening_backtix([{:other, _} | rest], nil),
-    do: has_still_opening_backtix(rest, nil)
+  defp has_still_opening_backtix([{:other, _} | rest], nil) do
+    has_still_opening_backtix(rest, nil)
+  end
 
-  defp has_still_opening_backtix([{:backtix, btx} | rest], nil),
-    do: has_still_opening_backtix(rest, {:new, btx})
+  defp has_still_opening_backtix([{:backtix, btx} | rest], nil) do
+    has_still_opening_backtix(rest, {:new, btx})
+  end
 
-  defp has_still_opening_backtix([{:escape, _} | rest], nil),
-    do: has_still_opening_backtix(rest, :force_outside)
+  defp has_still_opening_backtix([{:escape, _} | rest], nil) do
+    has_still_opening_backtix(rest, :force_outside)
+  end
 
   # Next state forced outside, represented by :force_outside
-  defp has_still_opening_backtix([_ | rest], :force_outside),
-    do: has_still_opening_backtix(rest, nil)
+  defp has_still_opening_backtix([_ | rest], :force_outside) do
+    has_still_opening_backtix(rest, nil)
+  end
 
   # Inside state, represented by { :old | :new, btx }
   defp has_still_opening_backtix([{:backtix, btx} | rest], open = {_, openedbtx}) do
@@ -67,8 +75,9 @@ defmodule EarmarkParser.Helpers.LookaheadHelpers do
     end
   end
 
-  defp has_still_opening_backtix([_ | rest], open = {_, _}),
-    do: has_still_opening_backtix(rest, open)
+  defp has_still_opening_backtix([_ | rest], open = {_, _}) do
+    has_still_opening_backtix(rest, open)
+  end
 end
 
 # SPDX-License-Identifier: Apache-2.0

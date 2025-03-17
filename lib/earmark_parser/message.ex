@@ -9,8 +9,9 @@ defmodule EarmarkParser.Message do
   @type ts :: list(t)
   @type container_type :: Options.t() | Context.t()
 
-  def add_messages(container, messages),
-    do: Enum.reduce(messages, container, &add_message(&2, &1))
+  def add_messages(container, messages) do
+    Enum.reduce(messages, container, &add_message(&2, &1))
+  end
 
   def add_message(container, message)
 
@@ -23,7 +24,10 @@ defmodule EarmarkParser.Message do
   end
 
   def get_messages(container)
-  def get_messages(%Context{options: %{messages: messages}}), do: messages
+
+  def get_messages(%Context{options: %{messages: messages}}) do
+    messages
+  end
 
   @doc """
   For final output
@@ -33,7 +37,6 @@ defmodule EarmarkParser.Message do
     |> get_messages()
     |> Enum.sort(fn {_, l, _}, {_, r, _} -> r >= l end)
   end
-
 end
 
 # SPDX-License-Identifier: Apache-2.0

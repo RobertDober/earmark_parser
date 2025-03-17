@@ -8,7 +8,7 @@ defmodule Acceptance.Ast.LinkImages.WikiLinksTest do
   describe "Wiki links" do
     test "basic wiki-style link" do
       markdown = "[[page]]"
-      ast      = [p(a("page", [href: "page"], @wikilink))]
+      ast = [p(a("page", [href: "page"], @wikilink))]
       messages = []
 
       assert as_ast(markdown, wikilinks: true) == {:ok, ast, messages}
@@ -16,7 +16,7 @@ defmodule Acceptance.Ast.LinkImages.WikiLinksTest do
 
     test "wikilink parsing is optional" do
       markdown = "[[page]]"
-      ast      = [p("[[page]]")]
+      ast = [p("[[page]]")]
       messages = []
 
       assert as_ast(markdown, wikilinks: false) == {:ok, ast, messages}
@@ -24,7 +24,7 @@ defmodule Acceptance.Ast.LinkImages.WikiLinksTest do
 
     test "misleading non-wiki link" do
       markdown = "[[page]](actual_link)"
-      ast      = [p(a("[page]", href: "actual_link"))]
+      ast = [p(a("[page]", href: "actual_link"))]
       messages = []
 
       assert as_ast(markdown, wikilinks: true) == {:ok, ast, messages}
@@ -32,7 +32,7 @@ defmodule Acceptance.Ast.LinkImages.WikiLinksTest do
 
     test "illegal urls are not Earmark's responsibility" do
       markdown = "[[A long & complex title]]"
-      ast      = [p(a("A long & complex title", [href: "A long & complex title"], @wikilink))]
+      ast = [p(a("A long & complex title", [href: "A long & complex title"], @wikilink))]
       messages = []
 
       assert as_ast(markdown, wikilinks: true) == {:ok, ast, messages}
@@ -65,4 +65,5 @@ defmodule Acceptance.Ast.LinkImages.WikiLinksTest do
     end
   end
 end
+
 # SPDX-License-Identifier: Apache-2.0

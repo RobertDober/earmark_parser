@@ -52,29 +52,34 @@ defmodule EarmarkParser.Context do
          %__MODULE__{referenced_footnote_ids: new} = context2
        ) do
     context_ = _merge_messages(context1, context2)
-    %{context_| referenced_footnote_ids: MapSet.union(orig, new)}
+    %{context_ | referenced_footnote_ids: MapSet.union(orig, new)}
   end
 
   defp _merge_messages(context, context_or_messages)
+
   defp _merge_messages(context, %__MODULE__{options: %Options{messages: messages}}) do
     _merge_messages(context, messages)
   end
+
   defp _merge_messages(context, messages) do
-    %{context | options: %{context.options|messages: MapSet.union(context.options.messages, messages)}}
+    %{context | options: %{context.options | messages: MapSet.union(context.options.messages, messages)}}
   end
 
+  defp _prepend(ctxt, []) do
+    ctxt
+  end
 
-  defp _prepend(ctxt, []), do: ctxt
-
-  defp _prepend(%{value: value} = ctxt, {:comment, _, _, _} = ct),
-    do: %{ctxt | value: [ct | value]}
+  defp _prepend(%{value: value} = ctxt, {:comment, _, _, _} = ct) do
+    %{ctxt | value: [ct | value]}
+  end
 
   defp _prepend(%{value: value} = ctxt, tuple) when is_tuple(tuple) do
     %{ctxt | value: [tuple | value] |> List.flatten()}
   end
 
-  defp _prepend(%{value: value} = ctxt, list) when is_list(list),
-    do: %{ctxt | value: List.flatten(list ++ value)}
+  defp _prepend(%{value: value} = ctxt, list) when is_list(list) do
+    %{ctxt | value: List.flatten(list ++ value)}
+  end
 
   @doc """
   Convenience method to prepend to the value list
@@ -83,7 +88,9 @@ defmodule EarmarkParser.Context do
     %{ctx | value: value}
   end
 
-  def clear_value(%__MODULE__{} = ctx), do: %{ctx | value: []}
+  def clear_value(%__MODULE__{} = ctx) do
+    %{ctx | value: []}
+  end
 
   # this is called by the command line processor to update
   # the inline-specific rules in light of any options
@@ -92,7 +99,6 @@ defmodule EarmarkParser.Context do
   end
 
   #                 ( "[" .*? "]"n or anything w/o {"[", "]"}* or "]" ) *
-  @link_text ~S{(?:\[[^]]*\]|[^][]|\])*}
   # "
   # @href ~S{\s*<?(.*?)>?(?:\s+['"](.*?)['"])?\s*}
 
@@ -110,12 +116,14 @@ defmodule EarmarkParser.Context do
       else
         ""
       end
+
     math =
       if options.math do
         "$"
       else
         ""
       end
+
     rule_updates =
       if options.gfm do
         rules = [
@@ -135,9 +143,6 @@ defmodule EarmarkParser.Context do
       else
         []
       end
-
-    footnote = if options.footnotes, do: ~r{^\[\^(#{@link_text})\]}, else: ~r{\z\A}
-    rule_updates = Keyword.merge(rule_updates, footnote: footnote)
 
     Keyword.merge(basic_rules(), rule_updates)
     |> Enum.into(%{})

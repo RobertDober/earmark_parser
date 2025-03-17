@@ -4,6 +4,7 @@ on:
   pull_request:
   push:
     branches:
+      - i164-use-formatter
       - master
 
 jobs:
@@ -14,28 +15,37 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - elixir: 1.11.x
-            otp: 22
-            os: ubuntu-20.04
-          - elixir: 1.11.x
-            otp: 23
-            os: ubuntu-20.04
-          - elixir: 1.12.x
-            otp: 23
-            os: ubuntu-20.04
-          - elixir: 1.13.x
-            otp: 24
-            os: ubuntu-20.04
           - elixir: 1.14.x
             otp: 25
             os: ubuntu-latest
-          # - elixir: 1.15.x
-          #   otp: 26
-          #   os: ubuntu-latest
-          #   warnings_as_errors: true
+          - elixir: 1.15.x
+            otp: 25
+            os: ubuntu-latest
+            warnings_as_errors: true
+          - elixir: 1.16.x
+            otp: 26
+            os: ubuntu-latest
+            warnings_as_errors: true
+          - elixir: 1.17.x
+            otp: 27
+            os: ubuntu-latest
+            warnings_as_errors: true
+          - elixir: 1.18.0-otp-25
+            otp: 25
+            os: ubuntu-latest
+            warnings_as_errors: true
+          - elixir: 1.18.0-otp-27
+            otp: 27
+            os: ubuntu-latest
+            warnings_as_errors: true
+          - elixir: 1.18.3-otp-27
+            otp: 27
+            os: ubuntu-latest
+            warnings_as_errors: true
     env:
       MIX_ENV: test
     steps:
+
       - uses: actions/checkout@v3
       - uses: erlef/setup-beam@v1
         with:
@@ -59,7 +69,23 @@ jobs:
         env:
           CC: gcc-10
           CXX: g++-10
+      - run: mix compile
+        if: ${{! matrix.warnings_as_errors}}
+        env:
+          CC: gcc-10
+          CXX: g++-10
+      - run: mix test --warnings-as-errors
+        if: matrix.warnings_as_errors
+        env:
+          CC: gcc-10
+          CXX: g++-10
       - run: mix test
+        if: ${{! matrix.warnings_as_errors}}
+        env:
+          CC: gcc-10
+          CXX: g++-10
+      - run: mix format --check-formatted
+        if: matrix.warnings_as_errors
         env:
           CC: gcc-10
           CXX: g++-10
@@ -68,4 +94,3 @@ jobs:
 # They are provided by a third-party and are governed by
 # separate terms of service, privacy policy, and support
 # documentation.
-

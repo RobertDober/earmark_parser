@@ -1,5 +1,4 @@
 defmodule Support.AcceptanceTestCase do
-
   defmacro __using__(_options) do
     quote do
       use ExUnit.Case, async: true
@@ -11,6 +10,6 @@ defmodule Support.AcceptanceTestCase do
       import Support.AstHelpers, only: [assert_asts_are_equal: 2, ast_from_md: 1, ast_from_md: 2]
     end
   end
-
 end
+
 # SPDX-License-Identifier: Apache-2.0

@@ -4,10 +4,9 @@ defmodule Acceptance.Ast.AtxHeadersTest do
   import EarmarkAstDsl
 
   describe "ATX headers" do
-
     test "from one to six" do
       markdown = "# foo\n## foo\n### foo\n#### foo\n##### foo\n###### foo\n"
-      ast      = (1..6) |> Enum.map(&tag("h#{&1}", "foo"))
+      ast = 1..6 |> Enum.map(&tag("h#{&1}", "foo"))
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -15,7 +14,7 @@ defmodule Acceptance.Ast.AtxHeadersTest do
 
     test "from one to six with closing" do
       markdown = "# foo #\n## foo ##\n### foo ###\n#### foo #####\n##### foo #####\n###### foo ######\n"
-      ast      = (1..6) |> Enum.map(&tag("h#{&1}", "foo"))
+      ast = 1..6 |> Enum.map(&tag("h#{&1}", "foo"))
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -23,7 +22,7 @@ defmodule Acceptance.Ast.AtxHeadersTest do
 
     test "from one to six with closing and trailing ws" do
       markdown = "# foo # \n## foo ## \n### foo ### \n#### foo ##### \n##### foo ##### \n###### foo ###### \n"
-      ast      = (1..6) |> Enum.map(&tag("h#{&1}", "foo"))
+      ast = 1..6 |> Enum.map(&tag("h#{&1}", "foo"))
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -31,7 +30,7 @@ defmodule Acceptance.Ast.AtxHeadersTest do
 
     test "seven? kidding, right?" do
       markdown = "####### foo\n"
-      ast      = p("####### foo")
+      ast = p("####### foo")
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -39,7 +38,7 @@ defmodule Acceptance.Ast.AtxHeadersTest do
 
     test "sticky (better than to have no glue)" do
       markdown = "#5 bolt\n\n#foobar\n"
-      ast      = [ p("#5 bolt"), p("#foobar") ]
+      ast = [p("#5 bolt"), p("#foobar")]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -47,7 +46,7 @@ defmodule Acceptance.Ast.AtxHeadersTest do
 
     test "close escape" do
       markdown = "\\## foo\n"
-      ast      = p("## foo")
+      ast = p("## foo")
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -55,7 +54,7 @@ defmodule Acceptance.Ast.AtxHeadersTest do
 
     test "position is so important" do
       markdown = "# foo *bar* \\*baz\\*\n"
-      ast      = tag("h1", ["foo ", tag("em", "bar"), " *baz*"])
+      ast = tag("h1", ["foo ", tag("em", "bar"), " *baz*"])
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -63,7 +62,7 @@ defmodule Acceptance.Ast.AtxHeadersTest do
 
     test "spacy" do
       markdown = "#                  foo                     \n"
-      ast      = tag("h1", "foo")
+      ast = tag("h1", "foo")
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -71,7 +70,7 @@ defmodule Acceptance.Ast.AtxHeadersTest do
 
     test "code comes first" do
       markdown = "    # foo\nnext"
-      ast      = [pre_code("# foo"), p("next")]
+      ast = [pre_code("# foo"), p("next")]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -79,7 +78,7 @@ defmodule Acceptance.Ast.AtxHeadersTest do
 
     test "some prefer to close their headers" do
       markdown = "# foo#\n"
-      ast      = tag("h1", "foo")
+      ast = tag("h1", "foo")
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -87,7 +86,7 @@ defmodule Acceptance.Ast.AtxHeadersTest do
 
     test "closing headers can get creative" do
       markdown = "### foo######\n"
-      ast      = tag("h3", "foo")
+      ast = tag("h3", "foo")
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -95,7 +94,7 @@ defmodule Acceptance.Ast.AtxHeadersTest do
 
     test "hash can still be used in a header" do
       markdown = "# C# #\n"
-      ast      = tag("h1", "C#")
+      ast = tag("h1", "C#")
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -103,7 +102,7 @@ defmodule Acceptance.Ast.AtxHeadersTest do
 
     test "closing header with hash" do
       markdown = "# C# (language)#\n"
-      ast      = tag("h1", "C# (language)")
+      ast = tag("h1", "C# (language)")
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}

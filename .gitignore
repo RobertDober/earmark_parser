@@ -23,3 +23,5 @@ earmark_parser-*.tar
 
 .vscode/
 test/debug/
+tags
+.local/
