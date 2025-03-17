@@ -4,9 +4,9 @@ defmodule EarmarkParser.Message do
   alias EarmarkParser.Context
   alias EarmarkParser.Options
 
-  @type message_type :: :error | :warning
-  @type t :: {message_type, number, binary}
-  @type ts :: list(t)
+  @type message_type :: :error | :warning | :deprecated
+  @type t :: {message_type, non_neg_integer(), String.t()}
+  @type ts :: MapSet.t(t())
   @type container_type :: Options.t() | Context.t()
 
   def add_messages(container, messages) do
