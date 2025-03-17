@@ -1,6 +1,25 @@
 defmodule EarmarkParser.Line do
   @moduledoc false
 
+  @type t ::
+          %__MODULE__.Blank{}
+          | %__MODULE__.Ruler{}
+          | %__MODULE__.Heading{}
+          | %__MODULE__.BlockQuote{}
+          | %__MODULE__.Indent{}
+          | %__MODULE__.Fence{}
+          | %__MODULE__.HtmlOpenTag{}
+          | %__MODULE__.HtmlCloseTag{}
+          | %__MODULE__.HtmlComment{}
+          | %__MODULE__.HtmlOneLine{}
+          | %__MODULE__.IdDef{}
+          | %__MODULE__.FnDef{}
+          | %__MODULE__.ListItem{}
+          | %__MODULE__.SetextUnderlineHeading{}
+          | %__MODULE__.TableLine{}
+          | %__MODULE__.Ial{}
+          | %__MODULE__.Text{}
+
   defmodule Blank do
     @moduledoc false
     defstruct(annotation: nil, lnb: 0, line: "", indent: -1, content: "")
