@@ -32,6 +32,7 @@ defmodule EarmarkParser.Options do
             timeout: nil
 
   @type t :: %__MODULE__{
+          renderer: module(),
           all: boolean(),
           gfm: boolean(),
           gfm_tables: boolean(),
@@ -42,18 +43,19 @@ defmodule EarmarkParser.Options do
           parse_inline: boolean(),
 
           # allow for annotations
-          annotations: nil | binary(),
+          annotations: nil | binary() | Regex.t(),
           # additional prefies for class of code blocks
           code_class_prefix: nil | binary(),
 
           # Filename and initial line number of the markdown block passed in
           # for meaningful error messages
           file: binary(),
-          line: number(),
+          line: non_neg_integer(),
           # [{:error|:warning, lnb, text},...]
-          messages: MapSet.t(),
+          messages: MapSet.t(Message.t()),
           pure_links: boolean(),
           sub_sup: boolean(),
+          math: boolean(),
 
           # deprecated
           pedantic: boolean(),
