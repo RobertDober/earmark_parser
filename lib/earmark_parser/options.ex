@@ -107,28 +107,30 @@ defmodule EarmarkParser.Options do
         ...(1)> options.annotations
         ~r{\A(.*)(%%.*)}
   """
+  @spec normalize(t() | keyword()) :: t()
   def normalize(options)
 
   def normalize(%__MODULE__{} = options) do
-    case options.annotations do
-      %Regex{} ->
-        options
-
-      nil ->
-        options
-
-      _ ->
-        %{
-          options
-          | annotations: Regex.compile!("\\A(.*)(#{Regex.escape(options.annotations)}.*)")
-        }
-    end
+    options
+    |> _normalize_annotations()
     |> _set_all_if_applicable()
     |> _deprecate_old_messages()
   end
 
   def normalize(options) do
     struct(__MODULE__, options) |> normalize()
+  end
+
+  defp _normalize_annotations(%__MODULE__{annotations: %Regex{}} = options) do
+    options
+  end
+
+  defp _normalize_annotations(%__MODULE__{annotations: nil} = options) do
+    options
+  end
+
+  defp _normalize_annotations(%__MODULE__{annotations: annotations} = options) do
+    %{options | annotations: Regex.compile!("\\A(.*)(#{Regex.escape(annotations)}.*)")}
   end
 
   defp _deprecate_old_messages(options)
