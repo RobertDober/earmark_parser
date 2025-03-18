@@ -1,5 +1,4 @@
 defmodule EarmarkParser.Parser.ListInfo do
-
   alias EarmarkParser.{Options, Line, Line.ListItem}
 
   import EarmarkParser.Helpers.LookaheadHelpers, only: [opens_inline_code: 1, still_inline_code: 2]
@@ -8,23 +7,21 @@ defmodule EarmarkParser.Parser.ListInfo do
 
   @not_pending {nil, 0}
 
-  defstruct [
-    indent: 0,
-    lines: [],
-    loose?: false,
-    pending: @not_pending,
-    options: %Options{},
-    width: 0
-  ]
+  defstruct indent: 0,
+            lines: [],
+            loose?: false,
+            pending: @not_pending,
+            options: %Options{},
+            width: 0
 
   @type t :: %__MODULE__{
-    indent: non_neg_integer(),
-    lines: [String.t()],
-    loose?: boolean(),
-    pending: {nil | String.t(), non_neg_integer()},
-    options: Options.t(),
-    width: non_neg_integer()
-  }
+          indent: non_neg_integer(),
+          lines: [String.t()],
+          loose?: boolean(),
+          pending: {nil | String.t(), non_neg_integer()},
+          options: Options.t(),
+          width: non_neg_integer()
+        }
 
   @spec new(ListItem.t(), Options.t()) :: t()
   def new(%ListItem{initial_indent: ii, list_indent: width} = item, options) do
