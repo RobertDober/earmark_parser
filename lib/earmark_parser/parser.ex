@@ -1,6 +1,6 @@
 defmodule EarmarkParser.Parser do
   @moduledoc false
-  alias EarmarkParser.{Block, Line, LineScanner, Options}
+  alias EarmarkParser.{Block, Line, LineScanner, Options, Context}
 
   import EarmarkParser.Helpers.{AttrParser, LineHelpers, ReparseHelpers}
 
@@ -19,6 +19,7 @@ defmodule EarmarkParser.Parser do
   The options are a `%EarmarkParser.Options{}` structure. See `as_html!`
   for more details.
   """
+  @spec parse_markdown([String.t()] | String.t(), Options.t()) :: {[Block.t()], Context.t()}
   def parse_markdown(lines, options)
 
   def parse_markdown(lines, options = %Options{}) when is_list(lines) do
