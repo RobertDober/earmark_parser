@@ -52,7 +52,7 @@ defmodule EarmarkParser.Options do
           file: binary(),
           line: non_neg_integer(),
           # [{:error|:warning, lnb, text},...]
-          messages: MapSet.t(Message.t()),
+          messages: MapSet.t(EarmarkParser.Message.t()),
           pure_links: boolean(),
           sub_sup: boolean(),
           math: boolean(),

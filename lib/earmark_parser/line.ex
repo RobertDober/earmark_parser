@@ -94,6 +94,19 @@ defmodule EarmarkParser.Line do
       initial_indent: 0,
       list_indent: 0
     )
+
+    @type t :: %__MODULE__{
+      annotation: nil | String.t(),
+      ial: nil | String.t(),
+      lnb: non_neg_integer(),
+      type: :ul | :ol,
+      line: String.t(),
+      indent: non_neg_integer(),
+      bullet: String.t(),
+      content: String.t(),
+      initial_indent: non_neg_integer(),
+      list_indent: non_neg_integer()
+    }
   end
 
   defmodule SetextUnderlineHeading do
