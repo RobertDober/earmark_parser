@@ -3,6 +3,8 @@ defmodule EarmarkParser.Helpers.LookaheadHelpers do
 
   import EarmarkParser.Helpers.LeexHelpers
 
+  @type backtix :: String.t()
+
   @doc """
   Indicates if the _numbered_line_ passed in leaves an inline code block open.
 
@@ -11,6 +13,7 @@ defmodule EarmarkParser.Helpers.LookaheadHelpers do
 
   Otherwise `{nil, 0}` is returned
   """
+  @spec opens_inline_code(EarmarkParser.Line.t()) :: {backtix | nil, non_neg_integer()}
   def opens_inline_code(%{line: line, lnb: lnb}) do
     case tokenize(line, with: :earmark_parser_string_lexer) |> has_still_opening_backtix(nil) do
       nil -> {nil, 0}
@@ -26,6 +29,7 @@ defmodule EarmarkParser.Helpers.LookaheadHelpers do
   opening backtix
   """
   # (#{},{_,_}) -> {_,_}
+  @spec still_inline_code(EarmarkParser.Line.t(), {backtix, non_neg_integer()}) :: {backtix, non_neg_integer()}
   def still_inline_code(%{line: line, lnb: lnb}, old = {pending, _pending_lnb}) do
     case tokenize(line, with: :earmark_parser_string_lexer) |> has_still_opening_backtix({:old, pending}) do
       nil -> {nil, 0}
