@@ -1,4 +1,7 @@
 defmodule EarmarkParser.Parser.ListInfo do
+
+  alias EarmarkParser.{Options, Line}
+
   import EarmarkParser.Helpers.LookaheadHelpers, only: [opens_inline_code: 1, still_inline_code: 2]
 
   @moduledoc false
@@ -14,7 +17,8 @@ defmodule EarmarkParser.Parser.ListInfo do
     width: 0
   )
 
-  def new(%EarmarkParser.Line.ListItem{initial_indent: ii, list_indent: width} = item, options) do
+  @spec new(Line.ListItem.t(), Options.t()) :: t()
+  def new(%Line.ListItem{initial_indent: ii, list_indent: width} = item, options) do
     pending = opens_inline_code(item)
     %__MODULE__{indent: ii, lines: [item.content], options: options, pending: pending, width: width}
   end
