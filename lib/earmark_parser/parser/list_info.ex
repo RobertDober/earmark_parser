@@ -16,6 +16,14 @@ defmodule EarmarkParser.Parser.ListInfo do
     options: %EarmarkParser.Options{},
     width: 0
   )
+  @type t :: %__MODULE__{
+    indent: non_neg_integer(),
+    lines: list(),
+    loose?: boolean(),
+    pending: {nil | String.t(), non_neg_integer()},
+    options: Options.t(),
+    width: non_neg_integer()
+  }
 
   @spec new(Line.ListItem.t(), Options.t()) :: t()
   def new(%Line.ListItem{initial_indent: ii, list_indent: width} = item, options) do
