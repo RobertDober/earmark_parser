@@ -29,7 +29,7 @@ defmodule EarmarkParser.Helpers.LookaheadHelpers do
   opening backtix
   """
   # (#{},{_,_}) -> {_,_}
-  @spec still_inline_code(EarmarkParser.Line.t(), {backtix, non_neg_integer()}) :: {backtix, non_neg_integer()}
+  @spec still_inline_code(EarmarkParser.Line.t(), {backtix, non_neg_integer()}) :: {backtix | nil, non_neg_integer()}
   def still_inline_code(%{line: line, lnb: lnb}, old = {pending, _pending_lnb}) do
     case tokenize(line, with: :earmark_parser_string_lexer) |> has_still_opening_backtix({:old, pending}) do
       nil -> {nil, 0}
