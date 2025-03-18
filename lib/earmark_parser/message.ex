@@ -6,13 +6,15 @@ defmodule EarmarkParser.Message do
 
   @type message_type :: :error | :warning | :deprecated
   @type t :: {message_type, non_neg_integer(), String.t()}
-  @type ts :: MapSet.t(t())
-  @type container_type :: Options.t() | Context.t()
+  @type ts :: [t()]
+  @type container :: Options.t() | Context.t()
 
+  @spec add_messages(container, ts()) :: container
   def add_messages(container, messages) do
     Enum.reduce(messages, container, &add_message(&2, &1))
   end
 
+  @spec add_message(container, t()) :: container
   def add_message(container, message)
 
   def add_message(options = %Options{}, message) do
@@ -23,6 +25,7 @@ defmodule EarmarkParser.Message do
     %{context | options: add_message(context.options, message)}
   end
 
+  @spec get_messages(container) :: ts()
   def get_messages(container)
 
   def get_messages(%Context{options: %{messages: messages}}) do
@@ -32,6 +35,7 @@ defmodule EarmarkParser.Message do
   @doc """
   For final output
   """
+  @spec sort_messages(container) :: [t()]
   def sort_messages(container) do
     container
     |> get_messages()
