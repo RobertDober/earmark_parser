@@ -95,17 +95,19 @@ defmodule EarmarkParser.Line do
       list_indent: 0
     )
 
+    @type natural :: non_neg_integer()
+
     @type t :: %__MODULE__{
             annotation: nil | String.t(),
             ial: nil | String.t(),
-            lnb: non_neg_integer(),
+            lnb: natural,
             type: :ul | :ol,
             line: String.t(),
-            indent: non_neg_integer(),
+            indent: natural,
             bullet: String.t(),
             content: String.t(),
-            initial_indent: non_neg_integer(),
-            list_indent: non_neg_integer()
+            initial_indent: natural,
+            list_indent: natural
           }
   end
 

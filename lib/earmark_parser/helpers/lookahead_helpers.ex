@@ -3,7 +3,7 @@ defmodule EarmarkParser.Helpers.LookaheadHelpers do
 
   import EarmarkParser.Helpers.LeexHelpers
 
-  @type backtix :: String.t()
+  @type natural :: non_neg_integer()
 
   @doc """
   Indicates if the _numbered_line_ passed in leaves an inline code block open.
