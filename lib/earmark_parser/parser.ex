@@ -514,7 +514,7 @@ defmodule EarmarkParser.Parser do
   # Consolidate multiline inline code blocks into an element #
   ############################################################
   @not_pending {nil, 0}
-  # ([#{},...]) -> {[#{}],[#{}],{'nil' | binary(),number()}}
+  # ([#{},...]) -> {[#{}],[#{}],{'nil' | String.t(),number()}}
   # @spec consolidate_para( ts ) :: { ts, ts, {nil | String.t, number} }
   defp consolidate_para(lines) do
     _consolidate_para(lines, [], @not_pending, nil)

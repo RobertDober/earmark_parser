@@ -43,13 +43,13 @@ defmodule EarmarkParser.Options do
           parse_inline: boolean(),
 
           # allow for annotations
-          annotations: nil | binary() | Regex.t(),
+          annotations: nil | String.t() | Regex.t(),
           # additional prefies for class of code blocks
-          code_class_prefix: nil | binary(),
+          code_class_prefix: nil | String.t(),
 
           # Filename and initial line number of the markdown block passed in
           # for meaningful error messages
-          file: binary(),
+          file: String.t(),
           line: non_neg_integer(),
           # [{:error|:warning, lnb, text},...]
           messages: MapSet.t(EarmarkParser.Message.t()),
