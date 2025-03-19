@@ -6,7 +6,7 @@ defmodule EarmarkParser.Helpers.LookaheadHelpers do
   @type backtix_string :: String.t()
   @type natural :: non_neg_integer()
 
-@doc """
+  @doc """
   Indicates if the _numbered_line_ passed in leaves an inline code block open.
 
   If so returns a tuple where the first element is the opening sequence of backticks,
