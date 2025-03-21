@@ -12,6 +12,7 @@ defmodule EarmarkParser.AstRenderer do
 
   @moduledoc false
 
+  @spec render([Block.t()], Context.t(), boolean()) :: Context.t()
   def render(blocks, context = %Context{options: %Options{}}, loose? \\ true) do
     _render(blocks, context, loose?)
   end

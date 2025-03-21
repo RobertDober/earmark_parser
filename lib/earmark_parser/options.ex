@@ -32,6 +32,7 @@ defmodule EarmarkParser.Options do
             timeout: nil
 
   @type t :: %__MODULE__{
+          renderer: module(),
           all: boolean(),
           gfm: boolean(),
           gfm_tables: boolean(),
@@ -42,18 +43,19 @@ defmodule EarmarkParser.Options do
           parse_inline: boolean(),
 
           # allow for annotations
-          annotations: nil | binary(),
+          annotations: nil | String.t() | Regex.t(),
           # additional prefies for class of code blocks
-          code_class_prefix: nil | binary(),
+          code_class_prefix: nil | String.t(),
 
           # Filename and initial line number of the markdown block passed in
           # for meaningful error messages
-          file: binary(),
-          line: number(),
+          file: String.t(),
+          line: non_neg_integer(),
           # [{:error|:warning, lnb, text},...]
-          messages: MapSet.t(),
+          messages: MapSet.t(EarmarkParser.Message.t()),
           pure_links: boolean(),
           sub_sup: boolean(),
+          math: boolean(),
 
           # deprecated
           pedantic: boolean(),
@@ -105,28 +107,30 @@ defmodule EarmarkParser.Options do
         ...(1)> options.annotations
         ~r{\A(.*)(%%.*)}
   """
+  @spec normalize(t() | keyword()) :: t()
   def normalize(options)
 
   def normalize(%__MODULE__{} = options) do
-    case options.annotations do
-      %Regex{} ->
-        options
-
-      nil ->
-        options
-
-      _ ->
-        %{
-          options
-          | annotations: Regex.compile!("\\A(.*)(#{Regex.escape(options.annotations)}.*)")
-        }
-    end
+    options
+    |> _normalize_annotations()
     |> _set_all_if_applicable()
     |> _deprecate_old_messages()
   end
 
   def normalize(options) do
     struct(__MODULE__, options) |> normalize()
+  end
+
+  defp _normalize_annotations(%__MODULE__{annotations: %Regex{}} = options) do
+    options
+  end
+
+  defp _normalize_annotations(%__MODULE__{annotations: nil} = options) do
+    options
+  end
+
+  defp _normalize_annotations(%__MODULE__{annotations: annotations} = options) do
+    %{options | annotations: Regex.compile!("\\A(.*)(#{Regex.escape(annotations)}.*)")}
   end
 
   defp _deprecate_old_messages(options)

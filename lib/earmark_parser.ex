@@ -1,15 +1,15 @@
 defmodule EarmarkParser do
   @type ast_meta :: map()
-  @type ast_tag :: binary()
-  @type ast_attribute_name :: binary()
-  @type ast_attribute_value :: binary()
+  @type ast_tag :: String.t()
+  @type ast_attribute_name :: String.t()
+  @type ast_attribute_value :: String.t()
   @type ast_attribute :: {ast_attribute_name(), ast_attribute_value()}
   @type ast_attributes :: list(ast_attribute())
   @type ast_tuple :: {ast_tag(), ast_attributes(), ast(), ast_meta()}
-  @type ast_node :: binary() | ast_tuple()
+  @type ast_node :: String.t() | ast_tuple()
   @type ast :: list(ast_node())
 
-  @type error :: {atom(), non_neg_integer(), binary()}
+  @type error :: {atom(), non_neg_integer(), String.t()}
   @type errors :: list(error())
 
   @type t :: {:ok, ast(), []} | {:error, ast(), errors()}
@@ -615,7 +615,7 @@ defmodule EarmarkParser do
 
   The AST is exposed in the spirit of [Floki's](https://hex.pm/packages/floki).
   """
-  @spec as_ast(binary() | list(binary()), any()) :: t()
+  @spec as_ast(String.t() | list(String.t()), any()) :: t()
   def as_ast(lines, options \\ %Options{})
 
   def as_ast(lines, %Options{} = options) do
