@@ -10,6 +10,7 @@ defmodule EarmarkParser.Parser.ListParser do
 
   @not_pending {nil, 0}
 
+  @spec parse_list([Line.t()], [Block.t()], Options.t()) :: {[Block.t()], [Line.t()], Options.t()}
   def parse_list(lines, result, options \\ %Options{}) do
     {items, rest, options1} = _parse_list_items_init(lines, [], options)
     list = _make_list(items, _empty_list(items))

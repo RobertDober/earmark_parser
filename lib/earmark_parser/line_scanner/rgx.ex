@@ -159,7 +159,7 @@ defmodule EarmarkParser.LineScanner.Rgx do
     Regex.run(~r/\A (?:_\s?){3,} \z/x, content)
   end
 
-  @void_tags ~w{area br hr img wbr}
+  @void_tags ~w{area base br col embed hr img input link meta param source track wbr}
   def void_tag_rgx do
     ~r'''
     ^<( #{Enum.join(@void_tags, "|")} )
