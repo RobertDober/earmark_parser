@@ -5,6 +5,13 @@
 
 - [Parsing HTML]
 
+## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.45 
+
+- [PR #167](https://github.com/RobertDober/earmark_parser/pull/167) refactoring Block structures into one file, thusly establishing
+consistency with how Line structures are coded, [c.f. Issue #166](https://github.com/RobertDober/earmark_parser/issues/166) for
+motivation.
+    Kudos to [Brad Hanks](https://github.com/bradhanks)
+
 ## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.44 2025-03-12
 
 - [PR #165](https://github.com/RobertDober/earmark_parser/pull/165) which formatted the code according to the newly created `.formatter.exs` **finally**
