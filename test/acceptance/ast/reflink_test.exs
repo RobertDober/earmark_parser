@@ -76,7 +76,7 @@ defmodule Acceptance.Ast.ReflinkTest do
 
     test "not so simple case" do
       markdown = "[[]]]text] [reference]\n[reference]: some_url"
-      html = "<p><a href=\"some_url\" title=\"\">[]]]text</a></p>\n"
+      html = "<p>[[]]]text] <a href=\"some_url\" title=\"\">reference</a></p>\n"
       ast = parse_html(html)
       messages = []
 

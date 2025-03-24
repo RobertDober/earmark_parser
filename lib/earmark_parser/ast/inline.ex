@@ -136,7 +136,7 @@ defmodule EarmarkParser.Ast.Inline do
     end
   end
 
-  @link_text ~S{(?:\[[^]]*\]|[^][]|\])*}
+  @link_text ~S{(?:\[[^]]*\]|[^][])*}
 
   def converter_for_reflink({src, lnb, context, use_linky?}) do
     if use_linky? do
