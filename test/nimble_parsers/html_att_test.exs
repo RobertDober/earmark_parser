@@ -9,7 +9,26 @@ defmodule Test.NimbleParsers.HtmlAttTest do
 
     test "does not parse an empty string" do
       parse_html_atts("")
-      |> parsed_error("expected ASCII character in the range \">\" to \">\"")
+      |> parsed_error("expected string \">\"")
+    end
+  end
+
+  describe "boolean attribute" do
+    test "just it's presence" do
+      parse_html_atts("hidden>")
+      |> parsed_ok([{"hidden", true}])
+    end
+
+    test "two boolean attributes" do
+      parse_html_atts("hidden and-visible>")
+      |> parsed_ok([{"hidden", true}, {"and-visible", true}])
+    end
+  end
+
+  describe "a string attribute" do
+    test "elixir, what else?" do
+      parse_html_atts(~S{lang="elixir">})
+      |> parsed_ok([{"lang", "elixir"}])
     end
   end
 end

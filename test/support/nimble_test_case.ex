@@ -5,7 +5,6 @@ defmodule Support.NimbleTestCase do
 
       import EarmarkParser.NimbleParsers
       import Support.NimbleTests
-
     end
   end
 end

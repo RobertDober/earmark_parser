@@ -15,7 +15,7 @@ defmodule EarmarkParser.MixProject do
     {:earmark_ast_dsl, "~> 0.3.7", only: [:test]},
     {:excoveralls, "~> 0.18.3", only: [:test]},
     {:extractly, "~> 0.5.3", only: [:dev]},
-    {:floki, "~> 0.36", only: [:dev, :test]},
+    {:floki, "~> 0.36", only: [:dev, :test]}
   ]
 
   def project do
