@@ -3,18 +3,7 @@ defmodule EarmarkParser.NimbleParsers.HtmlAttsParser do
   Parses an HTML tag
   """
   import NimbleParsec
-
-  string_value =
-    ascii_char([?"])
-    |> ignore()
-    |> repeat(
-      lookahead_not(ascii_char([?"]))
-      |> choice([
-        ~S(\") |> string() |> replace(?"),
-        utf8_char([])
-      ])
-    )
-    |> ignore(ascii_char([?"]))
+  alias EarmarkParser.NimbleParsers.StringParser
 
   html_att_name =
     ascii_string([?a..?z, ?A..?z, ?-..?-], min: 1)
@@ -22,7 +11,7 @@ defmodule EarmarkParser.NimbleParsers.HtmlAttsParser do
   html_att =
     html_att_name
     |> choice([
-      "=" |> string() |> ignore() |> concat(string_value),
+      "=" |> string() |> ignore() |> parsec({StringParser, :string_value}),
       empty()
     ])
     |> reduce(:reduce_att)
