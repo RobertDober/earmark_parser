@@ -1,10 +1,14 @@
 defmodule EarmarkParser.MixProject do
   use Mix.Project
 
-  @version "1.4.44"
+  @version "1.4.45"
   @url "https://github.com/RobertDober/earmark_parser"
 
   @deps [
+    # production environnement
+    {:nimble_parsec, "~> 1.4.2", runtime: false},
+
+    # dev and test environnements
     {:benchee, "~> 1.3.1", only: [:dev]},
     # {:credo, "~> 1.7.5", only: [:dev]},
     {:dialyxir, "~> 1.4.5", only: [:dev], runtime: false},
