@@ -30,6 +30,20 @@ defmodule Test.NimbleParsers.HtmlAttTest do
       parse_html_atts(~S{lang="elixir">})
       |> parsed_ok([{"lang", "elixir"}])
     end
+
+    test "escaped double quote" do
+      parse_html_atts(~S{lang="\"lua\"">})
+      |> parsed_ok([{"lang", "\"lua\""}])
+    end
+
+    test "single quoted string too" do
+      parse_html_atts(~S{lang="\"pt-br\"" lang='fr-fr' lang='de-\'at\''>})
+      |> parsed_ok([
+        {"lang", "\"pt-br\""},
+        {"lang", "fr-fr"},
+        {"lang", "de-'at'"}
+      ])
+    end
   end
 end
 

@@ -5,18 +5,33 @@ defmodule EarmarkParser.NimbleParsers.StringParser do
 
   import NimbleParsec
 
-  defcombinator(
-    :string_value,
-    ascii_char([?"])
-    |> ignore()
+  inner_string = fn combinator, ch ->
+    combinator
     |> repeat(
-      lookahead_not(ascii_char([?"]))
+      lookahead_not(ascii_char([ch]))
       |> choice([
-        ~S(\") |> string() |> replace(?"),
+        IO.chardata_to_string(["\\", ch])
+        |> string()
+        |> replace(ch),
         utf8_char([])
       ])
     )
-    |> ignore(ascii_char([?"]))
+  end
+
+  quoted_string = fn ch ->
+    empty()
+    |> ascii_char([ch])
+    |> ignore()
+    |> inner_string.(ch)
+    |> ignore(ascii_char([ch]))
+  end
+
+  defcombinator(
+    :string_value,
+    choice([
+      quoted_string.(?"),
+      quoted_string.(?')
+    ])
   )
 end
 
