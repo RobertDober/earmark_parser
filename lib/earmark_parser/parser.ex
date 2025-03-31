@@ -45,6 +45,7 @@ defmodule EarmarkParser.Parser do
   end
 
   def parse(text_lines, options = %Options{}, recursive) do
+    # TODO: I173 LineScanner.scan_lines must return a binary here
     ["" | text_lines ++ [""]]
     |> LineScanner.scan_lines(options, recursive)
     |> parse_lines(options, recursive)
@@ -56,6 +57,9 @@ defmodule EarmarkParser.Parser do
   # for external consumption.
 
   def parse_lines(lines, options, recursive) do
+    # TODO: I173 lines must be a stream here
+    IO.inspect(lines)
+
     {blocks, footnotes, options} =
       lines |> remove_trailing_blank_lines() |> lines_to_blocks(options, recursive)
 
