@@ -5,6 +5,7 @@ defmodule EarmarkParser.MixProject do
   @url "https://github.com/RobertDober/earmark_parser"
 
   @deps [
+    {:nimble_parsec, "~> 1.4.2", runtime: false},
     {:benchee, "~> 1.3.1", only: [:dev]},
     # {:credo, "~> 1.7.5", only: [:dev]},
     {:dialyxir, "~> 1.4.5", only: [:dev], runtime: false},

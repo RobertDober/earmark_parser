@@ -1,7 +1,8 @@
 defmodule MicroMark do
-  @moduledoc ~S"""
-  A POC parser using minipeg and line oriented parsing of a microscopic subset of Markdown
-  """
+  @moduledoc "README.md"
+             |> File.read!()
+             |> String.split("<!-- MDOC !-->")
+             |> Enum.fetch!(1)
 
   use MicroMark.Types
   alias MicroMark.{Input, Parser, State}
