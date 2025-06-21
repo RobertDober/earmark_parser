@@ -104,8 +104,8 @@ defmodule EarmarkParser.Options do
   Use normalize before passing it into any API function
 
         iex(1)> options = normalize(annotations: "%%")
-        ...(1)> options.annotations
-        ~r{\A(.*)(%%.*)}
+        ...(1)> Regex.source(options.annotations)
+        "\\A(.*)(%%.*)"
   """
   @spec normalize(t() | keyword()) :: t()
   def normalize(options)

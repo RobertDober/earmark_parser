@@ -124,15 +124,15 @@ defmodule Bench.GetModuledocs do
     |> Enum.with_index 
   end
 
-  @eol ~r/\n\r?/
-    defp load_moduledoc(module) do
+  defp load_moduledoc(module) do
+    eol = ~r/\n\r?/
       Code.ensure_loaded(module)
-      case Code.fetch_docs(module) do
-        {_, _, :elixir, "text/markdown", %{"en" => moduledoc}, _, _} -> moduledoc |> String.split(@eol)
-        _ -> 
-          IO.puts(:stderr, "moduledoc for module '#{module}' not found, ignoring....")
-          []
-      end
+    case Code.fetch_docs(module) do
+      {_, _, :elixir, "text/markdown", %{"en" => moduledoc}, _, _} -> moduledoc |> String.split(eol)
+      _ -> 
+        IO.puts(:stderr, "moduledoc for module '#{module}' not found, ignoring....")
+      []
     end
+  end
 end
 # SPDX-License-Identifier: Apache-2.0

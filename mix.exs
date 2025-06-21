@@ -24,12 +24,12 @@ defmodule EarmarkParser.MixProject do
       deps: @deps,
       description: "AST parser and generator for Markdown",
       package: package(),
-      preferred_cli_env: [
-        coveralls: :test,
-        "coveralls.detail": :test,
-        "coveralls.post": :test,
-        "coveralls.html": :test
-      ],
+      # preferred_cli_env: [
+      #   coveralls: :test,
+      #   "coveralls.detail": :test,
+      #   "coveralls.post": :test,
+      #   "coveralls.html": :test
+      # ],
       test_coverage: [tool: ExCoveralls],
       aliases: [docs: &build_docs/1]
     ]
