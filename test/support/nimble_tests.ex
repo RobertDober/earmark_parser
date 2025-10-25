@@ -4,7 +4,7 @@ defmodule Support.NimbleTests do
   """
   defmacro parsed_error(parsed, expected) do
     quote do
-      # |> IO.inspect() 
+      # |> IO.inspect()
       {:error, message, _, _, _, _} = unquote(parsed)
       assert message == unquote(expected)
     end
@@ -12,7 +12,7 @@ defmodule Support.NimbleTests do
 
   defmacro parsed_ok(parsed, expected) do
     quote do
-      # |> IO.inspect() 
+      # |> IO.inspect()
       {:ok, result, _, _, _, _} = unquote(parsed)
       assert result == unquote(expected)
     end
