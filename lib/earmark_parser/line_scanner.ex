@@ -261,7 +261,22 @@ defmodule EarmarkParser.LineScanner do
   end
 
   defp _lines_with_count(lines, offset) do
-    Enum.zip(lines, offset..(offset + Enum.count(lines)))
+    # TODO: Use zip_with to replace \u0000 characters
+    Enum.zip_with(lines, offset..(offset + Enum.count(lines)), &_remove_unsafe_chars/2)
+  end
+
+  @zero "\u0000"
+  @unknown "\ufffd"
+  @spec _remove_unsafe_chars(any(), integer()) :: {String.t(), integer()}
+  defp _remove_unsafe_chars(line, count)
+  defp _remove_unsafe_chars(line, count) when is_binary(line) do
+    {
+      line |> String.replace(@zero, @unknown),
+      count
+    }
+  end
+  defp _remove_unsafe_chars(line, count) do
+    raise ArgumentError, "line number #{count} #{inspect(line)} is not a binary"
   end
 
   defp _with_lookahead([line_lnb | lines], options, recursive) do
