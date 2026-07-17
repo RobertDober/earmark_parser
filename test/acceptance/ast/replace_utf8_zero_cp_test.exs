@@ -9,12 +9,21 @@ defmodule Test.Acceptance.Ast.ReplaceUtf8ZeroCpTest do
     test "one line, one occurance" do
       markdown = "#{@zero}should not be here"
       expected = "#{@repl}should not be here"
-      ast = p(expected) 
+      ast = p(expected)
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
     end
-    
+
+    test "inside inline markup" do
+      markdown = "emphasized _#{@zero}_!"
+      expected = ["emphasized ", tag(:em, @repl), "!"]
+      ast = p(expected)
+      messages = []
+
+      assert as_ast(markdown) == {:ok, [ast], messages}
+    end
+
     test "in headline and para" do
       markdown = "## I have #{@zero} confidence\nand #{@zero} hope"
       headline = "I have #{@repl} confidence"
@@ -60,11 +69,8 @@ defmodule Test.Acceptance.Ast.ReplaceUtf8ZeroCpTest do
       messages = [{:warning, 1, "Closing unclosed backquotes ` at end of input"}]
 
       assert as_ast(markdown) == {:error, [ast], messages}
-      
     end
   end
-
-  
 end
-# SPDX-License-Identifier: Apache-2.0
 
+# SPDX-License-Identifier: Apache-2.0

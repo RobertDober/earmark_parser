@@ -269,12 +269,14 @@ defmodule EarmarkParser.LineScanner do
   @unknown "\ufffd"
   @spec _remove_unsafe_chars(any(), integer()) :: {String.t(), integer()}
   defp _remove_unsafe_chars(line, count)
+
   defp _remove_unsafe_chars(line, count) when is_binary(line) do
     {
       line |> String.replace(@zero, @unknown),
       count
     }
   end
+
   defp _remove_unsafe_chars(line, count) do
     raise ArgumentError, "line number #{count} #{inspect(line)} is not a binary"
   end

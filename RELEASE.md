@@ -5,6 +5,12 @@
 
 - [Parsing HTML]
 
+## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.46 2026-07-17
+
+- Replacing \u0000 chars with \ufffd in output
+
+- Pushing min supported Elixir version to 1.15 (in accordance with ex_doc)
+
 ## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.45 
 
 - [PR #167](https://github.com/RobertDober/earmark_parser/pull/167) refactoring Block structures into one file, thusly establishing
