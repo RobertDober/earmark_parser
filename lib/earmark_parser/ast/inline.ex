@@ -277,14 +277,21 @@ defmodule EarmarkParser.Ast.Inline do
 
     if match = Regex.run(code, src) do
       [match, _, content] = match
-      # Commonmark
-      content1 =
-        content
-        |> String.trim()
-        |> String.replace(~r{\s+}, " ")
+      content1 = normalize_code_span(content)
 
       out = codespan(content1, lnb)
       {behead(src, match), lnb, prepend(context, out), use_linky?}
+    end
+  end
+
+  defp normalize_code_span(content) do
+    content = String.replace(content, ~r{\r\n?|\n}, " ")
+
+    if String.starts_with?(content, " ") and String.ends_with?(content, " ") and
+         String.trim(content, " ") != "" do
+      content |> String.slice(1, String.length(content) - 2)
+    else
+      content
     end
   end
 

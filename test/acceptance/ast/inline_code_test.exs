@@ -89,26 +89,35 @@ defmodule Acceptance.Ast.InlineCodeTest do
   end
 
   describe "whitespace treatment" do
-    test "squashing" do
+    test "preserves internal spaces" do
       markdown = "`alpha   beta`"
-      html = "<p><code class=\"inline\">alpha beta</code></p>\n"
+      html = "<p><code class=\"inline\">alpha   beta</code></p>\n"
       ast = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
     end
 
-    test "remove at start" do
+    test "preserves one-sided leading space" do
       markdown = "`  alpha beta`"
-      html = "<p><code class=\"inline\">alpha beta</code></p>\n"
+      html = "<p><code class=\"inline\">  alpha beta</code></p>\n"
       ast = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
     end
 
-    test "remove and squash" do
+    test "removes one space from both ends" do
       markdown = "`  alpha   beta `"
+      html = "<p><code class=\"inline\"> alpha   beta</code></p>\n"
+      ast = parse_html(html)
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
+
+    test "converts line endings to spaces" do
+      markdown = "`alpha\nbeta`"
       html = "<p><code class=\"inline\">alpha beta</code></p>\n"
       ast = parse_html(html)
       messages = []
@@ -116,10 +125,22 @@ defmodule Acceptance.Ast.InlineCodeTest do
       assert as_ast(markdown) == {:ok, ast, messages}
     end
 
-    test "remove and squash newlines too" do
-      markdown = "`\n  alpha  \n\n beta `"
-      html = "<p><code class=\"inline\">alpha beta</code></p>\n"
+    test "preserves one-sided trailing space" do
+      markdown = "`level = `"
+      html = "<p><code class=\"inline\">level = </code></p>\n"
       ast = parse_html(html)
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
+
+    test "preserves spaces-only content" do
+      markdown = "`  `"
+
+      ast = [
+        {"p", [], [{"code", [{"class", "inline"}], ["  "], %{line: 1}}], %{}}
+      ]
+
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}

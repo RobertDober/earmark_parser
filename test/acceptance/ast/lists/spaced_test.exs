@@ -13,7 +13,7 @@ defmodule Acceptance.Ast.Lists.SpacedPendingTest do
       ul(
         li([
           p("Item 1"),
-          p(["This is ", inline_code("pending", [], %{line: 3})])
+          p(["This is ", inline_code(" pending", [], %{line: 3})])
         ])
       )
     ]
@@ -33,7 +33,7 @@ defmodule Acceptance.Ast.Lists.SpacedPendingTest do
       ul(
         li([
           p("Item 1"),
-          p(["This is ", inline_code("pending", [], %{line: 3})])
+          p(["This is ", inline_code(" pending", [], %{line: 3})])
         ])
       )
     ]

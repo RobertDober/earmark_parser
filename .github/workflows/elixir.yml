@@ -17,7 +17,7 @@ jobs:
         include:
           - elixir: 1.15.x
             otp: 25
-            os: ubuntu-latest
+            os: ubuntu-24.04
             warnings_as_errors: true
           - elixir: 1.16.x
             otp: 26
@@ -29,7 +29,7 @@ jobs:
             warnings_as_errors: true
           - elixir: 1.18.0-otp-25
             otp: 25
-            os: ubuntu-latest
+            os: ubuntu-24.04
             warnings_as_errors: true
           - elixir: 1.18.0-otp-27
             otp: 27
