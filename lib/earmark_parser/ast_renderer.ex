@@ -55,8 +55,11 @@ defmodule EarmarkParser.AstRenderer do
   end
 
   defp render_block(%Block.HtmlComment{lines: lines}, context, _loose?) do
-    lines1 = lines |> Enum.map(&render_html_comment_line/1)
-    prepend(context, emit(:comment, lines1, [], %{comment: true}))
+    if context.options.comment_metadata do
+    else
+      lines1 = lines |> Enum.map(&render_html_comment_line/1)
+      prepend(context, emit(:comment, lines1, [], %{comment: true})  |> IO.inspect(label: "\nemit") )
+    end
   end
 
   #########
