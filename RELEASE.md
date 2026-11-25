@@ -5,6 +5,15 @@
 
 - [Parsing HTML]
 
+## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.47 %date
+
+- Metadata Comments
+
+- Removed the **unused and undefined** `renderer:` option from `Options`
+
+- [PR #175 Preserve code span whitespace](https://github.com/RobertDober/earmark_parser/pull/175)
+    Kudos to [Lukas Backström](https://github.com/garazdawi)
+
 ## [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.46 2026-07-17
 
 - Replacing \u0000 chars with \ufffd in output

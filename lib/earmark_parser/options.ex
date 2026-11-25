@@ -1,8 +1,7 @@
 defmodule EarmarkParser.Options do
   # What we use to render
-  defstruct renderer: EarmarkParser.HtmlRenderer,
-            # Inline style options
-            all: false,
+  # Inline style options
+  defstruct all: false,
             gfm: true,
             gfm_tables: false,
             breaks: false,
@@ -26,13 +25,16 @@ defmodule EarmarkParser.Options do
             sub_sup: false,
             math: false,
 
+            # Parse Metadata inside comments
+            comment_metadata: false,
+
             # deprecated
             pedantic: false,
             smartypants: false,
             timeout: nil
 
   @type t :: %__MODULE__{
-          renderer: module(),
+          # renderer: module(),
           all: boolean(),
           gfm: boolean(),
           gfm_tables: boolean(),
@@ -56,7 +58,7 @@ defmodule EarmarkParser.Options do
           pure_links: boolean(),
           sub_sup: boolean(),
           math: boolean(),
-
+          comment_metadata: boolean(),
           # deprecated
           pedantic: boolean(),
           smartypants: boolean(),
