@@ -17,11 +17,11 @@ defmodule EarmarkParser.Parser.MetadataParser do
   matches them when compiled to a `Regexp`
 
   ```elixir
-    expr ::= number | binary | atom | list | keyword_list
+    expr ::= number | string | atom | list | keyword_list
 
     number ::= [-+]? [[:digit:]]+ ('.' [[:digit:]]+)?
 
-    binary ::= '"' ('\"' | !'"')* '"'
+    string ::= '"' ('\"' | !'"')* '"'
 
     atom ::= ':' identifier        ; HINT: use :false, :nil and :true
     identifier ::= alpha' alnum'*

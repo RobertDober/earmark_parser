@@ -7,6 +7,14 @@ defmodule Support.MetadataTestCase do
       defp assert_parse(input, expected_ast) do
         assert parse(input) == {:ok, expected_ast}
       end
+
+      defp refute_parse(input) do
+        {:error, _} = parse(input)
+      end
+
+      defp refute_parse(input, expected_error) do
+        {:error, ^expected_error} = parse(input)
+      end
     end
   end
 end
